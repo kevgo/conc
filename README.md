@@ -24,5 +24,4 @@ conc 'app1 arg1 arg2' \
 
 ### Alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): doesn't seem to support returning a proper exit code
-
+- [gnu parallel](https://www.gnu.org/software/parallel): does pretty much exactly this, but somehow doesn't seem to support returning a proper exit code
