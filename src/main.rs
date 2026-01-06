@@ -15,22 +15,22 @@ fn main() {
     let (tx, rx) = mpsc::channel();
 
     for command in commands {
-        let tx = tx.clone();
+        let txc = tx.clone();
         thread::spawn(move || {
             let call_result = subshell::execute_command(command.clone());
-            let _ = tx.send(call_result);
+            let _ = txc.send(call_result);
         });
     }
 
-    // Drop the original sender so the receiver knows when all threads are done
+    // drop the original sender so the receiver knows when all threads are done
     drop(tx);
 
-    // Print results as they arrive and collect exit codes
+    // print results as they arrive and collect exit codes
     let mut exit_code = 0;
     for call_result in rx {
         match call_result {
             Ok(call_result) => {
-                cli::print::output(&call_result);
+                cli::print::result(&call_result);
                 if exit_code == 0 {
                     exit_code = call_result.exit_code();
                 }

@@ -2,7 +2,7 @@ use crate::errors::UserError;
 use crate::subshell::CallResult;
 use std::io::{self, Write};
 
-pub(crate) fn output(call_result: &CallResult) {
+pub(crate) fn result(call_result: &CallResult) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
