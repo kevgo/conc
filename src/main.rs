@@ -7,35 +7,48 @@ use std::sync::mpsc;
 use std::thread;
 
 fn main() {
-    let commands = cli::arguments::parse_commands(env::args().into_iter());
+    let commands = cli::arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
         eprintln!("No commands provided");
         std::process::exit(1);
     }
     let (tx, rx) = mpsc::channel();
-    let mut handles = Vec::with_capacity(commands.len());
+
     for command in commands {
-        handles.push(thread::spawn(move || {
-            let tx = tx.clone();
-            let output = subshell::execute_command(command);
-            let _ = tx.send(output);
-        }));
+        let tx = tx.clone();
+        thread::spawn(move || {
+            let output = subshell::execute_command(command.clone());
+            let _ = tx.send((command, output));
+        });
     }
 
     // Drop the original sender so the receiver knows when all threads are done
     drop(tx);
 
-    // Wait for all threads to complete
-    for handle in handles {
-        let _ = handle.join();
+    // Print results as they arrive and collect exit codes
+    let mut exit_code = 0;
+    for (command, result) in rx {
+        match result {
+            Ok(output) => {
+                cli::print::print_output(&command, &output);
+                if !output.status.success() {
+                    if let Some(code) = output.status.code() {
+                        if exit_code == 0 {
+                            exit_code = code;
+                        }
+                    }
+                }
+            }
+            Err(err) => {
+                eprintln!("Error executing command: {}", err);
+                if exit_code == 0 {
+                    exit_code = 1;
+                }
+            }
+        }
     }
 
-    for output in rx {
-        cli::print::print_success(output);
-    }
-
-    // Collect all exit codes and exit with the first non-zero code found
-    if let Some(error_code) = rx.iter().find(|&code| code != 0) {
-        std::process::exit(error_code);
+    if exit_code != 0 {
+        std::process::exit(exit_code);
     }
 }

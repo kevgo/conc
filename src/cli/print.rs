@@ -1,11 +1,32 @@
+use crate::cli::arguments::Call;
 use std::io::{self, Write};
 use std::process::Output;
 
-pub(crate) fn print_success(output: Output) {
-    if output.status.success() {
-        let mut stdout = io::stdout();
-        let _ = stdout.write_all(b"SUCCESS: ");
+pub(crate) fn print_output(command: &Call, output: &Output) {
+    let mut stdout = io::stdout();
+    let mut stderr = io::stderr();
+
+    // Print command name
+    let command_name = if command.arguments.is_empty() {
+        format!("[{}]\n", command.executable)
+    } else {
+        format!("[{} {}]\n", command.executable, command.arguments.join(" "))
+    };
+    let _ = stdout.write_all(command_name.as_bytes());
+
+    // Print stdout if not empty
+    if !output.stdout.is_empty() {
         let _ = stdout.write_all(&output.stdout);
-        let _ = stdout.write_all(b"\n");
+        if !output.stdout.ends_with(b"\n") {
+            let _ = stdout.write_all(b"\n");
+        }
+    }
+
+    // Print stderr if not empty
+    if !output.stderr.is_empty() {
+        let _ = stderr.write_all(&output.stderr);
+        if !output.stderr.ends_with(b"\n") {
+            let _ = stderr.write_all(b"\n");
+        }
     }
 }

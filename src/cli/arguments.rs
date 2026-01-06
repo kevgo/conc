@@ -1,7 +1,7 @@
 /// separates different commands in the CLI arguments
 const SEPARATOR: &str = "}{";
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) struct Call {
     pub(crate) executable: String,
     pub(crate) arguments: Vec<String>,
@@ -29,6 +29,13 @@ pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Call> {
                 current_arguments.push(arg);
             }
         }
+    }
+    // Push the final command if there is one
+    if let Some(executable) = current_executable {
+        result.push(Call {
+            executable,
+            arguments: current_arguments,
+        });
     }
     result
 }
