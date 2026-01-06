@@ -10,6 +10,7 @@ pub(crate) enum UserError {
         executable: String,
         error: io::Error,
     },
+    NoCommandsProvided,
 }
 
 impl std::fmt::Display for UserError {
@@ -17,6 +18,9 @@ impl std::fmt::Display for UserError {
         match self {
             UserError::CannotStartCommand { executable, error } => {
                 write!(f, "Cannot start command '{}': {}", executable, error)
+            }
+            UserError::NoCommandsProvided => {
+                write!(f, "No commands provided")
             }
         }
     }

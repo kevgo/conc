@@ -2,6 +2,7 @@ mod cli;
 mod errors;
 mod subshell;
 
+use errors::UserError;
 use std::env;
 use std::process::ExitCode;
 use std::sync::mpsc;
@@ -10,16 +11,16 @@ use std::thread;
 fn main() -> ExitCode {
     let commands = cli::arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
-        eprintln!("No commands provided");
+        cli::print::user_error(&UserError::NoCommandsProvided);
         std::process::exit(1);
     }
     let (tx, rx) = mpsc::channel();
 
+    // execute all commands concurrently
     for command in commands {
         let txc = tx.clone();
         thread::spawn(move || {
-            let call_result = subshell::execute_command(command.clone());
-            let _ = txc.send(call_result);
+            let _ = txc.send(subshell::execute_command(command.clone()));
         });
     }
 
