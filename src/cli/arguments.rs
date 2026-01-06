@@ -1,19 +1,7 @@
-use std::fmt::Display;
+use crate::subshell::Call;
 
 /// separates different commands in the CLI arguments
 const SEPARATOR: &str = "}{";
-
-#[derive(Debug, PartialEq, Clone)]
-pub(crate) struct Call {
-    pub(crate) executable: String,
-    pub(crate) arguments: Vec<String>,
-}
-
-impl Display for Call {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}", self.executable, self.arguments.join(" "))
-    }
-}
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Call> {

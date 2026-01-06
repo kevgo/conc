@@ -17,8 +17,8 @@ fn main() {
     for command in commands {
         let tx = tx.clone();
         thread::spawn(move || {
-            let output = subshell::execute_command(command.clone());
-            let _ = tx.send((command, output));
+            let call_result = subshell::execute_command(command.clone());
+            let _ = tx.send(call_result);
         });
     }
 
@@ -27,20 +27,16 @@ fn main() {
 
     // Print results as they arrive and collect exit codes
     let mut exit_code = 0;
-    for (command, result) in rx {
-        match result {
-            Ok(output) => {
-                cli::print::output(&command, &output);
-                if !output.status.success() {
-                    if let Some(code) = output.status.code() {
-                        if exit_code == 0 {
-                            exit_code = code;
-                        }
-                    }
+    for call_result in rx {
+        match call_result {
+            Ok(call_result) => {
+                cli::print::output(&call_result);
+                if exit_code == 0 {
+                    exit_code = call_result.exit_code();
                 }
             }
             Err(err) => {
-                cli::print::error(&command, &err);
+                cli::print::user_error(&err);
                 if exit_code == 0 {
                     exit_code = 1;
                 }
