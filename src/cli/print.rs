@@ -3,15 +3,15 @@ use crate::errors::UserError;
 use std::io::{self, Write};
 use std::process::Output;
 
-pub(crate) fn output(command: &Call, output: &Output) {
+pub(crate) fn output(call: &Call, output: &Output) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
     // Print command name
-    let command_name = if command.arguments.is_empty() {
-        format!("[{}]\n", command.executable)
+    let command_name = if call.arguments.is_empty() {
+        format!("[{}]\n", call.executable)
     } else {
-        format!("[{} {}]\n", command.executable, command.arguments.join(" "))
+        format!("[{} {}]\n", call.executable, call.arguments.join(" "))
     };
     let _ = stdout.write_all(command_name.as_bytes());
 
