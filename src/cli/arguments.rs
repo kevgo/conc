@@ -2,20 +2,20 @@
 const SEPARATOR: &str = "}{";
 
 #[derive(Debug, PartialEq)]
-struct Command {
-    executable: String,
-    arguments: Vec<String>,
+pub(crate) struct Call {
+    pub(crate) executable: String,
+    pub(crate) arguments: Vec<String>,
 }
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Command> {
+pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Call> {
     let mut result = vec![];
     let mut current_executable = None;
     let mut current_arguments = vec![];
     for arg in args {
         if arg == SEPARATOR {
             if let Some(executable) = current_executable {
-                result.push(Command {
+                result.push(Call {
                     executable,
                     arguments: current_arguments,
                 });
@@ -44,7 +44,7 @@ mod tests {
         fn single_command() {
             let give = vec![S("echo"), S("hello")].into_iter();
             let have = parse_commands(give);
-            let want = vec![Command {
+            let want = vec![Call {
                 executable: S("echo"),
                 arguments: vec![S("hello")],
             }];
@@ -65,15 +65,15 @@ mod tests {
             .into_iter();
             let have = parse_commands(give);
             let want = vec![
-                Command {
+                Call {
                     executable: S("echo"),
                     arguments: vec![S("hello")],
                 },
-                Command {
+                Call {
                     executable: S("ls"),
                     arguments: vec![S("-la")],
                 },
-                Command {
+                Call {
                     executable: S("pwd"),
                     arguments: vec![],
                 },
@@ -93,7 +93,7 @@ mod tests {
         fn trailing_separator() {
             let give = vec![S("echo"), S("hello"), S("}{")].into_iter();
             let have = parse_commands(give);
-            let want = vec![Command {
+            let want = vec![Call {
                 executable: S("echo"),
                 arguments: vec![S("hello")],
             }];
@@ -104,7 +104,7 @@ mod tests {
         fn leading_separator() {
             let give = vec![S("}{"), S("echo"), S("hello")].into_iter();
             let have = parse_commands(give);
-            let want = vec![Command {
+            let want = vec![Call {
                 executable: S("echo"),
                 arguments: vec![S("hello")],
             }];
@@ -116,11 +116,11 @@ mod tests {
             let give = vec![S("echo"), S("hello"), S("}{"), S("}{"), S("pwd")].into_iter();
             let have = parse_commands(give);
             let want = vec![
-                Command {
+                Call {
                     executable: S("echo"),
                     arguments: vec![S("hello")],
                 },
-                Command {
+                Call {
                     executable: S("pwd"),
                     arguments: vec![],
                 },

@@ -1,46 +1,53 @@
+use crate::cli::arguments::Call;
+use crate::errors::{Result, UserError};
+use std::process::{Command, Output};
+
+// It runs each command in a thread and captures the output.
+// When the command is done, it returns the output and exit code.
+
 /// Executes a single command with its arguments, streaming output to stdout/stderr.
-fn execute_command(cmd_args: Vec<String>) -> Result<i32, CommandError> {
-    let cmd_name = cmd_args.first().ok_or(CommandError::EmptyCommand)?.clone();
-
-    let mut child = Command::new(&cmd_args[0])
-        .args(&cmd_args[1..])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|err| CommandError::SpawnFailed(cmd_name.clone(), err))?;
-
-    let stdout = child.stdout.take();
-    let stderr = child.stderr.take();
-
-    let stdout_handle = stdout.map(|stdout| {
-        thread::spawn(move || {
-            let reader = BufReader::new(stdout);
-            for line in reader.lines().map_while(Result::ok) {
-                println!("{}", line);
-            }
+pub(crate) fn execute_command(call: Call) -> Result<Output> {
+    Command::new(&call.executable)
+        .args(&call.arguments)
+        .output()
+        .map_err(|error| UserError::CannotStartCommand {
+            executable: call.executable,
+            error,
         })
-    });
+}
 
-    let stderr_handle = stderr.map(|stderr| {
-        thread::spawn(move || {
-            let reader = BufReader::new(stderr);
-            for line in reader.lines().map_while(Result::ok) {
-                eprintln!("{}", line);
-            }
-        })
-    });
+#[cfg(test)]
+mod tests {
 
-    if let Some(handle) = stdout_handle {
-        let _ = handle.join();
-    }
-    if let Some(handle) = stderr_handle {
-        let _ = handle.join();
+    #[test]
+    fn test_execute_command_success() {
+        let cmd_args = strs(&["echo", "test"]);
+        let result = execute_command(cmd_args);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
     }
 
-    let status = child.wait().map_err(CommandError::WaitFailed)?;
-    let code = status.code().unwrap_or(1);
+    #[test]
+    fn test_execute_command_with_exit_code() {
+        let cmd_args = strs(&["sh", "-c", "exit 42"]);
+        let result = execute_command(cmd_args);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 42);
+    }
 
-    eprintln!("{}", cmd_name);
+    #[test]
+    fn test_execute_command_empty_args() {
+        let cmd_args: Vec<String> = Vec::new();
+        let result = execute_command(cmd_args);
+        assert!(result.is_err());
+        assert!(matches!(result, Err(CommandError::EmptyCommand)));
+    }
 
-    Ok(code)
+    #[test]
+    fn test_execute_command_nonexistent() {
+        let cmd_args = strs(&["nonexistent_command_xyz123"]);
+        let result = execute_command(cmd_args);
+        assert!(result.is_err());
+        assert!(matches!(result, Err(CommandError::SpawnFailed(_, _))));
+    }
 }
