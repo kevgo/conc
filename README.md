@@ -16,7 +16,7 @@ Alternatively: separate apps to run via `}{`
 
 ```
 conc app1 arg1a arg1b }{ \
-     app2 arg2a arg2b {} \
+     app2 arg2a arg2b }{ \
      app3 arg3a arg3b
 ```
 
