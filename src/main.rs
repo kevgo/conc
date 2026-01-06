@@ -40,5 +40,5 @@ fn main() -> ExitCode {
             }
         }
     }
-    ExitCode::from(exit_code as u8)
+    ExitCode::from(exit_code.min(255) as u8)
 }
