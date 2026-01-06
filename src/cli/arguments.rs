@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 /// separates different commands in the CLI arguments
 const SEPARATOR: &str = "}{";
 
@@ -5,6 +7,12 @@ const SEPARATOR: &str = "}{";
 pub(crate) struct Call {
     pub(crate) executable: String,
     pub(crate) arguments: Vec<String>,
+}
+
+impl Display for Call {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {}", self.executable, self.arguments.join(" "))
+    }
 }
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.

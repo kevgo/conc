@@ -30,7 +30,7 @@ fn main() {
     for (command, result) in rx {
         match result {
             Ok(output) => {
-                cli::print::print_output(&command, &output);
+                cli::print::output(&command, &output);
                 if !output.status.success() {
                     if let Some(code) = output.status.code() {
                         if exit_code == 0 {
@@ -40,14 +40,13 @@ fn main() {
                 }
             }
             Err(err) => {
-                eprintln!("Error executing command: {}", err);
+                cli::print::error(&command, &err);
                 if exit_code == 0 {
                     exit_code = 1;
                 }
             }
         }
     }
-
     if exit_code != 0 {
         std::process::exit(exit_code);
     }

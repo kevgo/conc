@@ -1,8 +1,9 @@
 use crate::cli::arguments::Call;
+use crate::errors::UserError;
 use std::io::{self, Write};
 use std::process::Output;
 
-pub(crate) fn print_output(command: &Call, output: &Output) {
+pub(crate) fn output(command: &Call, output: &Output) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
@@ -29,4 +30,10 @@ pub(crate) fn print_output(command: &Call, output: &Output) {
             let _ = stderr.write_all(b"\n");
         }
     }
+}
+
+pub(crate) fn error(command: &Call, error: &UserError) {
+    let mut stderr = io::stderr();
+    let _ =
+        stderr.write_all(format!("Error executing command '{command}': {}\n", error).as_bytes());
 }
