@@ -10,7 +10,6 @@ pub(crate) enum UserError {
         executable: String,
         error: io::Error,
     },
-    WaitFailed(io::Error),
 }
 
 impl std::fmt::Display for UserError {
@@ -19,7 +18,6 @@ impl std::fmt::Display for UserError {
             UserError::CannotStartCommand { executable, error } => {
                 write!(f, "Cannot start command '{}': {}", executable, error)
             }
-            UserError::WaitFailed(err) => write!(f, "Failed to wait for process: {}", err),
         }
     }
 }

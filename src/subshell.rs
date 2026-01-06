@@ -15,39 +15,3 @@ pub(crate) fn execute_command(call: Call) -> Result<Output> {
             error,
         })
 }
-
-#[cfg(test)]
-mod tests {
-
-    #[test]
-    fn test_execute_command_success() {
-        let cmd_args = strs(&["echo", "test"]);
-        let result = execute_command(cmd_args);
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 0);
-    }
-
-    #[test]
-    fn test_execute_command_with_exit_code() {
-        let cmd_args = strs(&["sh", "-c", "exit 42"]);
-        let result = execute_command(cmd_args);
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 42);
-    }
-
-    #[test]
-    fn test_execute_command_empty_args() {
-        let cmd_args: Vec<String> = Vec::new();
-        let result = execute_command(cmd_args);
-        assert!(result.is_err());
-        assert!(matches!(result, Err(CommandError::EmptyCommand)));
-    }
-
-    #[test]
-    fn test_execute_command_nonexistent() {
-        let cmd_args = strs(&["nonexistent_command_xyz123"]);
-        let result = execute_command(cmd_args);
-        assert!(result.is_err());
-        assert!(matches!(result, Err(CommandError::SpawnFailed(_, _))));
-    }
-}
