@@ -3,10 +3,11 @@ mod errors;
 mod subshell;
 
 use std::env;
+use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-fn main() {
+fn main() -> ExitCode {
     let commands = cli::arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
         eprintln!("No commands provided");
@@ -31,19 +32,13 @@ fn main() {
         match call_result {
             Ok(call_result) => {
                 cli::print::result(&call_result);
-                if exit_code == 0 {
-                    exit_code = call_result.exit_code();
-                }
+                exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
                 cli::print::user_error(&err);
-                if exit_code == 0 {
-                    exit_code = 1;
-                }
+                exit_code = exit_code.max(2);
             }
         }
     }
-    if exit_code != 0 {
-        std::process::exit(exit_code);
-    }
+    ExitCode::from(exit_code as u8)
 }
