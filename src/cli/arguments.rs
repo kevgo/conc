@@ -18,31 +18,30 @@ impl Display for Call {
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Call> {
     let mut result = vec![];
-    let mut current_executable = None;
-    let mut current_arguments = vec![];
+    let mut executable = None;
+    let mut arguments = vec![];
     for arg in args {
         if arg == SEPARATOR {
-            if let Some(executable) = current_executable {
+            if let Some(executable) = executable {
                 result.push(Call {
                     executable,
-                    arguments: current_arguments,
+                    arguments,
                 });
             }
-            current_executable = None;
-            current_arguments = vec![];
+            executable = None;
+            arguments = vec![];
         } else {
-            if current_executable.is_none() {
-                current_executable = Some(arg);
+            if executable.is_none() {
+                executable = Some(arg);
             } else {
-                current_arguments.push(arg);
+                arguments.push(arg);
             }
         }
     }
-    // Push the final command if there is one
-    if let Some(executable) = current_executable {
+    if let Some(executable) = executable {
         result.push(Call {
             executable,
-            arguments: current_arguments,
+            arguments,
         });
     }
     result
