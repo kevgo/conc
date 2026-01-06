@@ -7,9 +7,17 @@ This is helpful for executing multiple tools concurrently in development scripts
 ### Usage
 
 ```
-conc 'app1 arg1 arg2' \
-     'app2 arg1 arg2' \
-     'app3 arg1 arg2'
+conc 'app1 arg1a arg1b' \
+     'app2 arg2a arg2b' \
+     'app3 arg3a arg3b'
+```
+
+Alternatively: separate apps to run via `}{`
+
+```
+conc app1 arg1a arg1b }{ \
+     app2 arg2a arg2b {} \
+     app3 arg3a arg3b
 ```
 
 ### Alternatives
