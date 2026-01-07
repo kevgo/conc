@@ -11,14 +11,11 @@ pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> (Config, Vec
     let mut arguments = vec![];
     let mut show = Show::All;
     for arg in args {
-        if arg == "--show" {
-            show = Show::All;
-        } else if arg == "--show=all" {
+        if arg == "--show=all" || arg == "--show" {
             show = Show::All;
         } else if arg == "--show=failed" {
             show = Show::Failed;
-        }
-        if arg == SEPARATOR {
+        } else if arg == SEPARATOR {
             if let Some(executable) = executable {
                 result.push(Call {
                     executable,

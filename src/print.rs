@@ -22,16 +22,16 @@ pub(crate) fn result(call_result: &CallResult, show: &Show) {
         return;
     }
 
-    if !call_result.output.stdout.is_empty() {
-        let _ = stdout.write_all(&call_result.output.stdout);
-        if !call_result.output.stdout.ends_with(b"\n") {
-            let _ = stdout.write_all(b"\n");
-        }
-    }
-    if !call_result.output.stderr.is_empty() {
-        let _ = stderr.write_all(&call_result.output.stderr);
-        if !call_result.output.stderr.ends_with(b"\n") {
-            let _ = stderr.write_all(b"\n");
+    write_output(&mut stdout, &call_result.output.stdout);
+    write_output(&mut stderr, &call_result.output.stderr);
+}
+
+/// Writes output to a writer, ensuring it ends with a newline
+fn write_output(writer: &mut dyn Write, output: &[u8]) {
+    if !output.is_empty() {
+        let _ = writer.write_all(output);
+        if !output.ends_with(b"\n") {
+            let _ = writer.write_all(b"\n");
         }
     }
 }
