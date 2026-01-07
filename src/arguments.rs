@@ -9,7 +9,7 @@ const SEPARATOR: &str = "}{";
 pub(crate) fn parse_commands(
     args: impl Iterator<Item = String>,
 ) -> Result<(Config, Vec<Call>), UserError> {
-    let mut result = vec![];
+    let mut calls = vec![];
     let mut executable = None;
     let mut arguments = vec![];
     let mut show = Show::All;
@@ -32,7 +32,7 @@ pub(crate) fn parse_commands(
         };
         if arg == SEPARATOR {
             if let Some(executable) = executable {
-                result.push(Call {
+                calls.push(Call {
                     executable,
                     arguments,
                 });
@@ -46,12 +46,12 @@ pub(crate) fn parse_commands(
         }
     }
     if let Some(executable) = executable {
-        result.push(Call {
+        calls.push(Call {
             executable,
             arguments,
         });
     }
-    Ok((Config { show }, result))
+    Ok((Config { show }, calls))
 }
 
 #[cfg(test)]
