@@ -22,7 +22,7 @@ impl Call {
         command
     }
 
-    /// Executes a single command with its arguments, streaming output to stdout/stderr.
+    /// Executes this call in a shell
     pub(crate) fn run(self) -> Result<CallResult, UserError> {
         let mut command = self.command();
         let output = command.output().map_err(|err| UserError::CannotRunCall {
