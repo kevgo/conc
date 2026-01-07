@@ -37,7 +37,7 @@ pub(crate) fn result(call_result: &CallResult) {
 }
 
 /// prints the given user error to stderr
-pub(crate) fn user_error(error: &UserError) {
+pub(crate) fn error(error: &UserError) {
     let mut stderr = io::stderr();
     let _ = stderr.write_all(error.to_string().as_bytes());
 }

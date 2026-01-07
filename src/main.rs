@@ -12,7 +12,7 @@ use std::thread;
 fn main() -> ExitCode {
     let commands = arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
-        print::user_error(&UserError::NoCommandsProvided);
+        print::error(&UserError::NoCommandsProvided);
         return ExitCode::FAILURE;
     }
     let (tx, rx) = mpsc::channel();
@@ -37,7 +37,7 @@ fn main() -> ExitCode {
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
-                print::user_error(&err);
+                print::error(&err);
                 exit_code = exit_code.max(1);
             }
         }
