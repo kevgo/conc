@@ -6,7 +6,7 @@ mod subshell;
 
 use colored::Colorize;
 use commands::Command;
-use errors::UserError;
+use errors::Result;
 use std::env;
 use std::process::ExitCode;
 
@@ -20,7 +20,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn inner() -> Result<ExitCode, UserError> {
+fn inner() -> Result<ExitCode> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run { calls, show } => cmd::run(calls, show),
