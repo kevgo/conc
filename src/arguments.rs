@@ -1,13 +1,11 @@
+use crate::commands::Command;
 use crate::config::{Config, Show};
 use crate::errors::UserError;
-use crate::subshell::Call;
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>), UserError> {
+pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, UserError> {
     let mut calls = vec![];
-    let mut help = false;
-    let mut show = Show::All;
-    let mut version = false;
+    let mut config = Config { show: Show::All };
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
         if arg == "--" {
@@ -19,30 +17,25 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>
         }
         if parse_flags && arg.starts_with('-') {
             match arg.as_ref() {
-                "--help" | "-h" => help = true,
-                "--show=all" | "--show" => show = Show::All,
-                "--show=failed" => show = Show::Failed,
-                "--version" | "-V" => version = true,
+                "--help" | "-h" => return Ok(Command::Help),
+                "--show=all" | "--show" => config.show = Show::All,
+                "--show=failed" => config.show = Show::Failed,
+                "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(UserError::UnknownFlag(arg)),
             }
             continue;
         }
         calls.push(arg.into());
     }
-    Ok((
-        Config {
-            help,
-            show,
-            version,
-        },
-        calls,
-    ))
+    Ok(Command::Run { config, calls })
 }
 
 #[cfg(test)]
 mod tests {
 
     mod parse_commands {
+        use crate::subshell::Call;
+
         use super::super::*;
         use big_s::S;
 
@@ -50,14 +43,10 @@ mod tests {
         fn single_command() {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![Call::from("echo hello world")],
-            );
+            let want = Command::Run {
+                config: Config { show: Show::All },
+                calls: vec![Call::from("echo hello world")],
+            };
             assert_eq!(have, want);
         }
 
@@ -65,18 +54,14 @@ mod tests {
         fn multiple_commands() {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![
+            let want = Command::Run {
+                config: Config { show: Show::All },
+                calls: vec![
                     Call::from("echo hello"),
                     Call::from("ls -la"),
                     Call::from("pwd"),
                 ],
-            );
+            };
             assert_eq!(have, want);
         }
 
@@ -84,14 +69,10 @@ mod tests {
         fn empty() {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![],
-            );
+            let want = Command::Run {
+                config: Config { show: Show::All },
+                calls: vec![],
+            };
             assert_eq!(have, want);
         }
 
@@ -99,14 +80,10 @@ mod tests {
         fn show_failed() {
             let give = vec![S("--show=failed"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::Failed,
-                    version: false,
-                },
-                vec![Call::from("echo hello")],
-            );
+            let want = Command::Run {
+                config: Config { show: Show::Failed },
+                calls: vec![Call::from("echo hello")],
+            };
             assert_eq!(have, want);
         }
 
@@ -114,14 +91,10 @@ mod tests {
         fn show_all() {
             let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![Call::from("echo hello")],
-            );
+            let want = Command::Run {
+                config: Config { show: Show::All },
+                calls: vec![Call::from("echo hello")],
+            };
             assert_eq!(have, want);
         }
 
@@ -137,29 +110,10 @@ mod tests {
         fn manually_end_flags_section() {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![Call::from("echo hello")],
-            );
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn help_short() {
-            let give = vec![S("-h")].into_iter();
-            let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: true,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![],
-            );
+            let want = Command::Run {
+                config: Config { show: Show::All },
+                calls: vec![Call::from("echo hello")],
+            };
             assert_eq!(have, want);
         }
 
@@ -167,14 +121,15 @@ mod tests {
         fn help_long() {
             let give = vec![S("--help")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: true,
-                    show: Show::All,
-                    version: false,
-                },
-                vec![],
-            );
+            let want = Command::Help;
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn help_short() {
+            let give = vec![S("-h")].into_iter();
+            let have = parse(give).unwrap();
+            let want = Command::Help;
             assert_eq!(have, want);
         }
 
@@ -182,29 +137,15 @@ mod tests {
         fn version_short() {
             let give = vec![S("-V")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: true,
-                },
-                vec![],
-            );
+            let want = Command::Version;
             assert_eq!(have, want);
         }
 
         #[test]
-        fn version_long() {
+        fn version() {
             let give = vec![S("--version")].into_iter();
             let have = parse(give).unwrap();
-            let want = (
-                Config {
-                    help: false,
-                    show: Show::All,
-                    version: true,
-                },
-                vec![],
-            );
+            let want = Command::Version;
             assert_eq!(have, want);
         }
     }
