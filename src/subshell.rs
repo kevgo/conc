@@ -21,6 +21,16 @@ impl Call {
         command.arg("/C").arg(&self.0);
         command
     }
+
+    /// Executes a single command with its arguments, streaming output to stdout/stderr.
+    pub(crate) fn run(self) -> Result<CallResult, UserError> {
+        let mut command = self.command();
+        let output = command.output().map_err(|err| UserError::CannotRunCall {
+            call: self.clone(),
+            error: err.to_string(),
+        })?;
+        Ok(CallResult { call: self, output })
+    }
 }
 
 impl std::fmt::Display for Call {
@@ -55,16 +65,4 @@ impl CallResult {
             self.output.status.code().unwrap_or(1)
         }
     }
-}
-
-/// Executes a single command with its arguments, streaming output to stdout/stderr.
-pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
-    let mut command = call.command();
-    let output = command
-        .output()
-        .map_err(|err| UserError::CannotStartCommand {
-            call: call.clone(),
-            error: err.to_string(),
-        })?;
-    Ok(CallResult { call, output })
 }
