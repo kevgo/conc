@@ -19,9 +19,9 @@ conc "echo one" "echo two" "echo three"
 
 This call executes these three commands concurrently:
 
-- "echo one"
-- "echo two"
-- "echo three"
+- `echo one`
+- `echo two`
+- `echo three`
 
 You can also write this on multiple lines:
 
