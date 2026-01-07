@@ -24,7 +24,7 @@ fn main() -> ExitCode {
 fn inner() -> Result<ExitCode, UserError> {
     Ok(match arguments::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
-        Command::Run { config, calls } => cmd::run(calls, config),
+        Command::Run { config, calls } => cmd::run(calls, &config),
         Command::Version => cmd::version(),
     })
 }

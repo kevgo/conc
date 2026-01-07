@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, config: Config) -> ExitCode {
+pub fn run(calls: Vec<Call>, config: &Config) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
