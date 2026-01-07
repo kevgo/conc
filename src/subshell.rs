@@ -1,4 +1,5 @@
 use crate::errors::UserError;
+use std::fmt::Display;
 use std::process::Command;
 
 /// Call represents a command to execute.
@@ -33,7 +34,7 @@ impl Call {
     }
 }
 
-impl std::fmt::Display for Call {
+impl Display for Call {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0)
     }
