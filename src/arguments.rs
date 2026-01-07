@@ -1,21 +1,34 @@
 use crate::config::{Config, Show};
+use crate::errors::UserError;
 use crate::subshell::Call;
 
 /// separates different commands in the CLI arguments
 const SEPARATOR: &str = "}{";
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> (Config, Vec<Call>) {
+pub(crate) fn parse_commands(
+    args: impl Iterator<Item = String>,
+) -> Result<(Config, Vec<Call>), UserError> {
     let mut result = vec![];
     let mut executable = None;
     let mut arguments = vec![];
     let mut show = Show::All;
+    let mut found_executable = false;
     for arg in args {
-        if arg == "--show=all" || arg == "--show" {
-            show = Show::All;
-        } else if arg == "--show=failed" {
-            show = Show::Failed;
-        } else if arg == SEPARATOR {
+        if !arg.starts_with("--") {
+            found_executable = true;
+        }
+        if !found_executable && arg.starts_with("--") {
+            if arg == "--show=all" || arg == "--show" {
+                show = Show::All;
+                continue;
+            } else if arg == "--show=failed" {
+                show = Show::Failed;
+                continue;
+            }
+            return Err(UserError::UnknownFlag(arg));
+        }
+        if arg == SEPARATOR {
             if let Some(executable) = executable {
                 result.push(Call {
                     executable,
@@ -36,7 +49,7 @@ pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> (Config, Vec
             arguments,
         });
     }
-    (Config { show }, result)
+    Ok((Config { show }, result))
 }
 
 #[cfg(test)]
@@ -50,7 +63,7 @@ mod tests {
         #[test]
         fn single_command() {
             let give = vec![S("echo"), S("hello"), S("world")].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![Call {
@@ -73,7 +86,7 @@ mod tests {
                 S("pwd"),
             ]
             .into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![
@@ -97,7 +110,7 @@ mod tests {
         #[test]
         fn empty() {
             let give = vec![].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (Config { show: Show::All }, vec![]);
             assert_eq!(have, want);
         }
@@ -105,7 +118,7 @@ mod tests {
         #[test]
         fn outside_separators() {
             let give = vec![S("}{"), S("echo"), S("hello"), S("}{")].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![Call {
@@ -119,7 +132,7 @@ mod tests {
         #[test]
         fn consecutive_separators() {
             let give = vec![S("echo"), S("hello"), S("}{"), S("}{"), S("}{"), S("pwd")].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![
@@ -139,7 +152,7 @@ mod tests {
         #[test]
         fn show_failed() {
             let give = vec![S("--show=failed"), S("echo"), S("hello")].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::Failed },
                 vec![Call {
@@ -153,7 +166,7 @@ mod tests {
         #[test]
         fn show_all() {
             let give = vec![S("--show=all"), S("echo"), S("hello")].into_iter();
-            let have = parse_commands(give);
+            let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![Call {

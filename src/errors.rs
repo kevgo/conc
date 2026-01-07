@@ -6,6 +6,7 @@ use std::io;
 pub(crate) enum UserError {
     CannotStartCommand { call: Call, error: io::Error },
     NoCommandsProvided,
+    UnknownFlag(String),
 }
 
 impl std::fmt::Display for UserError {
@@ -16,6 +17,9 @@ impl std::fmt::Display for UserError {
             }
             UserError::NoCommandsProvided => {
                 write!(f, "No commands provided")
+            }
+            UserError::UnknownFlag(flag) => {
+                write!(f, "Unknown flag: {flag}")
             }
         }
     }
