@@ -176,5 +176,13 @@ mod tests {
             );
             assert_eq!(have, want);
         }
+
+        #[test]
+        fn unknown_flag() {
+            let give = vec![S("--zonk"), S("echo"), S("hello")].into_iter();
+            let have = parse_commands(give);
+            let want = Err(UserError::UnknownFlag(S("--zonk")));
+            assert_eq!(have, want);
+        }
     }
 }
