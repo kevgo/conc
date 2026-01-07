@@ -21,7 +21,7 @@ fn main() -> ExitCode {
     for command in commands {
         let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = send_clone.send(subshell::execute_command(command.clone()));
+            let _ = send_clone.send(subshell::execute_command(command));
         });
     }
 
