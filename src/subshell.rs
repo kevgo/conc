@@ -1,4 +1,4 @@
-use crate::errors::{Result, UserError};
+use crate::errors::UserError;
 use std::fmt::Display;
 use std::process::Command;
 
@@ -32,7 +32,7 @@ impl CallResult {
 }
 
 /// Executes a single command with its arguments, streaming output to stdout/stderr.
-pub(crate) fn execute_command(call: Call) -> Result<CallResult> {
+pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
     let output = Command::new(&call.executable)
         .args(&call.arguments)
         .output()
