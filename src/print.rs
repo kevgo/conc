@@ -55,7 +55,7 @@ Flags:
   --show=failed   Show only output of failed commands
   --version, -V   Show version
 "#;
-    let _ = stdout.write_all(output.as_bytes());
+    let _ = stdout.write_all(output[1..].as_bytes());
 }
 
 pub fn version() {
