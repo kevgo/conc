@@ -15,10 +15,10 @@ pub(crate) fn result(call_result: &CallResult, show: &Show) {
         if show.display_success() {
             command = command.bold().to_string();
         }
-        let _ = write!(stdout, "{command}\n");
+        let _ = writeln!(stdout, "{command}");
     } else {
         let command = call_result.call.to_string().bold().red();
-        let _ = write!(stdout, "{command}\n");
+        let _ = writeln!(stdout, "{command}");
     }
 
     if call_result.output.status.success() && !show.display_success() {
