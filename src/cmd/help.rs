@@ -1,10 +1,6 @@
-use crate::errors::UserError;
-use std::io::{self, Write};
 use std::process::ExitCode;
 
-pub fn help() -> Result<ExitCode, UserError> {
-    let mut stdout = io::stdout();
-    let output = r"
+const HELP: &str = r"
 Conc runs commands concurrently and returns the first non-zero exit code it encounters.
 
 Usage: conc [flags] [commands...]
@@ -14,6 +10,8 @@ Flags:
   --show=[all|failed]  display the output of all or only the failed commands
   --version, -V        display version
 ";
-    let _ = stdout.write_all(&output.as_bytes()[1..]);
-    Ok(ExitCode::SUCCESS)
+
+pub fn help() -> ExitCode {
+    println!("{}", &HELP[1..]);
+    ExitCode::SUCCESS
 }

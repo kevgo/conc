@@ -22,10 +22,9 @@ fn main() -> ExitCode {
 }
 
 fn inner() -> Result<ExitCode, UserError> {
-    let command = arguments::parse(env::args().skip(1))?;
-    match command {
+    Ok(match arguments::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run { config, calls } => cmd::run(calls, config),
         Command::Version => cmd::version(),
-    }
+    })
 }

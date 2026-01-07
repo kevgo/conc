@@ -1,5 +1,4 @@
 use crate::config::{Config, Show};
-use crate::errors::UserError;
 use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
@@ -7,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, config: Config) -> Result<ExitCode, UserError> {
+pub fn run(calls: Vec<Call>, config: Config) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
@@ -37,7 +36,7 @@ pub fn run(calls: Vec<Call>, config: Config) -> Result<ExitCode, UserError> {
     }
     #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
     #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
-    Ok(ExitCode::from(exit_code.min(255) as u8))
+    ExitCode::from(exit_code.min(255) as u8)
 }
 
 /// prints the result of a single command execution to stdout and stderr
