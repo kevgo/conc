@@ -1,7 +1,7 @@
 # conc
 
-_Conc_ runs multiple CLI commands concurrently. If any command exits with a
-non-zero status, conc returns that exit code.
+_Conc_ runs multiple CLI commands concurrently and returns the first non-zero
+exit code it encounters.
 
 This is useful for development scripts, CI jobs, or Makefiles where you want to
 run several tools in parallel and still keep track of test failures.
