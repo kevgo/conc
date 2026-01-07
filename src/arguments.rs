@@ -16,14 +16,12 @@ pub(crate) fn parse(args: impl Iterator<Item = String>) -> Result<(Config, Vec<C
             parse_flags = false;
         }
         if parse_flags && arg.starts_with("-") {
-            if arg == "--show=all" || arg == "--show" {
-                show = Show::All;
-                continue;
-            } else if arg == "--show=failed" {
-                show = Show::Failed;
-                continue;
+            match arg.as_ref() {
+                "--show=all" | "--show" => show = Show::All,
+                "--show=failed" => show = Show::Failed,
+                _ => return Err(UserError::UnknownFlag(arg)),
             }
-            return Err(UserError::UnknownFlag(arg));
+            continue;
         }
         calls.push(arg.into());
     }
