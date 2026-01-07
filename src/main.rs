@@ -24,8 +24,8 @@ fn main() -> ExitCode {
 fn inner() -> Result<ExitCode, UserError> {
     let command = arguments::parse(env::args().skip(1))?;
     match command {
-        Command::Help => cmd::help::help(),
-        Command::Run { config, calls } => cmd::run::run(calls, config),
-        Command::Version => cmd::version::version(),
+        Command::Help => cmd::help(),
+        Command::Run { config, calls } => cmd::run(calls, config),
+        Command::Version => cmd::version(),
     }
 }
