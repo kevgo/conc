@@ -5,6 +5,7 @@ use crate::subshell::Call;
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>), UserError> {
     let mut calls = vec![];
+    let mut help = false;
     let mut show = Show::All;
     let mut version = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
@@ -18,6 +19,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>
         }
         if parse_flags && arg.starts_with('-') {
             match arg.as_ref() {
+                "--help" | "-h" => help = true,
                 "--show=all" | "--show" => show = Show::All,
                 "--show=failed" => show = Show::Failed,
                 "--version" | "-V" => version = true,
@@ -27,7 +29,14 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>
         }
         calls.push(arg.into());
     }
-    Ok((Config { show, version }, calls))
+    Ok((
+        Config {
+            help,
+            show,
+            version,
+        },
+        calls,
+    ))
 }
 
 #[cfg(test)]
@@ -43,6 +52,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: false,
                 },
@@ -57,6 +67,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: false,
                 },
@@ -75,6 +86,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: false,
                 },
@@ -89,6 +101,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::Failed,
                     version: false,
                 },
@@ -103,6 +116,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: false,
                 },
@@ -125,10 +139,41 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: false,
                 },
                 vec![Call::from("echo hello")],
+            );
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn help_short() {
+            let give = vec![S("-h")].into_iter();
+            let have = parse(give).unwrap();
+            let want = (
+                Config {
+                    help: true,
+                    show: Show::All,
+                    version: false,
+                },
+                vec![],
+            );
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn help_long() {
+            let give = vec![S("--help")].into_iter();
+            let have = parse(give).unwrap();
+            let want = (
+                Config {
+                    help: true,
+                    show: Show::All,
+                    version: false,
+                },
+                vec![],
             );
             assert_eq!(have, want);
         }
@@ -139,6 +184,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: true,
                 },
@@ -153,6 +199,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = (
                 Config {
+                    help: false,
                     show: Show::All,
                     version: true,
                 },
