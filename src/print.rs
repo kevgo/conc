@@ -8,16 +8,7 @@ pub(crate) fn result(call_result: &CallResult) {
     let mut stderr = io::stderr();
 
     // Print command name
-    let command_name = if call_result.call.arguments.is_empty() {
-        format!("[{}]\n", call_result.call.executable)
-    } else {
-        format!(
-            "[{} {}]\n",
-            call_result.call.executable,
-            call_result.call.arguments.join(" ")
-        )
-    };
-    let _ = stdout.write_all(command_name.as_bytes());
+    let _ = stdout.write_all(format!("[{}]\n", call_result.call).as_bytes());
 
     // print stdout if not empty
     if !call_result.output.stdout.is_empty() {
