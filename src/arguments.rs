@@ -12,10 +12,10 @@ pub(crate) fn parse(args: impl Iterator<Item = String>) -> Result<(Config, Vec<C
             parse_flags = false;
             continue;
         }
-        if !arg.starts_with("-") {
+        if !arg.starts_with('-') {
             parse_flags = false;
         }
-        if parse_flags && arg.starts_with("-") {
+        if parse_flags && arg.starts_with('-') {
             match arg.as_ref() {
                 "--show=all" | "--show" => show = Show::All,
                 "--show=failed" => show = Show::Failed,

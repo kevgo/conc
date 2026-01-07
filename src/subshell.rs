@@ -52,7 +52,7 @@ impl From<&str> for Call {
     }
 }
 
-/// CallResult represents the result of a single command execution.
+/// `CallResult` represents the result of a single command execution.
 pub(crate) struct CallResult {
     pub call: Call,
     pub output: std::process::Output,
