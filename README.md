@@ -14,21 +14,21 @@ run several tools in parallel and still keep track of test failures.
 Separate commands with `}{`:
 
 ```
-conc echo one }{ echo two }{ echo three
+conc "echo one" "echo two" "echo three"
 ```
 
 This call executes these three commands concurrently:
 
-- `echo one`
-- `echo two`
-- `echo three`
+- "echo one"
+- "echo two"
+- "echo three"
 
 You can also write this on multiple lines:
 
 ```
-conc echo one }{ \
-     echo two }{ \
-     echo three
+conc "echo one" \
+     "echo two" \
+     "echo three"
 ```
 
 ### customize the output
@@ -43,9 +43,7 @@ you control how much output _conc_ emits:
 Flags for conc must appear before any commands to execute:
 
 ```bash
-conc --show=failed \
-     app1 arg1a arg1b }{ \
-     app2 arg2a arg2b
+conc --show=failed "echo one" "echo two"
 ```
 
 ## alternatives
