@@ -1,5 +1,6 @@
 use crate::errors::UserError;
 use crate::subshell::CallResult;
+use colored::Colorize;
 use std::io::{self, Write};
 
 /// prints the result of a single command execution to stdout and stderr
@@ -8,7 +9,13 @@ pub(crate) fn result(call_result: &CallResult) {
     let mut stderr = io::stderr();
 
     // print command name
-    let _ = stdout.write_all(format!("[{}]\n", call_result.call).as_bytes());
+    if call_result.output.status.success() {
+        let command = call_result.call.to_string().bold();
+        let _ = stdout.write_all(format!("{}\n", command).as_bytes());
+    } else {
+        let command = call_result.call.to_string().bold().red();
+        let _ = stdout.write_all(format!("{}\n", command).as_bytes());
+    }
 
     // print stdout if not empty
     if !call_result.output.stdout.is_empty() {
