@@ -27,14 +27,14 @@ This call executes:
 
 ### customize the output
 
-When running linters or compilers, you are often only interested in knowing
-whether everything succeeded, and only want to know specifics about things that
-failed. The `--show` flag allows customizing the output this way:
+When running linters, tests, or compilers, you're often only interested in the
+overall success signal and the details of what failed. The `--show` flag lets
+you control how much output _conc_ emits:
 
-- `--show=all` (default) displays all output, once the respective task finishes
-- `--show=failed` displays only the output of tasks that failed
+- `--show=all` (default) prints the output of every task once it finishes
+- `--show=failed` prints output only for tasks that exit with a non-zero status
 
-Flags for _conc_ must come before any commands to execute:
+Flags for conc must appear before any commands to execute:
 
 ```bash
 conc --show=failed \
