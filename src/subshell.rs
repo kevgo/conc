@@ -74,7 +74,7 @@ fn to_exitcode_u8(value: i32) -> u8 {
     }
     #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
     #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
-    u8::try_from(value.min(255).abs()).unwrap_or(255)
+    u8::try_from(value.abs().min(255)).unwrap_or(255)
 }
 
 #[cfg(test)]
