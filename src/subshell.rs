@@ -5,8 +5,8 @@ use std::process::{Command, Output};
 /// Call represents a single command to execute.
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) struct Call {
-    pub(crate) executable: String,
-    pub(crate) arguments: Vec<String>,
+    pub executable: String,
+    pub arguments: Vec<String>,
 }
 
 impl Display for Call {
@@ -17,8 +17,8 @@ impl Display for Call {
 
 /// CallResult represents the result of a single command execution.
 pub(crate) struct CallResult {
-    pub(crate) call: Call,
-    pub(crate) output: Output,
+    pub call: Call,
+    pub output: Output,
 }
 
 impl CallResult {
