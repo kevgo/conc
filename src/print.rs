@@ -47,13 +47,15 @@ pub fn error(error: &UserError) {
 pub fn help() {
     let mut stdout = io::stdout();
     let output = r#"
+Conc runs commands concurrently and returns the first non-zero exit code it encounters.
+
 Usage: conc [flags] [commands...]
 
 Flags:
-  --help, -h      Show help
-  --show=all      Show output of all commands
-  --show=failed   Show only output of failed commands
-  --version, -V   Show version
+  --help, -h      this help text
+  --show=all      display output of all commands
+  --show=failed   display output of only failed commands
+  --version, -V   display version
 "#;
     let _ = stdout.write_all(output[1..].as_bytes());
 }
