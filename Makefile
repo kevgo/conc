@@ -9,6 +9,9 @@ fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
+install:  # installs this tool on the local machine
+	cargo install --locked --path .
+
 lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy --all-targets --all-features -- --deny=warnings
 	git diff --check
