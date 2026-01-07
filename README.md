@@ -23,11 +23,11 @@ This call executes these three commands concurrently:
 - `echo two`
 - `echo three`
 
-Possible formatting for longer calls:
+Alternative formatting for longer calls:
 
 ```
-conc echo one }{\
-     echo two }{\
+conc echo one }{ \
+     echo two }{ \
      echo three
 ```
 
