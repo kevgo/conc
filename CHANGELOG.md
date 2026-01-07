@@ -2,5 +2,6 @@
 
 ## 0.1
 
-- runs apps given via strings concurrently
+- runs given apps concurrently
+- runs apps inside a shell
 - `--show=failed` flag to only show the output of failed commands
