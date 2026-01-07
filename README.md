@@ -14,28 +14,22 @@ run several tools in parallel and still keep track of test failures.
 Separate commands with `}{`:
 
 ```
-conc echo hello }{ echo world }{ echo !
+conc echo one }{ echo two }{ echo three
 ```
 
 This call executes these three commands concurrently:
 
-- `echo hello`
-- `echo world`
-- `echo !`
+- `echo one`
+- `echo two`
+- `echo three`
 
 Possible formatting for longer calls:
 
 ```
-conc app1 arg1a arg1b }{\
-     app2 arg2a arg2b }{\
-     app3 arg3a arg3b
+conc echo one }{\
+     echo two }{\
+     echo three
 ```
-
-This call executes these three commands concurrently:
-
-- `app1 arg1a arg1b`
-- `app2 arg2a arg2b`
-- `app3 arg3a arg3b`
 
 ### customize the output
 
