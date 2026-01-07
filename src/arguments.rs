@@ -4,7 +4,7 @@ use crate::subshell::Call;
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub(crate) fn parse(args: impl Iterator<Item = String>) -> Result<(Config, Vec<Call>), UserError> {
-    let mut commands = vec![];
+    let mut calls = vec![];
     let mut show = Show::All;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
@@ -25,9 +25,9 @@ pub(crate) fn parse(args: impl Iterator<Item = String>) -> Result<(Config, Vec<C
             }
             return Err(UserError::UnknownFlag(arg));
         }
-        commands.push(Call::from(arg));
+        calls.push(arg.into());
     }
-    Ok((Config { show }, commands))
+    Ok((Config { show }, calls))
 }
 
 #[cfg(test)]
