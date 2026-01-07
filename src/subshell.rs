@@ -42,6 +42,9 @@ pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
         .output();
     match output {
         Ok(output) => Ok(CallResult { call, output }),
-        Err(error) => Err(UserError::CannotStartCommand { call, error }),
+        Err(error) => Err(UserError::CannotStartCommand {
+            call,
+            error: error.to_string(),
+        }),
     }
 }

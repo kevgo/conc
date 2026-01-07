@@ -1,11 +1,11 @@
 use crate::subshell::Call;
-use std::io;
 
 /// errors that should be printed to the user to help them use this app correctly
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub(crate) enum UserError {
-    CannotStartCommand { call: Call, error: io::Error },
+    CannotStartCommand { call: Call, error: String },
     NoCommandsProvided,
+    UnknownFlag(String),
 }
 
 impl std::fmt::Display for UserError {
@@ -16,6 +16,9 @@ impl std::fmt::Display for UserError {
             }
             UserError::NoCommandsProvided => {
                 write!(f, "No commands provided")
+            }
+            UserError::UnknownFlag(flag) => {
+                write!(f, "Unknown flag: {flag}")
             }
         }
     }

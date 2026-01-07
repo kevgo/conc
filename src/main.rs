@@ -1,4 +1,5 @@
 mod arguments;
+mod config;
 mod errors;
 mod print;
 mod subshell;
@@ -10,10 +11,19 @@ use std::sync::mpsc;
 use std::thread;
 
 fn main() -> ExitCode {
-    let commands = arguments::parse_commands(env::args().skip(1));
+    match inner() {
+        Ok(exit_code) => exit_code,
+        Err(err) => {
+            print::error(&err);
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn inner() -> Result<ExitCode, UserError> {
+    let (config, commands) = arguments::parse_commands(env::args().skip(1))?;
     if commands.is_empty() {
-        print::error(&UserError::NoCommandsProvided);
-        return ExitCode::FAILURE;
+        return Err(UserError::NoCommandsProvided);
     }
     let (send, receive) = mpsc::channel();
 
@@ -33,7 +43,7 @@ fn main() -> ExitCode {
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                print::result(&call_result);
+                print::result(&call_result, &config.show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
@@ -42,5 +52,5 @@ fn main() -> ExitCode {
             }
         }
     }
-    ExitCode::from(exit_code.min(255) as u8)
+    Ok(ExitCode::from(exit_code.min(255) as u8))
 }
