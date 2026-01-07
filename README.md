@@ -11,10 +11,10 @@ run several tools in parallel and still keep track of test failures.
 
 ## usage
 
-Separate commands with `}{`:
+Provide the commands to execute as strings.
 
 ```
-conc echo one }{ echo two }{ echo three
+conc "echo one" "echo two" "echo three"
 ```
 
 This call executes these three commands concurrently:
@@ -26,9 +26,15 @@ This call executes these three commands concurrently:
 You can also write this on multiple lines:
 
 ```
-conc echo one }{ \
-     echo two }{ \
-     echo three
+conc "echo one" \
+     "echo two" \
+     "echo three"
+```
+
+Commands execute inside a shell, so you can use shell operators:
+
+```
+conc "echo one | grep on"
 ```
 
 ### customize the output
@@ -43,9 +49,7 @@ you control how much output _conc_ emits:
 Flags for conc must appear before any commands to execute:
 
 ```bash
-conc --show=failed \
-     app1 arg1a arg1b }{ \
-     app2 arg2a arg2b
+conc --show=failed "echo one" "echo two"
 ```
 
 ## alternatives

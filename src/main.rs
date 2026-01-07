@@ -21,17 +21,14 @@ fn main() -> ExitCode {
 }
 
 fn inner() -> Result<ExitCode, UserError> {
-    let (config, commands) = arguments::parse_commands(env::args().skip(1))?;
-    if commands.is_empty() {
-        return Err(UserError::NoCommandsProvided);
-    }
+    let (config, calls) = arguments::parse(env::args().skip(1))?;
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for command in commands {
+    for call in calls {
         let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = send_clone.send(subshell::execute_command(command));
+            let _ = send_clone.send(call.run());
         });
     }
 

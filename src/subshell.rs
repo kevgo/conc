@@ -2,20 +2,53 @@ use crate::errors::UserError;
 use std::fmt::Display;
 use std::process::Command;
 
-/// Call represents a single command to execute.
-#[derive(Debug, PartialEq, Clone)]
-pub(crate) struct Call {
-    pub executable: String,
-    pub arguments: Vec<String>,
+/// Call represents a command to execute.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct Call(String);
+
+impl Call {
+    /// provides a Command instance that executes this call in a shell
+    #[cfg(unix)]
+    pub(crate) fn command(&self) -> Command {
+        let mut command = Command::new("sh");
+        command.arg("-c").arg(&self.0);
+        command
+    }
+
+    /// provides a Command instance that executes this call in a shell
+    #[cfg(windows)]
+    pub(crate) fn command(&self) -> Command {
+        let mut command = Command::new("cmd.exe");
+        command.arg("/C").arg(&self.0);
+        command
+    }
+
+    /// Executes this call in a shell
+    pub(crate) fn run(self) -> Result<CallResult, UserError> {
+        let mut command = self.command();
+        let output = command.output().map_err(|err| UserError::CannotRunCall {
+            call: self.clone(),
+            error: err.to_string(),
+        })?;
+        Ok(CallResult { call: self, output })
+    }
 }
 
 impl Display for Call {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.arguments.is_empty() {
-            f.write_str(&self.executable)
-        } else {
-            write!(f, "{} {}", self.executable, self.arguments.join(" "))
-        }
+        f.write_str(&self.0)
+    }
+}
+
+impl From<String> for Call {
+    fn from(value: String) -> Self {
+        Call(value)
+    }
+}
+
+impl From<&str> for Call {
+    fn from(value: &str) -> Self {
+        Call(value.to_string())
     }
 }
 
@@ -32,19 +65,5 @@ impl CallResult {
         } else {
             self.output.status.code().unwrap_or(1)
         }
-    }
-}
-
-/// Executes a single command with its arguments, streaming output to stdout/stderr.
-pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
-    let output = Command::new(&call.executable)
-        .args(&call.arguments)
-        .output();
-    match output {
-        Ok(output) => Ok(CallResult { call, output }),
-        Err(error) => Err(UserError::CannotStartCommand {
-            call,
-            error: error.to_string(),
-        }),
     }
 }
