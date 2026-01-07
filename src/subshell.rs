@@ -6,7 +6,7 @@ use std::process::Command;
 pub(crate) struct Call(String);
 
 impl Call {
-    /// provides a Command instance that executes this call
+    /// provides a Command instance that executes this call in a shell
     #[cfg(unix)]
     pub(crate) fn command(&self) -> Command {
         let mut command = Command::new("sh");
@@ -14,7 +14,7 @@ impl Call {
         command
     }
 
-    /// provides a Command instance that executes this call
+    /// provides a Command instance that executes this call in a shell
     #[cfg(windows)]
     pub(crate) fn command(&self) -> Command {
         let mut command = Command::new("cmd.exe");
