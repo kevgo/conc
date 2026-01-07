@@ -23,7 +23,7 @@ test: fix unit lint  # runs all tests
 todo:  # displays all TODO items
 	@git grep --color=always --line-number TODO ':!target' | grep -v Makefile
 
-unit: build node_modules  # runs the unit tests
+unit:  # runs the unit tests
 	cargo test --locked
 
 update:  # updates the dependencies
