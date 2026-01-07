@@ -1,6 +1,6 @@
 # conc
 
-conc runs multiple CLI commands concurrently. If any command exits with a
+_Conc_ runs multiple CLI commands concurrently. If any command exits with a
 non-zero status, conc terminates and returns that exit code.
 
 This is useful for development scripts, CI jobs, or Makefiles where you want to
