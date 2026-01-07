@@ -1,4 +1,4 @@
-mod arguments;
+mod cli;
 mod cmd;
 mod commands;
 mod errors;
@@ -21,7 +21,7 @@ fn main() -> ExitCode {
 }
 
 fn inner() -> Result<ExitCode, UserError> {
-    Ok(match arguments::parse(env::args().skip(1))? {
+    Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run { calls, show } => cmd::run(calls, show),
         Command::Version => cmd::version(),
