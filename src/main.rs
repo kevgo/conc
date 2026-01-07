@@ -26,6 +26,10 @@ fn inner() -> Result<ExitCode, UserError> {
         print::version();
         return Ok(ExitCode::SUCCESS);
     }
+    if config.help {
+        print::help();
+        return Ok(ExitCode::SUCCESS);
+    }
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done

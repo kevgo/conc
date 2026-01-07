@@ -44,6 +44,20 @@ pub fn error(error: &UserError) {
     let _ = stderr.write_all(error.to_string().as_bytes());
 }
 
+pub fn help() {
+    let mut stdout = io::stdout();
+    let output = r#"
+Usage: conc [flags] [commands...]
+
+Flags:
+  --help, -h      Show help
+  --show=all      Show output of all commands
+  --show=failed   Show only output of failed commands
+  --version, -V   Show version
+"#;
+    let _ = stdout.write_all(output.as_bytes());
+}
+
 pub fn version() {
     let mut stdout = io::stdout();
     let _ = writeln!(stdout, "conc {}", env!("CARGO_PKG_VERSION"));
