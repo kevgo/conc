@@ -52,6 +52,14 @@ Flags for conc must appear before any commands to execute:
 conc --show=failed "echo one" "echo two"
 ```
 
+### configure color output
+
+_Conc_ emits ANSI colors if STDOUT and STDERR are connected to a TTY. You can
+override this behavior using the following environment variables:
+
+- `CLICOLOR_FORCE=1` always enables color output, even when not writing to a TTY
+- `NO_COLOR=1` disables color output entirely
+
 ## alternatives
 
 - [gnu parallel](https://www.gnu.org/software/parallel): offers similar
