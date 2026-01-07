@@ -15,6 +15,10 @@ pub(crate) fn parse_commands(
     let mut show = Show::All;
     let mut found_executable = false;
     for arg in args {
+        if arg == "--" {
+            found_executable = true;
+            continue;
+        }
         if !arg.starts_with("--") {
             found_executable = true;
         }
@@ -182,6 +186,20 @@ mod tests {
             let give = vec![S("--zonk"), S("echo"), S("hello")].into_iter();
             let have = parse_commands(give);
             let want = Err(UserError::UnknownFlag(S("--zonk")));
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn manually_end_flags_section() {
+            let give = vec![S("--show"), S("--"), S("echo"), S("hello")].into_iter();
+            let have = parse_commands(give).unwrap();
+            let want = (
+                Config { show: Show::All },
+                vec![Call {
+                    executable: S("echo"),
+                    arguments: vec![S("hello")],
+                }],
+            );
             assert_eq!(have, want);
         }
     }
