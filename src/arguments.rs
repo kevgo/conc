@@ -10,8 +10,6 @@ pub(crate) fn parse_commands(
     args: impl Iterator<Item = String>,
 ) -> Result<(Config, Vec<Call>), UserError> {
     let mut result = vec![];
-    let mut executable = None;
-    let mut arguments = vec![];
     let mut show = Show::All;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {

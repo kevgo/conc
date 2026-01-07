@@ -1,23 +1,9 @@
 use crate::errors::UserError;
-use std::fmt::Display;
 use std::process::Command;
 
 /// Call represents a single command to execute.
 #[derive(Debug, PartialEq, Clone)]
-pub(crate) struct Call {
-    pub executable: String,
-    pub arguments: Vec<String>,
-}
-
-impl Display for Call {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.arguments.is_empty() {
-            f.write_str(&self.executable)
-        } else {
-            write!(f, "{} {}", self.executable, self.arguments.join(" "))
-        }
-    }
-}
+pub(crate) struct Call(String);
 
 /// CallResult represents the result of a single command execution.
 pub(crate) struct CallResult {
