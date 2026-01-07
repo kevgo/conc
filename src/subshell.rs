@@ -63,10 +63,32 @@ impl CallResult {
         if self.output.status.success() {
             0
         } else {
-            #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
-            #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
-            let code = self.output.status.code().unwrap_or(1).abs().min(255) as u8;
-            code
+            safe_convert_to_u8(self.output.status.code().unwrap_or(1))
         }
+    }
+}
+
+fn safe_convert_to_u8(value: i32) -> u8 {
+    if value == i32::MIN {
+        return 255;
+    }
+    #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
+    #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
+    u8::try_from(value.min(255).abs()).unwrap_or(1)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_safe_convert_to_u8() {
+        assert_eq!(safe_convert_to_u8(0), 0);
+        assert_eq!(safe_convert_to_u8(1), 1);
+        assert_eq!(safe_convert_to_u8(-1), 1);
+        assert_eq!(safe_convert_to_u8(255), 255);
+        assert_eq!(safe_convert_to_u8(256), 255);
+        assert_eq!(safe_convert_to_u8(i32::MAX), 255);
+        assert_eq!(safe_convert_to_u8(i32::MIN), 255);
     }
 }
