@@ -26,7 +26,7 @@ impl CallResult {
         if self.output.status.success() {
             0
         } else {
-            self.output.status.code().unwrap_or(2)
+            self.output.status.code().unwrap_or(1)
         }
     }
 }
