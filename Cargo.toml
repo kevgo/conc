@@ -8,3 +8,9 @@ colored = "3.0.0"
 
 [dev-dependencies]
 big_s = "1.0.2"
+
+[profile.release]
+opt-level = 's' # Optimize for size
+lto = true # enable link-time optimization (removes dead code)
+codegen-units = 1 # reduce codegen units to enable additional optimizations
+panic = "unwind"
