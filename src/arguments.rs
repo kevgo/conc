@@ -18,12 +18,10 @@ pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> Vec<Call> {
             }
             executable = None;
             arguments = vec![];
+        } else if executable.is_none() {
+            executable = Some(arg);
         } else {
-            if executable.is_none() {
-                executable = Some(arg);
-            } else {
-                arguments.push(arg);
-            }
+            arguments.push(arg);
         }
     }
     if let Some(executable) = executable {
