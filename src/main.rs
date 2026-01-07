@@ -49,5 +49,7 @@ fn inner() -> Result<ExitCode, UserError> {
             }
         }
     }
+    #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
+    #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
     Ok(ExitCode::from(exit_code.min(255) as u8))
 }
