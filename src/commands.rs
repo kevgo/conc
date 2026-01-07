@@ -7,7 +7,7 @@ pub enum Command {
     Version,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Copy, Debug, Eq, PartialEq, Clone)]
 pub enum Show {
     /// display the output of all commands
     All,
@@ -18,7 +18,7 @@ pub enum Show {
 
 impl Show {
     /// indicates whether to display the output of successful commands
-    pub fn display_success(&self) -> bool {
+    pub fn display_success(self) -> bool {
         match self {
             Show::All => true,
             Show::Failed => false,

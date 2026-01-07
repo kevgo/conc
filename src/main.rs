@@ -23,7 +23,7 @@ fn main() -> ExitCode {
 fn inner() -> Result<ExitCode, UserError> {
     Ok(match arguments::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
-        Command::Run { calls, show } => cmd::run(calls, &show),
+        Command::Run { calls, show } => cmd::run(calls, show),
         Command::Version => cmd::version(),
     })
 }
