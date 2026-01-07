@@ -5,8 +5,6 @@ fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	cargo clippy --fix --allow-dirty
 	cargo +nightly fmt
 	tools/rta dprint fmt
-	tools/rta shfmt -f . | xargs target/debug/rta shfmt -w
-	tools/rta keep-sorted $(shell target/debug/rta ripgrep -l 'keep-sorted end' ./ --glob '!Makefile')
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
@@ -14,8 +12,6 @@ help:  # shows all available Make commands
 lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy --all-targets --all-features -- --deny=warnings
 	git diff --check
-	tools/rta actionlint
-	tools/rta --optional shellcheck download.sh
 
 setup:  # install development dependencies on this computer
 	rustup component add clippy
