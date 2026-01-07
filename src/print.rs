@@ -43,3 +43,8 @@ pub fn error(error: &UserError) {
     let mut stderr = io::stderr();
     let _ = stderr.write_all(error.to_string().as_bytes());
 }
+
+pub fn version() {
+    let mut stdout = io::stdout();
+    let _ = writeln!(stdout, "conc {}", env!("CARGO_PKG_VERSION"));
+}

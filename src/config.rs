@@ -1,6 +1,7 @@
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Config {
     pub show: Show,
+    pub version: bool,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]

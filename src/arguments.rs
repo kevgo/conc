@@ -6,6 +6,7 @@ use crate::subshell::Call;
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>), UserError> {
     let mut calls = vec![];
     let mut show = Show::All;
+    let mut version = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
         if arg == "--" {
@@ -19,13 +20,14 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>
             match arg.as_ref() {
                 "--show=all" | "--show" => show = Show::All,
                 "--show=failed" => show = Show::Failed,
+                "--version" | "-V" => version = true,
                 _ => return Err(UserError::UnknownFlag(arg)),
             }
             continue;
         }
         calls.push(arg.into());
     }
-    Ok((Config { show }, calls))
+    Ok((Config { show, version }, calls))
 }
 
 #[cfg(test)]
@@ -40,7 +42,10 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = (
-                Config { show: Show::All },
+                Config {
+                    show: Show::All,
+                    version: false,
+                },
                 vec![Call::from("echo hello world")],
             );
             assert_eq!(have, want);
@@ -51,7 +56,10 @@ mod tests {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
             let want = (
-                Config { show: Show::All },
+                Config {
+                    show: Show::All,
+                    version: false,
+                },
                 vec![
                     Call::from("echo hello"),
                     Call::from("ls -la"),
@@ -65,7 +73,13 @@ mod tests {
         fn empty() {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
-            let want = (Config { show: Show::All }, vec![]);
+            let want = (
+                Config {
+                    show: Show::All,
+                    version: false,
+                },
+                vec![],
+            );
             assert_eq!(have, want);
         }
 
@@ -74,7 +88,10 @@ mod tests {
             let give = vec![S("--show=failed"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = (
-                Config { show: Show::Failed },
+                Config {
+                    show: Show::Failed,
+                    version: false,
+                },
                 vec![Call::from("echo hello")],
             );
             assert_eq!(have, want);
@@ -84,7 +101,13 @@ mod tests {
         fn show_all() {
             let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
-            let want = (Config { show: Show::All }, vec![Call::from("echo hello")]);
+            let want = (
+                Config {
+                    show: Show::All,
+                    version: false,
+                },
+                vec![Call::from("echo hello")],
+            );
             assert_eq!(have, want);
         }
 
@@ -100,7 +123,41 @@ mod tests {
         fn manually_end_flags_section() {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
-            let want = (Config { show: Show::All }, vec![Call::from("echo hello")]);
+            let want = (
+                Config {
+                    show: Show::All,
+                    version: false,
+                },
+                vec![Call::from("echo hello")],
+            );
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn version_short() {
+            let give = vec![S("-V")].into_iter();
+            let have = parse(give).unwrap();
+            let want = (
+                Config {
+                    show: Show::All,
+                    version: true,
+                },
+                vec![],
+            );
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn version_long() {
+            let give = vec![S("--version")].into_iter();
+            let have = parse(give).unwrap();
+            let want = (
+                Config {
+                    show: Show::All,
+                    version: true,
+                },
+                vec![],
+            );
             assert_eq!(have, want);
         }
     }
