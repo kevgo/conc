@@ -1,5 +1,6 @@
-mod cli;
+mod arguments;
 mod errors;
+mod print;
 mod subshell;
 
 use errors::UserError;
@@ -9,10 +10,10 @@ use std::sync::mpsc;
 use std::thread;
 
 fn main() -> ExitCode {
-    let commands = cli::arguments::parse_commands(env::args().skip(1));
+    let commands = arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
-        cli::print::user_error(&UserError::NoCommandsProvided);
-        std::process::exit(1);
+        print::user_error(&UserError::NoCommandsProvided);
+        return ExitCode::FAILURE;
     }
     let (tx, rx) = mpsc::channel();
 
@@ -32,11 +33,11 @@ fn main() -> ExitCode {
     for call_result in rx {
         match call_result {
             Ok(call_result) => {
-                cli::print::result(&call_result);
+                print::result(&call_result);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
-                cli::print::user_error(&err);
+                print::user_error(&err);
                 exit_code = exit_code.max(2);
             }
         }

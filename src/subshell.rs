@@ -2,6 +2,7 @@ use crate::errors::{Result, UserError};
 use std::fmt::Display;
 use std::process::{Command, Output};
 
+/// Call represents a single command to execute.
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) struct Call {
     pub(crate) executable: String,
@@ -14,6 +15,7 @@ impl Display for Call {
     }
 }
 
+/// CallResult represents the result of a single command execution.
 pub(crate) struct CallResult {
     pub(crate) call: Call,
     pub(crate) output: Output,

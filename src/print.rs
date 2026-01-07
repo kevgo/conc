@@ -2,6 +2,7 @@ use crate::errors::UserError;
 use crate::subshell::CallResult;
 use std::io::{self, Write};
 
+/// prints the result of a single command execution to stdout and stderr
 pub(crate) fn result(call_result: &CallResult) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
@@ -18,7 +19,7 @@ pub(crate) fn result(call_result: &CallResult) {
     };
     let _ = stdout.write_all(command_name.as_bytes());
 
-    // Print stdout if not empty
+    // print stdout if not empty
     if !call_result.output.stdout.is_empty() {
         let _ = stdout.write_all(&call_result.output.stdout);
         if !call_result.output.stdout.ends_with(b"\n") {
@@ -26,7 +27,7 @@ pub(crate) fn result(call_result: &CallResult) {
         }
     }
 
-    // Print stderr if not empty
+    // print stderr if not empty
     if !call_result.output.stderr.is_empty() {
         let _ = stderr.write_all(&call_result.output.stderr);
         if !call_result.output.stderr.ends_with(b"\n") {
@@ -35,6 +36,7 @@ pub(crate) fn result(call_result: &CallResult) {
     }
 }
 
+/// prints the given user error to stderr
 pub(crate) fn user_error(error: &UserError) {
     let mut stderr = io::stderr();
     let _ = stderr.write_all(error.to_string().as_bytes());
