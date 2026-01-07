@@ -1,6 +1,6 @@
 use crate::errors::{Result, UserError};
 use std::fmt::Display;
-use std::process::{Command, Output};
+use std::process::Command;
 
 /// Call represents a single command to execute.
 #[derive(Debug, PartialEq, Clone)]
@@ -18,7 +18,7 @@ impl Display for Call {
 /// CallResult represents the result of a single command execution.
 pub(crate) struct CallResult {
     pub call: Call,
-    pub output: Output,
+    pub output: std::process::Output,
 }
 
 impl CallResult {
