@@ -5,7 +5,10 @@ pub(crate) struct Config {
 
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum Show {
+    /// display the output of all commands
     All,
+
+    /// display only the output of failed commands
     Failed,
 }
 
