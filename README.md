@@ -23,7 +23,7 @@ This call executes these three commands concurrently:
 - `echo two`
 - `echo three`
 
-Alternative formatting for longer calls:
+You can also write this on multiple lines:
 
 ```
 conc echo one }{ \
