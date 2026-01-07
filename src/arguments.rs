@@ -92,19 +92,8 @@ mod tests {
         }
 
         #[test]
-        fn trailing_separator() {
-            let give = vec![S("echo"), S("hello"), S("}{")].into_iter();
-            let have = parse_commands(give);
-            let want = vec![Call {
-                executable: S("echo"),
-                arguments: vec![S("hello")],
-            }];
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn leading_separator() {
-            let give = vec![S("}{"), S("echo"), S("hello")].into_iter();
+        fn outside_separators() {
+            let give = vec![S("}{"), S("echo"), S("hello"), S("}{")].into_iter();
             let have = parse_commands(give);
             let want = vec![Call {
                 executable: S("echo"),
