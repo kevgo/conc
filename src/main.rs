@@ -1,4 +1,5 @@
 mod arguments;
+mod config;
 mod errors;
 mod print;
 mod subshell;
@@ -10,7 +11,7 @@ use std::sync::mpsc;
 use std::thread;
 
 fn main() -> ExitCode {
-    let commands = arguments::parse_commands(env::args().skip(1));
+    let (config, commands) = arguments::parse_commands(env::args().skip(1));
     if commands.is_empty() {
         print::error(&UserError::NoCommandsProvided);
         return ExitCode::FAILURE;
