@@ -22,16 +22,19 @@ pub(crate) fn parse_commands(
         if !arg.starts_with("--") {
             parse_flags = false;
         }
-        if parse_flags && arg.starts_with("--") {
-            if arg == "--show=all" || arg == "--show" {
-                show = Show::All;
-                continue;
-            } else if arg == "--show=failed" {
-                show = Show::Failed;
-                continue;
+        if parse_flags && arg.starts_with("-") {
+            match arg.as_ref() {
+                "--show=all" | "--show" => {
+                    show = Show::All;
+                    continue;
+                }
+                "--show=failed" => {
+                    show = Show::Failed;
+                    continue;
+                }
+                _ => return Err(UserError::UnknownFlag(arg)),
             }
-            return Err(UserError::UnknownFlag(arg));
-        }
+        };
         if arg == SEPARATOR {
             if let Some(executable) = executable {
                 result.push(Call {
