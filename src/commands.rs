@@ -1,11 +1,13 @@
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Config {
-    pub help: bool,
-    pub show: Show,
-    pub version: bool,
+use crate::subshell::Call;
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum Command {
+    Help,
+    Run { calls: Vec<Call>, show: Show },
+    Version,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Copy, Debug, Eq, PartialEq, Clone)]
 pub enum Show {
     /// display the output of all commands
     All,
@@ -16,7 +18,7 @@ pub enum Show {
 
 impl Show {
     /// indicates whether to display the output of successful commands
-    pub fn display_success(&self) -> bool {
+    pub fn display_success(self) -> bool {
         match self {
             Show::All => true,
             Show::Failed => false,
