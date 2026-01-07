@@ -8,7 +8,7 @@ run several tools in parallel and still keep track of test failures.
 
 ### Usage
 
-Separate apps to run via `}{`:
+Separate commands with `}{`:
 
 ```
 conc app1 arg1a arg1b }{ \
@@ -24,5 +24,6 @@ This call executes:
 
 ### Alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): does pretty much
-  exactly this, but somehow doesn't seem to support returning a proper exit code
+- [gnu parallel](https://www.gnu.org/software/parallel): offers similar
+  functionality, but does not reliably propagate a single, meaningful exit code
+  suitable for use in scripts and Makefiles.
