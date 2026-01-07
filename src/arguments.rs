@@ -104,7 +104,7 @@ mod tests {
 
         #[test]
         fn consecutive_separators() {
-            let give = vec![S("echo"), S("hello"), S("}{"), S("}{"), S("pwd")].into_iter();
+            let give = vec![S("echo"), S("hello"), S("}{"), S("}{"), S("}{"), S("pwd")].into_iter();
             let have = parse_commands(give);
             let want = vec![
                 Call {
