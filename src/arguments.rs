@@ -19,7 +19,7 @@ pub(crate) fn parse_commands(
             parse_flags = false;
             continue;
         }
-        if !arg.starts_with("--") {
+        if !arg.starts_with("-") {
             parse_flags = false;
         }
         if parse_flags && arg.starts_with("-") {
