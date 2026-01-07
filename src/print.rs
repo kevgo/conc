@@ -5,7 +5,7 @@ use colored::Colorize;
 use std::io::{self, Write};
 
 /// prints the result of a single command execution to stdout and stderr
-pub(crate) fn result(call_result: &CallResult, show: &Show) {
+pub fn result(call_result: &CallResult, show: &Show) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
@@ -39,7 +39,7 @@ fn write_output(writer: &mut dyn Write, output: &[u8]) {
 }
 
 /// prints the given user error to stderr
-pub(crate) fn error(error: &UserError) {
+pub fn error(error: &UserError) {
     let mut stderr = io::stderr();
     let _ = stderr.write_all(error.to_string().as_bytes());
 }

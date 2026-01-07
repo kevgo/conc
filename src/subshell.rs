@@ -4,7 +4,7 @@ use std::process::Command;
 
 /// Call represents a command to execute.
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) struct Call(String);
+pub struct Call(String);
 
 impl Call {
     /// provides a Command instance that executes this call in a shell
@@ -48,12 +48,12 @@ impl From<String> for Call {
 
 impl From<&str> for Call {
     fn from(value: &str) -> Self {
-        Call(value.to_string())
+        Call(value.to_owned())
     }
 }
 
 /// `CallResult` represents the result of a single command execution.
-pub(crate) struct CallResult {
+pub struct CallResult {
     pub call: Call,
     pub output: std::process::Output,
 }

@@ -14,7 +14,7 @@ install:  # installs this tool on the local machine
 
 lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic
-	cargo clippy --all-targets --all-features -- --deny=warnings
+	cargo clippy --all-targets --all-features -- --deny=warnings --allow=clippy::unwrap_used
 	git diff --check
 
 setup:  # install development dependencies on this computer

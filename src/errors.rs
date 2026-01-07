@@ -2,7 +2,7 @@ use crate::subshell::Call;
 
 /// errors that should be printed to the user to help them use this app correctly
 #[derive(Debug, PartialEq)]
-pub(crate) enum UserError {
+pub enum UserError {
     CannotRunCall { call: Call, error: String },
     UnknownFlag(String),
 }
