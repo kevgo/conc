@@ -6,9 +6,10 @@ Conc runs commands concurrently and returns the first non-zero exit code it enco
 Usage: conc [flags] [commands...]
 
 Flags:
-  --help, -h           this help text
-  --show=[all|failed]  display the output of all or only the failed commands
-  --version, -V        display version
+  --help, -h     this help text
+  --show=all     show the output of all commands
+  --show=failed  show the output of only failed commands
+  --version, -V  show the version
 ";
 
 pub fn help() -> ExitCode {

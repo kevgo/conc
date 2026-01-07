@@ -5,3 +5,5 @@
 - runs given apps concurrently
 - runs apps inside a shell
 - `--show=failed` flag to only show the output of failed commands
+- `--help` command
+- `--version` command
