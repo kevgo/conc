@@ -44,11 +44,11 @@ mod tests {
 
         #[test]
         fn single_command() {
-            let give = vec![S("echo"), S("hello")].into_iter();
+            let give = vec![S("echo"), S("hello"), S("world")].into_iter();
             let have = parse_commands(give);
             let want = vec![Call {
                 executable: S("echo"),
-                arguments: vec![S("hello")],
+                arguments: vec![S("hello"), S("world")],
             }];
             assert_eq!(have, want);
         }
