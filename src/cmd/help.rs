@@ -1,6 +1,6 @@
 use std::process::ExitCode;
 
-const HELP: &str = r"
+const HELP: &str = r#"
 Conc runs commands concurrently and returns the first non-zero exit code it encounters.
 
 Usage: conc [flags] [commands...]
@@ -10,7 +10,21 @@ Flags:
   --show=all     show the output of all commands
   --show=failed  show the output of only failed commands
   --version, -V  show the version
-";
+
+Examples:
+
+conc --show=failed "echo one" "echo two" "echo three"
+
+This executes the following commands concurrently:
+
+- echo one
+- echo two
+- echo three
+
+If any of the commands exit with a non-zero exit code,
+conc will print the output of the failed command
+and return that exit code.
+"#;
 
 pub fn help() -> ExitCode {
     println!("{}", &HELP[1..]);
