@@ -13,16 +13,16 @@ pub(crate) fn parse_commands(
     let mut executable = None;
     let mut arguments = vec![];
     let mut show = Show::All;
-    let mut conc_flags = true; // indicates the end of the conc flags section
+    let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
         if arg == "--" {
-            conc_flags = false;
+            parse_flags = false;
             continue;
         }
         if !arg.starts_with("--") {
-            conc_flags = false;
+            parse_flags = false;
         }
-        if conc_flags && arg.starts_with("--") {
+        if parse_flags && arg.starts_with("--") {
             if arg == "--show=all" || arg == "--show" {
                 show = Show::All;
                 continue;
