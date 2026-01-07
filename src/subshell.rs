@@ -59,9 +59,9 @@ pub struct CallResult {
 }
 
 impl CallResult {
-    pub(crate) fn exit_code(&self) -> i32 {
+    pub(crate) fn exit_code(&self) -> ExitCode {
         if self.output.status.success() {
-            0
+            ExitCode::SUCCESS
         } else {
             self.output.status.code().unwrap_or(1)
         }

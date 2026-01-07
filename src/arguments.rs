@@ -140,7 +140,7 @@ mod tests {
         }
 
         #[test]
-        fn version() {
+        fn version_long() {
             let give = vec![S("--version")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Version;
