@@ -13,7 +13,7 @@ install:  # installs this tool on the local machine
 	cargo install --locked --path .
 
 lint: tools/rta@${RTA_VERSION}  # runs all linters
-	cargo clippy -- -Wclippy::pedantic
+	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic
 	cargo clippy --all-targets --all-features -- --deny=warnings
 	git diff --check
 
