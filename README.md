@@ -1,13 +1,13 @@
 # conc
 
-[![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
-[![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
-
 _Conc_ runs multiple CLI commands concurrently. If any command exits with a
 non-zero status, conc returns that exit code.
 
 This is useful for development scripts, CI jobs, or Makefiles where you want to
 run several tools in parallel and still keep track of test failures.
+
+[![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
+[![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
 
 ### Usage
 
