@@ -2,7 +2,7 @@ use crate::commands::{Command, Show};
 use crate::errors::UserError;
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, UserError> {
+pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
     let mut calls = vec![];
     let mut show = Show::All;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
@@ -32,7 +32,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, UserError
 #[cfg(test)]
 mod tests {
 
-    mod parse_commands {
+    mod parse {
         use super::super::*;
         use crate::subshell::Call;
         use big_s::S;

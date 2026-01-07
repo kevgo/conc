@@ -1,5 +1,8 @@
 use crate::subshell::Call;
 
+/// a Result that always has a `UserError` as the error and therefore doesn't require to specify it at each call point
+pub(crate) type Result<T> = core::result::Result<T, UserError>;
+
 /// errors that should be printed to the user to help them use this app correctly
 #[derive(Debug, Eq, PartialEq)]
 pub enum UserError {

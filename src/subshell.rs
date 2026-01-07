@@ -24,7 +24,7 @@ impl Call {
     }
 
     /// Executes this call in a shell
-    pub(crate) fn run(self) -> Result<CallResult, UserError> {
+    pub(crate) fn run(self) -> Result<CallResult> {
         let mut command = self.command();
         let output = command.output().map_err(|err| UserError::CannotRunCall {
             call: self.clone(),
