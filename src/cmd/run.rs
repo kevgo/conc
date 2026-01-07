@@ -1,4 +1,4 @@
-use crate::config::{Config, Show};
+use crate::commands::Show;
 use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, config: &Config) -> ExitCode {
+pub fn run(calls: Vec<Call>, show: &Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
@@ -25,7 +25,7 @@ pub fn run(calls: Vec<Call>, config: &Config) -> ExitCode {
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                print_result(&call_result, &config.show);
+                print_result(&call_result, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {

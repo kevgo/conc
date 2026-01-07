@@ -1,7 +1,6 @@
 mod arguments;
 mod cmd;
 mod commands;
-mod config;
 mod errors;
 mod subshell;
 
@@ -24,7 +23,7 @@ fn main() -> ExitCode {
 fn inner() -> Result<ExitCode, UserError> {
     Ok(match arguments::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
-        Command::Run { config, calls } => cmd::run(calls, &config),
+        Command::Run { calls, show } => cmd::run(calls, &show),
         Command::Version => cmd::version(),
     })
 }
