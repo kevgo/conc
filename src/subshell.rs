@@ -35,10 +35,9 @@ impl CallResult {
 pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
     let output = Command::new(&call.executable)
         .args(&call.arguments)
-        .output()
-        .map_err(|error| UserError::CannotStartCommand {
-            executable: call.executable.clone(),
-            error,
-        })?;
-    Ok(CallResult { call, output })
+        .output();
+    match output {
+        Ok(output) => Ok(CallResult { call, output }),
+        Err(error) => Err(UserError::CannotStartCommand { call, error }),
+    }
 }
