@@ -1,5 +1,5 @@
 use crate::commands::{Command, Show};
-use crate::errors::UserError;
+use crate::errors::{Result, UserError};
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {

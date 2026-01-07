@@ -1,4 +1,4 @@
-use crate::errors::UserError;
+use crate::errors::{Result, UserError};
 use std::fmt::Display;
 use std::process::Command;
 
