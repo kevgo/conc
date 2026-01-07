@@ -17,7 +17,7 @@ fn main() -> ExitCode {
     }
     let (send, receive) = mpsc::channel();
 
-    // execute all commands concurrently
+    // execute all commands concurrently and let them signal via the channel when they are done
     for command in commands {
         let send_clone = send.clone();
         thread::spawn(move || {
