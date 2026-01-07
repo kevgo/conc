@@ -4,7 +4,6 @@ use crate::subshell::Call;
 #[derive(Debug, PartialEq)]
 pub(crate) enum UserError {
     CannotRunCall { call: Call, error: String },
-    NoCommandsProvided,
     UnknownFlag(String),
 }
 
@@ -13,9 +12,6 @@ impl std::fmt::Display for UserError {
         match self {
             UserError::CannotRunCall { call, error } => {
                 write!(f, "Cannot start command '{call}': {error}")
-            }
-            UserError::NoCommandsProvided => {
-                write!(f, "No commands provided")
             }
             UserError::UnknownFlag(flag) => {
                 write!(f, "Unknown flag: {flag}")

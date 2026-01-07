@@ -21,10 +21,7 @@ fn main() -> ExitCode {
 }
 
 fn inner() -> Result<ExitCode, UserError> {
-    let (config, calls) = arguments::parse_commands(env::args().skip(1))?;
-    if calls.is_empty() {
-        return Err(UserError::NoCommandsProvided);
-    }
+    let (config, calls) = arguments::parse(env::args().skip(1))?;
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
