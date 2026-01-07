@@ -15,10 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: taiki-e/create-gh-release-action@v1
         with:
-          # (optional) Path to changelog.
           changelog: CHANGELOG.md
-          # draft: true
-          # (required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.RELEASE_TOKEN }}
 
   upload-assets:
@@ -26,22 +23,22 @@ jobs:
     strategy:
       matrix:
         include:
-          - filename: run_that_app_linux_arm_64
+          - filename: conc_linux_arm_64
             target: aarch64-unknown-linux-gnu
             os: ubuntu-22.04
-          - filename: run_that_app_linux_intel_64
+          - filename: conc_linux_intel_64
             target: x86_64-unknown-linux-gnu
             os: ubuntu-22.04
-          - filename: run_that_app_macos_arm_64
+          - filename: conc_macos_arm_64
             target: aarch64-apple-darwin
             os: macos-latest
-          - filename: run_that_app_macos_intel_64
+          - filename: conc_macos_intel_64
             target: x86_64-apple-darwin
             os: macos-latest
-          - filename: run_that_app_windows_intel_64
+          - filename: conc_windows_intel_64
             target: x86_64-pc-windows-msvc
             os: windows-latest
-          - filename: run_that_app_windows_arm_64
+          - filename: conc_windows_arm_64
             target: aarch64-pc-windows-msvc
             os: windows-latest
     runs-on: ${{ matrix.os }}
@@ -53,7 +50,7 @@ jobs:
           archive: ${{ matrix.filename }}
           # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
           # Note that glob pattern is not supported yet.
-          bin: rta
+          bin: conc
           # (optional) Target triple, default is host triple.
           target: ${{ matrix.target }}
           # (required) GitHub token for uploading assets to GitHub Releases.
