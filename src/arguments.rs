@@ -3,7 +3,7 @@ use crate::errors::UserError;
 use crate::subshell::Call;
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub fn parse(args: impl Iterator<Item = String>) -> Result<(Config, Vec<Call>), UserError> {
+pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<(Config, Vec<Call>), UserError> {
     let mut calls = vec![];
     let mut show = Show::All;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags

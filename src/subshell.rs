@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::process::Command;
 
 /// Call represents a command to execute.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Call(String);
 
 impl Call {
