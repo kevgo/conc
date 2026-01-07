@@ -24,7 +24,7 @@ pub(crate) struct CallResult {
 impl CallResult {
     pub(crate) fn exit_code(&self) -> i32 {
         if self.output.status.success() {
-            1
+            0
         } else {
             self.output.status.code().unwrap_or(2)
         }

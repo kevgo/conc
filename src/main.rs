@@ -38,7 +38,7 @@ fn main() -> ExitCode {
             }
             Err(err) => {
                 print::user_error(&err);
-                exit_code = exit_code.max(2);
+                exit_code = exit_code.max(1);
             }
         }
     }
