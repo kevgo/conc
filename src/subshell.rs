@@ -2,8 +2,42 @@ use crate::errors::UserError;
 use std::process::Command;
 
 /// Call represents a single command to execute.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub(crate) struct Call(String);
+
+impl Call {
+    #[cfg(unix)]
+    pub(crate) fn command(&self) -> Command {
+        let mut command = Command::new("sh");
+        command.arg("-c").arg(&self.0);
+        command
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn command(&self) -> Command {
+        let mut command = Command::new("cmd.exe");
+        command.arg("/C").arg(&self.0);
+        command
+    }
+}
+
+impl std::fmt::Display for Call {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl From<String> for Call {
+    fn from(value: String) -> Self {
+        Call(value)
+    }
+}
+
+impl From<&str> for Call {
+    fn from(value: &str) -> Self {
+        Call(value.to_string())
+    }
+}
 
 /// CallResult represents the result of a single command execution.
 pub(crate) struct CallResult {
@@ -23,35 +57,12 @@ impl CallResult {
 
 /// Executes a single command with its arguments, streaming output to stdout/stderr.
 pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
-    // Build the command string from executable and arguments
-    let command_string = if call.arguments.is_empty() {
-        call.executable.clone()
-    } else {
-        format!("{} {}", call.executable, call.arguments.join(" "))
-    };
-
-    // Execute the command inside a shell
-    let output = if cfg!(unix) {
-        // On Unix, use bash
-        Command::new("sh").arg("-c").arg(&command_string).output()
-    } else if cfg!(windows) {
-        // On Windows, use cmd.exe
-        Command::new("cmd.exe")
-            .arg("/C")
-            .arg(&command_string)
-            .output()
-    } else {
-        // Fallback: try to execute directly (shouldn't happen in practice)
-        Command::new(&call.executable)
-            .args(&call.arguments)
-            .output()
-    };
-
-    match output {
-        Ok(output) => Ok(CallResult { call, output }),
-        Err(error) => Err(UserError::CannotStartCommand {
-            call,
-            error: error.to_string(),
-        }),
-    }
+    let mut command = call.command();
+    let output = command
+        .output()
+        .map_err(|err| UserError::CannotStartCommand {
+            call: call.clone(),
+            error: err.to_string(),
+        })?;
+    Ok(CallResult { call, output })
 }

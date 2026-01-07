@@ -2,14 +2,11 @@ use crate::config::{Config, Show};
 use crate::errors::UserError;
 use crate::subshell::Call;
 
-/// separates different commands in the CLI arguments
-const SEPARATOR: &str = "}{";
-
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub(crate) fn parse_commands(
     args: impl Iterator<Item = String>,
 ) -> Result<(Config, Vec<Call>), UserError> {
-    let mut result = vec![];
+    let mut commands = vec![];
     let mut show = Show::All;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
@@ -17,10 +14,10 @@ pub(crate) fn parse_commands(
             parse_flags = false;
             continue;
         }
-        if !arg.starts_with("--") {
+        if !arg.starts_with("-") {
             parse_flags = false;
         }
-        if parse_flags && arg.starts_with("--") {
+        if parse_flags && arg.starts_with("-") {
             if arg == "--show=all" || arg == "--show" {
                 show = Show::All;
                 continue;
@@ -30,28 +27,9 @@ pub(crate) fn parse_commands(
             }
             return Err(UserError::UnknownFlag(arg));
         }
-        if arg == SEPARATOR {
-            if let Some(executable) = executable {
-                result.push(Call {
-                    executable,
-                    arguments,
-                });
-            }
-            executable = None;
-            arguments = vec![];
-        } else if executable.is_none() {
-            executable = Some(arg);
-        } else {
-            arguments.push(arg);
-        }
+        commands.push(Call::from(arg));
     }
-    if let Some(executable) = executable {
-        result.push(Call {
-            executable,
-            arguments,
-        });
-    }
-    Ok((Config { show }, result))
+    Ok((Config { show }, commands))
 }
 
 #[cfg(test)]
@@ -63,46 +41,25 @@ mod tests {
 
         #[test]
         fn single_command() {
-            let give = vec![S("echo"), S("hello"), S("world")].into_iter();
+            let give = vec![S("echo hello world")].into_iter();
             let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
-                vec![Call {
-                    executable: S("echo"),
-                    arguments: vec![S("hello"), S("world")],
-                }],
+                vec![Call::from("echo hello world")],
             );
             assert_eq!(have, want);
         }
 
         #[test]
         fn multiple_commands() {
-            let give = vec![
-                S("echo"),
-                S("hello"),
-                S("}{"),
-                S("ls"),
-                S("-la"),
-                S("}{"),
-                S("pwd"),
-            ]
-            .into_iter();
+            let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::All },
                 vec![
-                    Call {
-                        executable: S("echo"),
-                        arguments: vec![S("hello")],
-                    },
-                    Call {
-                        executable: S("ls"),
-                        arguments: vec![S("-la")],
-                    },
-                    Call {
-                        executable: S("pwd"),
-                        arguments: vec![],
-                    },
+                    Call::from("echo hello"),
+                    Call::from("ls -la"),
+                    Call::from("pwd"),
                 ],
             );
             assert_eq!(have, want);
@@ -117,70 +74,27 @@ mod tests {
         }
 
         #[test]
-        fn outside_separators() {
-            let give = vec![S("}{"), S("echo"), S("hello"), S("}{")].into_iter();
-            let have = parse_commands(give).unwrap();
-            let want = (
-                Config { show: Show::All },
-                vec![Call {
-                    executable: S("echo"),
-                    arguments: vec![S("hello")],
-                }],
-            );
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn consecutive_separators() {
-            let give = vec![S("echo"), S("hello"), S("}{"), S("}{"), S("}{"), S("pwd")].into_iter();
-            let have = parse_commands(give).unwrap();
-            let want = (
-                Config { show: Show::All },
-                vec![
-                    Call {
-                        executable: S("echo"),
-                        arguments: vec![S("hello")],
-                    },
-                    Call {
-                        executable: S("pwd"),
-                        arguments: vec![],
-                    },
-                ],
-            );
-            assert_eq!(have, want);
-        }
-
-        #[test]
         fn show_failed() {
-            let give = vec![S("--show=failed"), S("echo"), S("hello")].into_iter();
+            let give = vec![S("--show=failed"), S("echo hello")].into_iter();
             let have = parse_commands(give).unwrap();
             let want = (
                 Config { show: Show::Failed },
-                vec![Call {
-                    executable: S("echo"),
-                    arguments: vec![S("hello")],
-                }],
+                vec![Call::from("echo hello")],
             );
             assert_eq!(have, want);
         }
 
         #[test]
         fn show_all() {
-            let give = vec![S("--show=all"), S("echo"), S("hello")].into_iter();
+            let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse_commands(give).unwrap();
-            let want = (
-                Config { show: Show::All },
-                vec![Call {
-                    executable: S("echo"),
-                    arguments: vec![S("hello")],
-                }],
-            );
+            let want = (Config { show: Show::All }, vec![Call::from("echo hello")]);
             assert_eq!(have, want);
         }
 
         #[test]
         fn unknown_flag() {
-            let give = vec![S("--zonk"), S("echo"), S("hello")].into_iter();
+            let give = vec![S("--zonk"), S("echo hello")].into_iter();
             let have = parse_commands(give);
             let want = Err(UserError::UnknownFlag(S("--zonk")));
             assert_eq!(have, want);
@@ -188,15 +102,9 @@ mod tests {
 
         #[test]
         fn manually_end_flags_section() {
-            let give = vec![S("--show"), S("--"), S("echo"), S("hello")].into_iter();
+            let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse_commands(give).unwrap();
-            let want = (
-                Config { show: Show::All },
-                vec![Call {
-                    executable: S("echo"),
-                    arguments: vec![S("hello")],
-                }],
-            );
+            let want = (Config { show: Show::All }, vec![Call::from("echo hello")]);
             assert_eq!(have, want);
         }
     }
