@@ -11,7 +11,7 @@ run several tools in parallel and still keep track of test failures.
 
 ## usage
 
-Separate commands with `}{`:
+Provide the commands to execute as strings.
 
 ```
 conc "echo one" "echo two" "echo three"
@@ -29,6 +29,12 @@ You can also write this on multiple lines:
 conc "echo one" \
      "echo two" \
      "echo three"
+```
+
+Commands execute inside a shell, so you can use shell operators:
+
+```
+conc "echo one | grep on"
 ```
 
 ### customize the output
