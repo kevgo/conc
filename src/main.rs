@@ -30,6 +30,8 @@ fn inner() -> Result<ExitCode, UserError> {
         print::help();
         return Ok(ExitCode::SUCCESS);
     }
+
+    // here we run the given commands
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
