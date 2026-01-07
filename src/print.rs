@@ -11,7 +11,10 @@ pub(crate) fn result(call_result: &CallResult, show: &Show) {
 
     // print command name
     if call_result.output.status.success() {
-        let command = call_result.call.to_string().bold();
+        let mut command = call_result.call.to_string();
+        if show.display_success() {
+            command = command.bold().to_string();
+        }
         let _ = stdout.write_all(format!("{}\n", command).as_bytes());
     } else {
         let command = call_result.call.to_string().bold().red();
