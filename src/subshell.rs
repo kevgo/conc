@@ -1,7 +1,7 @@
 use crate::errors::UserError;
 use std::process::Command;
 
-/// Call represents a single command to execute.
+/// Call represents a command to execute.
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct Call(String);
 
