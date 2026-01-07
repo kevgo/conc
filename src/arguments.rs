@@ -34,9 +34,8 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, UserError
 mod tests {
 
     mod parse_commands {
-        use crate::subshell::Call;
-
         use super::super::*;
+        use crate::subshell::Call;
         use big_s::S;
 
         #[test]
