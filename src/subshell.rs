@@ -63,12 +63,12 @@ impl CallResult {
         if self.output.status.success() {
             0
         } else {
-            safe_convert_to_u8(self.output.status.code().unwrap_or(1))
+            to_exitcode_u8(self.output.status.code().unwrap_or(1))
         }
     }
 }
 
-fn safe_convert_to_u8(value: i32) -> u8 {
+fn to_exitcode_u8(value: i32) -> u8 {
     if value == i32::MIN {
         return 255;
     }
@@ -83,12 +83,12 @@ mod tests {
 
     #[test]
     fn test_safe_convert_to_u8() {
-        assert_eq!(safe_convert_to_u8(0), 0);
-        assert_eq!(safe_convert_to_u8(1), 1);
-        assert_eq!(safe_convert_to_u8(-1), 1);
-        assert_eq!(safe_convert_to_u8(255), 255);
-        assert_eq!(safe_convert_to_u8(256), 255);
-        assert_eq!(safe_convert_to_u8(i32::MAX), 255);
-        assert_eq!(safe_convert_to_u8(i32::MIN), 255);
+        assert_eq!(to_exitcode_u8(0), 0);
+        assert_eq!(to_exitcode_u8(1), 1);
+        assert_eq!(to_exitcode_u8(-1), 1);
+        assert_eq!(to_exitcode_u8(255), 255);
+        assert_eq!(to_exitcode_u8(256), 255);
+        assert_eq!(to_exitcode_u8(i32::MAX), 255);
+        assert_eq!(to_exitcode_u8(i32::MIN), 255);
     }
 }
