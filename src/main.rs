@@ -22,6 +22,10 @@ fn main() -> ExitCode {
 
 fn inner() -> Result<ExitCode, UserError> {
     let (config, calls) = arguments::parse(env::args().skip(1))?;
+    if config.version {
+        print::version();
+        return Ok(ExitCode::SUCCESS);
+    }
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
