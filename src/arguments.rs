@@ -9,7 +9,7 @@ pub(crate) fn parse_commands(args: impl Iterator<Item = String>) -> (Config, Vec
     let mut result = vec![];
     let mut executable = None;
     let mut arguments = vec![];
-    let mut show = Show::default();
+    let mut show = Show::All;
     for arg in args {
         if arg == "--show" {
             show = Show::All;
@@ -78,7 +78,7 @@ mod tests {
             .into_iter();
             let have = parse_commands(give);
             let want = (
-                Config::default(),
+                Config { show: Show::All },
                 vec![
                     Call {
                         executable: S("echo"),

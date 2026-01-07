@@ -1,4 +1,4 @@
-#[derive(Debug, Default, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) struct Config {
     pub show: Show,
 }
@@ -9,8 +9,12 @@ pub(crate) enum Show {
     Failed,
 }
 
-impl Default for Show {
-    fn default() -> Self {
-        Show::All
+impl Show {
+    /// indicates whether to display the output of successful commands
+    pub(crate) fn display_success(&self) -> bool {
+        match self {
+            Show::All => true,
+            Show::Failed => false,
+        }
     }
 }

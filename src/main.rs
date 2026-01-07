@@ -34,7 +34,7 @@ fn main() -> ExitCode {
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                print::result(&call_result);
+                print::result(&call_result, &config.show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
