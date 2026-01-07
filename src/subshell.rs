@@ -37,9 +37,30 @@ impl CallResult {
 
 /// Executes a single command with its arguments, streaming output to stdout/stderr.
 pub(crate) fn execute_command(call: Call) -> Result<CallResult, UserError> {
-    let output = Command::new(&call.executable)
-        .args(&call.arguments)
-        .output();
+    // Build the command string from executable and arguments
+    let command_string = if call.arguments.is_empty() {
+        call.executable.clone()
+    } else {
+        format!("{} {}", call.executable, call.arguments.join(" "))
+    };
+
+    // Execute the command inside a shell
+    let output = if cfg!(unix) {
+        // On Unix, use bash
+        Command::new("sh").arg("-c").arg(&command_string).output()
+    } else if cfg!(windows) {
+        // On Windows, use cmd.exe
+        Command::new("cmd.exe")
+            .arg("/C")
+            .arg(&command_string)
+            .output()
+    } else {
+        // Fallback: try to execute directly (shouldn't happen in practice)
+        Command::new(&call.executable)
+            .args(&call.arguments)
+            .output()
+    };
+
     match output {
         Ok(output) => Ok(CallResult { call, output }),
         Err(error) => Err(UserError::CannotStartCommand {
