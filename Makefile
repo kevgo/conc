@@ -1,19 +1,21 @@
-fix: build  # auto-corrects issues
+RTA_VERSION = 0.26.1  # run-that-app version to use
+
+fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	cargo +nightly fix --allow-dirty
 	cargo clippy --fix --allow-dirty
 	cargo +nightly fmt
-	target/debug/rta dprint fmt
-	target/debug/rta shfmt -f . | xargs target/debug/rta shfmt -w
-	target/debug/rta keep-sorted $(shell target/debug/rta ripgrep -l 'keep-sorted end' ./ --glob '!Makefile')
+	tools/rta dprint fmt
+	tools/rta shfmt -f . | xargs target/debug/rta shfmt -w
+	tools/rta keep-sorted $(shell target/debug/rta ripgrep -l 'keep-sorted end' ./ --glob '!Makefile')
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
-lint: build  # runs all linters
+lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy --all-targets --all-features -- --deny=warnings
 	git diff --check
-	target/debug/rta actionlint
-	target/debug/rta --optional shellcheck download.sh
+	tools/rta actionlint
+	tools/rta --optional shellcheck download.sh
 
 setup:  # install development dependencies on this computer
 	rustup component add clippy
@@ -33,6 +35,14 @@ update:  # updates the dependencies
 	cargo machete
 	cargo upgrade
 	cargo run -- --update
+
+# --- HELPER TARGETS --------------------------------------------------------------------------------------------------------------------------------
+
+tools/rta@${RTA_VERSION}:
+	@rm -f tools/rta*
+	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s ${RTA_VERSION})
+	@mv tools/rta tools/rta@${RTA_VERSION}
+	@ln -s rta@${RTA_VERSION} tools/rta
 
 .DEFAULT_GOAL := help
 .SILENT:
