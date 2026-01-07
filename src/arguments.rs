@@ -60,7 +60,6 @@ pub(crate) fn parse_commands(
 mod tests {
 
     mod parse_commands {
-
         use super::super::*;
         use big_s::S;
 
