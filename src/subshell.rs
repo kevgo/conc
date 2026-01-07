@@ -74,7 +74,7 @@ fn to_exitcode_u8(value: i32) -> u8 {
     }
     #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
     #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
-    u8::try_from(value.min(255).abs()).unwrap_or(1)
+    u8::try_from(value.min(255).abs()).unwrap_or(255)
 }
 
 #[cfg(test)]
@@ -87,7 +87,9 @@ mod tests {
         assert_eq!(to_exitcode_u8(1), 1);
         assert_eq!(to_exitcode_u8(-1), 1);
         assert_eq!(to_exitcode_u8(255), 255);
+        assert_eq!(to_exitcode_u8(-255), 255);
         assert_eq!(to_exitcode_u8(256), 255);
+        assert_eq!(to_exitcode_u8(-256), 255);
         assert_eq!(to_exitcode_u8(i32::MAX), 255);
         assert_eq!(to_exitcode_u8(i32::MIN), 255);
     }
