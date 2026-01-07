@@ -25,16 +25,21 @@ This call executes:
 - `app2 arg2a arg2b`
 - `app3 arg3a arg3b`
 
-### show only relevant output
+### customize the output
 
-When running linters, you are often not interested in the output of successful
-linters, especially if they are noisy.
+When running linters or compilers, you are often only interested in knowing
+whether everything succeeded, and only want to know specifics about things that
+failed. The `--show` flag allows customizing the output this way:
+
+- `--show=all` (default) displays all output, once the respective task finishes
+- `--show=failed` displays only the output of tasks that failed
+
+Flags for _conc_ must come before any commands to execute:
 
 ```bash
-conc --relevant \
+conc --show=failed \
      app1 arg1a arg1b }{ \
-     app2 arg2a arg2b }{ \
-     app3 arg3a arg3b
+     app2 arg2a arg2b
 ```
 
 ## alternatives
