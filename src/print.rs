@@ -52,10 +52,9 @@ Conc runs commands concurrently and returns the first non-zero exit code it enco
 Usage: conc [flags] [commands...]
 
 Flags:
-  --help, -h      this help text
-  --show=all      display output of all commands
-  --show=failed   display output of only failed commands
-  --version, -V   display version
+  --help, -h           this help text
+  --show=[all|failed]  display the output of all or only the failed commands
+  --version, -V        display version
 "#;
     let _ = stdout.write_all(output[1..].as_bytes());
 }
