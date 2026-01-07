@@ -34,9 +34,7 @@ pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
             }
         }
     }
-    #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
-    #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
-    ExitCode::from(exit_code.min(255) as u8)
+    ExitCode::from(exit_code)
 }
 
 /// prints the result of a single command execution to stdout and stderr

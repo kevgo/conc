@@ -59,11 +59,14 @@ pub struct CallResult {
 }
 
 impl CallResult {
-    pub(crate) fn exit_code(&self) -> ExitCode {
+    pub(crate) fn exit_code(&self) -> u8 {
         if self.output.status.success() {
-            ExitCode::SUCCESS
+            0
         } else {
-            self.output.status.code().unwrap_or(1)
+            #[allow(clippy::cast_possible_truncation)] // we reduce the value to 255 before casting
+            #[allow(clippy::cast_sign_loss)] // we get the absolute value before casting
+            let code = self.output.status.code().unwrap_or(1).abs().min(255) as u8;
+            code
         }
     }
 }
