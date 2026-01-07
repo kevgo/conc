@@ -1,19 +1,14 @@
 # conc
 
-This application executes multiple CLI arguments concurrently on the command
-line. If one of the applications exits with an error, it exits with that error
-code. This is helpful for executing multiple tools concurrently in development
-scripts or Makefiles.
+_Conc_ runs multiple CLI commands concurrently. If any command exits with a
+non-zero status, conc returns that exit code.
+
+This is useful for development scripts, CI jobs, or Makefiles where you want to
+run several tools in parallel and still keep track of test failures.
 
 ### Usage
 
-```
-conc 'app1 arg1a arg1b' \
-     'app2 arg2a arg2b' \
-     'app3 arg3a arg3b'
-```
-
-Alternatively: separate apps to run via `}{`
+Separate commands with `}{`:
 
 ```
 conc app1 arg1a arg1b }{ \
@@ -21,7 +16,14 @@ conc app1 arg1a arg1b }{ \
      app3 arg3a arg3b
 ```
 
+This call executes:
+
+- `app1 arg1a arg1b`
+- `app2 arg2a arg2b`
+- `app3 arg3a arg3b`
+
 ### Alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): does pretty much
-  exactly this, but somehow doesn't seem to support returning a proper exit code
+- [gnu parallel](https://www.gnu.org/software/parallel): offers similar
+  functionality, but does not reliably propagate a single, meaningful exit code
+  suitable for use in scripts and Makefiles.
