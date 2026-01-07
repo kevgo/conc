@@ -15,22 +15,22 @@ fn main() -> ExitCode {
         print::error(&UserError::NoCommandsProvided);
         return ExitCode::FAILURE;
     }
-    let (tx, rx) = mpsc::channel();
+    let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently
     for command in commands {
-        let txc = tx.clone();
+        let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = txc.send(subshell::execute_command(command.clone()));
+            let _ = send_clone.send(subshell::execute_command(command.clone()));
         });
     }
 
     // drop the original sender so the receiver knows when all threads are done
-    drop(tx);
+    drop(send);
 
     // print results as they arrive and collect exit codes
     let mut exit_code = 0;
-    for call_result in rx {
+    for call_result in receive {
         match call_result {
             Ok(call_result) => {
                 print::result(&call_result);
