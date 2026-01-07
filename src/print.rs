@@ -18,19 +18,20 @@ pub(crate) fn result(call_result: &CallResult, show: &Show) {
         let _ = stdout.write_all(format!("{}\n", command).as_bytes());
     }
 
-    // print output if configured to do so
-    if call_result.output.status.success() && show.display_success() {
-        if !call_result.output.stdout.is_empty() {
-            let _ = stdout.write_all(&call_result.output.stdout);
-            if !call_result.output.stdout.ends_with(b"\n") {
-                let _ = stdout.write_all(b"\n");
-            }
+    if call_result.output.status.success() && !show.display_success() {
+        return;
+    }
+
+    if !call_result.output.stdout.is_empty() {
+        let _ = stdout.write_all(&call_result.output.stdout);
+        if !call_result.output.stdout.ends_with(b"\n") {
+            let _ = stdout.write_all(b"\n");
         }
-        if !call_result.output.stderr.is_empty() {
-            let _ = stderr.write_all(&call_result.output.stderr);
-            if !call_result.output.stderr.ends_with(b"\n") {
-                let _ = stderr.write_all(b"\n");
-            }
+    }
+    if !call_result.output.stderr.is_empty() {
+        let _ = stderr.write_all(&call_result.output.stderr);
+        if !call_result.output.stderr.ends_with(b"\n") {
+            let _ = stderr.write_all(b"\n");
         }
     }
 }
