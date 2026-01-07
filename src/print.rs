@@ -26,7 +26,6 @@ pub(crate) fn result(call_result: &CallResult, show: &Show) {
     write_output(&mut stderr, &call_result.output.stderr);
 }
 
-/// Writes output to a writer, ensuring it ends with a newline
 fn write_output(writer: &mut dyn Write, output: &[u8]) {
     if !output.is_empty() {
         let _ = writer.write_all(output);
