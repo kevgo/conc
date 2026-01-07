@@ -25,7 +25,7 @@ fn main() -> ExitCode {
         });
     }
 
-    // drop the original sender so the receiver knows when all threads are done
+    // drop the original sender so the receiver knows when all senders are closed
     drop(send);
 
     // print results as they arrive and collect exit codes
