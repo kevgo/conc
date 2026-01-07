@@ -4,8 +4,8 @@ mod commands;
 mod errors;
 mod subshell;
 
-use crate::commands::Command;
 use colored::Colorize;
+use commands::Command;
 use errors::UserError;
 use std::env;
 use std::process::ExitCode;
