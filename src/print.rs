@@ -7,7 +7,7 @@ pub(crate) fn result(call_result: &CallResult) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
-    // Print command name
+    // print command name
     let _ = stdout.write_all(format!("[{}]\n", call_result.call).as_bytes());
 
     // print stdout if not empty
