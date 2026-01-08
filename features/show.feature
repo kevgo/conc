@@ -4,18 +4,18 @@ Feature: run multiple commands concurrently
     When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the output contains:
       """
-      			echo two
-      			two
+      echo two
+      two
       """
     And the output contains:
       """
-      			echo three
-      			three
+      echo three
+      three
       """
     And the exit code is 0
 
@@ -23,15 +23,15 @@ Feature: run multiple commands concurrently
     When I run "conc --show=failed 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
-      			echo one
+      echo one
       """
     And the output contains:
       """
-      			echo two
+      echo two
       """
     And the output contains:
       """
-      			echo three
+      echo three
       """
     And the exit code is 0
 
@@ -39,17 +39,17 @@ Feature: run multiple commands concurrently
     When I run "conc --show=failed --error-on-output 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the output contains:
       """
-      			echo two
-      			two
+      echo two
+      two
       """
     And the output contains:
       """
-      			echo three
-      			three
+      echo three
+      three
       """
     And the exit code is 1
