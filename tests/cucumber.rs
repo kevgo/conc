@@ -9,7 +9,7 @@ struct World {
     want_blocks: Vec<String>,
 }
 
-#[given("an empty folder")]
+#[given("I'm in an empty folder")]
 async fn an_empty_folder(world: &mut World) {
     world.workspace = Some(tempfile::tempdir().unwrap());
 }
@@ -23,7 +23,9 @@ async fn i_run(world: &mut World, command: String) {
         let conc_path = cwd.join("target/debug/conc");
         executable = conc_path.to_string_lossy().to_string();
     }
-    world.output = Some(Command::new(executable).args(args).output().await.unwrap());
+    let mut command = Command::new(executable);
+    command.args(args);
+    world.output = Some(command.output().await.unwrap());
 }
 
 #[then(expr = "the exit code is {int}")]
@@ -60,6 +62,10 @@ async fn main() {
                         panic!("Didn't find '{}' in output:\n{}", want, have);
                     }
                     have = have.replace(want, "");
+                }
+                have = have.trim().to_string();
+                if !have.is_empty() {
+                    panic!("Extra output found:\n{}", have);
                 }
             })
         })
