@@ -1,28 +1,43 @@
+use cucumber::gherkin::Step;
 use cucumber::{World as _, given, then, when};
-use std::path::PathBuf;
+use tokio::process::Command;
 
 #[derive(Debug, Default, cucumber::World)]
 struct World {
-    workspace: PathBuf,
-    user: Option<String>,
-    capacity: usize,
+    workspace: Option<tempfile::TempDir>,
+    output: Option<std::process::Output>,
 }
 
-#[given(expr = "{word} is hungry")] // Cucumber Expression
-async fn someone_is_hungry(w: &mut World, user: String) {
-    w.user = Some(user);
+#[given("an empty folder")]
+async fn an_empty_folder(world: &mut World) {
+    world.workspace = Some(tempfile::tempdir().unwrap());
 }
 
-#[when(regex = r"^(?:he|she|they) eats? (\d+) cucumbers?$")]
-async fn eat_cucumbers(w: &mut World, count: usize) {
-    w.capacity += count;
-
-    assert!(w.capacity < 4, "{} exploded!", w.user.as_ref().unwrap());
+#[when(expr = "I run {string}")]
+async fn i_run(world: &mut World, command: String) {
+    let mut args = shellwords::split(&command).unwrap().into_iter();
+    let mut executable = args.next().unwrap();
+    if executable == "conc" {
+        let cwd = std::env::current_dir().unwrap();
+        let conc_path = cwd.join("target/debug/conc");
+        executable = conc_path.to_string_lossy().to_string();
+    }
+    world.output = Some(Command::new(executable).args(args).output().await.unwrap());
 }
 
-#[then("she is full")]
-async fn is_full(w: &mut World) {
-    assert_eq!(w.capacity, 3, "{} isn't full!", w.user.as_ref().unwrap());
+#[then("the output contains:")]
+async fn the_output_contains(world: &mut World, step: &Step) {
+    let want = step.docstring().unwrap();
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran yet");
+    };
+    let have = String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
+    assert!(
+        have.contains(want),
+        "Didn't find '{}' in output:\n{}",
+        want,
+        have
+    );
 }
 
 #[tokio::main(flavor = "current_thread")]
