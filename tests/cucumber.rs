@@ -1,3 +1,4 @@
+#![allow(clippy::panic)]
 use cucumber::gherkin::Step;
 use cucumber::{World as _, given, then, when};
 use tokio::process::Command;
@@ -57,7 +58,7 @@ fn the_output_is(world: &mut World, step: &Step) {
         String::from_utf8_lossy(&output.stderr)
     );
     pretty::assert_eq!(have.trim(), want.trim());
-    world.want_blocks.push(want.trim().to_string());
+    world.want_blocks.push(want.trim().to_owned());
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -84,7 +85,7 @@ async fn main() {
                     );
                     have = have.replace(want, "");
                 }
-                have = have.trim().to_string();
+                have = have.trim().to_owned();
                 assert!(have.is_empty(), "Extra output found:\n{have}");
             })
         })
