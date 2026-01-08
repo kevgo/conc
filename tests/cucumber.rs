@@ -45,7 +45,7 @@ async fn main() {
         .after(|_feature, _rule, _scenario, _ev, world| {
             Box::pin(async move {
                 let Some(world) = world else {
-                    return;
+                    panic!("No world");
                 };
                 let Some(output) = world.output.as_ref() else {
                     panic!("No command ran yet");
@@ -64,5 +64,6 @@ async fn main() {
                 }
             })
         })
-        .run_and_exit("tests/features/book");
+        .run_and_exit("features")
+        .await;
 }
