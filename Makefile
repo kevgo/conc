@@ -16,6 +16,8 @@ fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	cargo clippy --fix --allow-dirty
 	cargo +nightly fmt
 	tools/rta dprint fmt
+	tools/rta ghokin fmt replace features/
+
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
