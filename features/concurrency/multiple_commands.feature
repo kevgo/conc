@@ -1,7 +1,7 @@
 Feature: run multiple commands concurrently
 
 	Scenario: run multiple commands
-		# When I run "conc 'echo one' 'echo two' 'echo three'"
+		When I run "conc 'echo one' 'echo two' 'echo three'"
 		Then the output contains:
 			"""
 			echo one
