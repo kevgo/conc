@@ -42,7 +42,7 @@ conc "echo one && echo two | grep on > file"
 
 When running linters, tests, or compilers, you often only care whether
 everything succeeded and want detailed output only when something fails. The
-`--show` flag controls much output _conc_ prints:
+`--show` flag controls how much output _conc_ prints:
 
 - `--show=all` (default) prints the output of every command after it finishes
 - `--show=failed` prints output only for commands that exit with a non-zero
