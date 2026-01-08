@@ -34,3 +34,22 @@ Feature: run multiple commands concurrently
 			echo three
 			"""
 		And the exit code is 0
+
+	Scenario: failed with error-on-output
+		When I run "conc --show=failed --error-on-output 'echo one' 'echo two' 'echo three'"
+		Then the output contains:
+			"""
+			echo one
+			one
+			"""
+		And the output contains:
+			"""
+			echo two
+			two
+			"""
+		And the output contains:
+			"""
+			echo three
+			three
+			"""
+		And the exit code is 1
