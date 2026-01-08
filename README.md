@@ -63,6 +63,18 @@ override this behavior using environment variables:
   TTY
 - `NO_COLOR=1` disables colors
 
+### error on output
+
+Some tools just display findings and terminate with a success code. To detect
+these types of issues, the `--error-on-output` flag causes failure when _conc_
+detects output.
+
+```
+conc --error-on-output "echo foo"
+```
+
+This call will fail with exit code 1 because a command run was printing `foo`.
+
 ## alternatives
 
 - [gnu parallel](https://www.gnu.org/software/parallel): provides similar
