@@ -64,29 +64,27 @@ fn the_output_is(world: &mut World, step: &Step) {
 async fn main() {
     World::cucumber()
         .after(|_feature, _rule, _scenario, _ev, world| {
-            Box::pin(async move {
-                let Some(world) = world else {
-                    // TODO: return a failure here instead of panicking
-                    panic!("No world");
-                };
-                let Some(output) = world.output.as_ref() else {
-                    panic!("No command ran");
-                };
-                let mut have = format!(
-                    "{}{}",
-                    String::from_utf8_lossy(&output.stdout),
-                    String::from_utf8_lossy(&output.stderr)
+            let Some(world) = world else {
+                // TODO: return a failure here instead of panicking
+                panic!("No world");
+            };
+            let Some(output) = world.output.as_ref() else {
+                panic!("No command ran");
+            };
+            let mut have = format!(
+                "{}{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            for want in &world.want_blocks {
+                assert!(
+                    have.contains(want),
+                    "Didn't find '{want}' in output:\n{have}"
                 );
-                for want in &world.want_blocks {
-                    assert!(
-                        have.contains(want),
-                        "Didn't find '{want}' in output:\n{have}"
-                    );
-                    have = have.replace(want, "");
-                }
-                have = have.trim().to_string();
-                assert!(have.is_empty(), "Extra output found:\n{have}");
-            })
+                have = have.replace(want, "");
+            }
+            have = have.trim().to_string();
+            assert!(have.is_empty(), "Extra output found:\n{have}");
         })
         .run_and_exit("features")
         .await;
