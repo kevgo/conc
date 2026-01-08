@@ -3,8 +3,8 @@
 _Conc_ runs multiple CLI commands concurrently and returns the first non-zero
 exit code it encounters.
 
-It is intended for development scripts, CI pipelines, and Makefiles that execute
-many tools in parallel and keep track of failures.
+It is intended for development scripts and CI pipelines that execute many tools
+in parallel and keep track of failures.
 
 [![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
 [![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
