@@ -25,6 +25,13 @@ async fn i_run(world: &mut World, command: String) {
     world.output = Some(Command::new(executable).args(args).output().await.unwrap());
 }
 
+#[then(expr = "the exit code is {int}")]
+async fn the_exit_code_is(world: &mut World, expected: i32) {
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran yet");
+    };
+    assert_eq!(output.status.code().unwrap(), expected);
+}
 #[then("the output contains:")]
 async fn the_output_contains(world: &mut World, step: &Step) {
     let Some(output) = world.output.as_ref() else {

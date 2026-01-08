@@ -17,3 +17,4 @@ Feature: run multiple commands concurrently
 			echo three
 			three
 			"""
+		And the exit code is 0

@@ -8,3 +8,4 @@ Feature: run multiple commands concurrently
 			echo two
 			echo three
 			"""
+		And the exit code is 0
