@@ -78,13 +78,13 @@ async fn main() {
                 );
                 for want in &world.want_blocks {
                     if !have.contains(want) {
-                        panic!("Didn't find '{}' in output:\n{}", want, have);
+                        panic!("Didn't find '{want}' in output:\n{have}");
                     }
                     have = have.replace(want, "");
                 }
                 have = have.trim().to_string();
                 if !have.is_empty() {
-                    panic!("Extra output found:\n{}", have);
+                    panic!("Extra output found:\n{have}");
                 }
             })
         })
