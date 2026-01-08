@@ -50,7 +50,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     // print command name
     let mut command = call_result.call.to_string();
     if is_failed {
-        let _ = stdout.write_all(command.bold().red().as_bytes());
+        let _ = writeln!(stdout, "{}", command.bold().red());
     } else {
         if show.display_success() {
             command = command.bold().to_string();
