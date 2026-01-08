@@ -38,10 +38,26 @@ async fn the_exit_code_is(world: &mut World, expected: i32) {
     };
     assert_eq!(output.status.code().unwrap(), expected);
 }
+
 #[then("the output contains:")]
 async fn the_output_contains(world: &mut World, step: &Step) {
     let want = step.docstring().unwrap().trim();
     world.want_blocks.push(want.to_owned());
+}
+
+#[then("the output is:")]
+async fn the_output_is(world: &mut World, step: &Step) {
+    let want = step.docstring().unwrap();
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran yet");
+    };
+    let have = format!(
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    panic!("have: {:?}", want);
+    pretty::assert_eq!(have.trim(), want.trim());
 }
 
 #[tokio::main(flavor = "current_thread")]
