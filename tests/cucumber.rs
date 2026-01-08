@@ -10,7 +10,7 @@ struct World {
 }
 
 #[given("I'm in an empty folder")]
-async fn an_empty_folder(world: &mut World) {
+fn an_empty_folder(world: &mut World) {
     world.workspace = Some(tempfile::tempdir().unwrap());
 }
 
@@ -32,7 +32,7 @@ async fn i_run(world: &mut World, command: String) {
 }
 
 #[then(expr = "the exit code is {int}")]
-async fn the_exit_code_is(world: &mut World, expected: i32) {
+fn the_exit_code_is(world: &mut World, expected: i32) {
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran yet");
     };
@@ -40,13 +40,13 @@ async fn the_exit_code_is(world: &mut World, expected: i32) {
 }
 
 #[then("the output contains:")]
-async fn the_output_contains(world: &mut World, step: &Step) {
+fn the_output_contains(world: &mut World, step: &Step) {
     let want = step.docstring().unwrap().trim();
     world.want_blocks.push(want.to_owned());
 }
 
 #[then("the output is:")]
-async fn the_output_is(world: &mut World, step: &Step) {
+fn the_output_is(world: &mut World, step: &Step) {
     let want = step.docstring().unwrap();
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran yet");
