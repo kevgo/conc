@@ -25,6 +25,9 @@ async fn i_run(world: &mut World, command: String) {
     }
     let mut command = Command::new(executable);
     command.args(args);
+    if let Some(workspace) = &world.workspace {
+        command.current_dir(workspace);
+    }
     world.output = Some(command.output().await.unwrap());
 }
 
