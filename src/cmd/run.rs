@@ -55,7 +55,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
         if show.display_success() {
             command = command.bold().to_string();
         }
-        let _ = stdout.write_all(command.as_bytes());
+        let _ = writeln!(stdout, "{command}");
     }
 
     // print command output
