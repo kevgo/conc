@@ -66,6 +66,16 @@ impl CallResult {
             to_exitcode_u8(self.output.status.code().unwrap_or(1))
         }
     }
+
+    /// indicates whether this call produced any output to STDOUT or STDERR
+    pub(crate) fn has_output(&self) -> bool {
+        !self.output.stdout.is_empty() || !self.output.stderr.is_empty()
+    }
+
+    /// indicates whether this call exited with a success code
+    pub(crate) fn success(&self) -> bool {
+        self.output.status.success()
+    }
 }
 
 fn to_exitcode_u8(value: i32) -> u8 {

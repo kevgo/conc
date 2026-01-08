@@ -6,9 +6,29 @@ pub enum Command {
     /// display the help text
     Help,
     /// execute the given commands concurrently
-    Run { calls: Vec<Call>, show: Show },
+    Run {
+        calls: Vec<Call>,
+        error_on_output: ErrorOnOutput,
+        show: Show,
+    },
     /// display the version
     Version,
+}
+
+/// whether to error if any command produces output
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct ErrorOnOutput(bool);
+
+impl From<bool> for ErrorOnOutput {
+    fn from(value: bool) -> Self {
+        ErrorOnOutput(value)
+    }
+}
+
+impl ErrorOnOutput {
+    pub(crate) fn enabled(self) -> bool {
+        self.0
+    }
 }
 
 /// the different ways to display the output of the commands
