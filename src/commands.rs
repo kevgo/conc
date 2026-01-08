@@ -26,8 +26,8 @@ impl From<bool> for ErrorOnOutput {
 }
 
 impl From<ErrorOnOutput> for bool {
-    fn from(val: ErrorOnOutput) -> Self {
-        val.0
+    fn from(value: ErrorOnOutput) -> Self {
+        value.0
     }
 }
 
