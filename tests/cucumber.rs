@@ -1,7 +1,9 @@
 use cucumber::{World as _, given, then, when};
+use std::path::PathBuf;
 
 #[derive(Debug, Default, cucumber::World)]
 struct World {
+    workspace: PathBuf,
     user: Option<String>,
     capacity: usize,
 }
@@ -24,7 +26,6 @@ async fn is_full(w: &mut World) {
 }
 
 #[tokio::main(flavor = "current_thread")]
-
 async fn main() {
     World::run("features").await;
 }
