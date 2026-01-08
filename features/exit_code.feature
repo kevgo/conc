@@ -1,4 +1,4 @@
-Feature: run multiple commands concurrently
+Feature: pass the received exit code to the parent process
 
 	Scenario: exit code 0
 		When I run "conc --show=all 'exit 0'"
