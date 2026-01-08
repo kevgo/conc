@@ -78,15 +78,14 @@ async fn main() {
                     String::from_utf8_lossy(&output.stderr)
                 );
                 for want in &world.want_blocks {
-                    if !have.contains(want) {
-                        panic!("Didn't find '{want}' in output:\n{have}");
-                    }
+                    assert!(
+                        have.contains(want),
+                        "Didn't find '{want}' in output:\n{have}"
+                    );
                     have = have.replace(want, "");
                 }
                 have = have.trim().to_string();
-                if !have.is_empty() {
-                    panic!("Extra output found:\n{have}");
-                }
+                assert!(have.is_empty(), "Extra output found:\n{have}");
             })
         })
         .run_and_exit("features")
