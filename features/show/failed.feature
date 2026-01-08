@@ -2,15 +2,9 @@ Feature: run multiple commands concurrently
 
 	Scenario: run multiple commands
 		When I run "conc --show=failed 'echo one' 'echo two' 'echo three'"
-		Then the output contains:
+		Then the output contains these lines in any order:
 			"""
 			echo one
-			"""
-		And the output contains:
-			"""
 			echo two
-			"""
-		And the output contains:
-			"""
 			echo three
 			"""
