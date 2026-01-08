@@ -67,7 +67,6 @@ async fn main() {
         .after(|_feature, _rule, _scenario, _ev, world| {
             Box::pin(async move {
                 let Some(world) = world else {
-                    // TODO: return a failure here instead of panicking
                     panic!("No world");
                 };
                 let Some(output) = world.output.as_ref() else {
