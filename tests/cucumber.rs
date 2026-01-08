@@ -46,6 +46,7 @@ async fn the_output_contains(world: &mut World, step: &Step) {
         have
     );
 }
+
 #[then("the output contains these lines in any order:")]
 async fn the_output_contains_these_lines_in_any_order(world: &mut World, step: &Step) {
     let Some(output) = world.output.as_ref() else {
@@ -71,6 +72,16 @@ async fn the_output_contains_these_lines_in_any_order(world: &mut World, step: &
             output_text
         );
     }
+}
+
+#[then("the output is:")]
+async fn the_output_is(world: &mut World, step: &Step) {
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran yet");
+    };
+    let have = String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
+    let want = step.docstring().unwrap().trim();
+    assert_eq!(have, want);
 }
 
 #[tokio::main(flavor = "current_thread")]

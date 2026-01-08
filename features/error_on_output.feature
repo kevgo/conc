@@ -1,11 +1,14 @@
 Feature: error on output
 
-	Scenario: enabled
-		When I run "conc --show=failed 'echo one' 'echo two' 'echo three'"
-		Then the output contains these lines in any order:
+	Scenario: enabled with show=failed
+		When I run "conc --error-on-output --show=failed 'echo one' 'mkdir test'"
+		Then the output contains:
 			"""
 			echo one
-			echo two
-			echo three
+			one
 			"""
-		And the exit code is 0
+		And the output contains:
+			"""
+			mkdir test
+			"""
+		And the exit code is 1
