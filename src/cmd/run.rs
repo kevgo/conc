@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
+pub fn run(calls: Vec<Call>, show: Show, error_on_output: bool) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
@@ -22,9 +22,14 @@ pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
 
     // print results as they arrive and collect exit codes
     let mut exit_code = 0;
+    let mut has_output = false;
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
+                // Check if this command produced any output
+                if !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty() {
+                    has_output = true;
+                }
                 print_result(&call_result, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
@@ -33,6 +38,10 @@ pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
                 exit_code = exit_code.max(1);
             }
         }
+    }
+    // If error_on_output is set and any command produced output, exit with code 1
+    if error_on_output && has_output {
+        exit_code = exit_code.max(1);
     }
     ExitCode::from(exit_code)
 }

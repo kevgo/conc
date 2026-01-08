@@ -6,7 +6,11 @@ pub enum Command {
     /// display the help text
     Help,
     /// execute the given commands concurrently
-    Run { calls: Vec<Call>, show: Show },
+    Run {
+        calls: Vec<Call>,
+        error_on_output: bool,
+        show: Show,
+    },
     /// display the version
     Version,
 }
