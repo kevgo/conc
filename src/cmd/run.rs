@@ -30,8 +30,8 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
                     exit_code = exit_code.max(1);
                 }
                 let call_failed = !call_result.success() || error_from_output;
-                print_result(&call_result, call_failed, show);
                 exit_code = exit_code.max(call_result.exit_code());
+                print_result(&call_result, call_failed, show);
             }
             Err(err) => {
                 eprintln!("{}", err.to_string().red());
