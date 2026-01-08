@@ -1,4 +1,4 @@
-use crate::commands::Show;
+use crate::commands::{ErrorOnOutput, Show};
 use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
+pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
@@ -25,8 +25,13 @@ pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                print_result(&call_result, show);
                 exit_code = exit_code.max(call_result.exit_code());
+                let error_from_output = error_on_output.enabled() && call_result.has_output();
+                if error_from_output {
+                    exit_code = exit_code.max(1);
+                }
+                let call_failed = !call_result.success() || error_from_output;
+                print_result(&call_result, call_failed, show);
             }
             Err(err) => {
                 eprintln!("{}", err.to_string().red());
@@ -38,28 +43,26 @@ pub fn run(calls: Vec<Call>, show: Show) -> ExitCode {
 }
 
 /// prints the result of a single command execution to stdout and stderr
-fn print_result(call_result: &CallResult, show: Show) {
+fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
     // print command name
-    if call_result.output.status.success() {
-        let mut command = call_result.call.to_string();
+    let mut command = call_result.call.to_string();
+    if is_failed {
+        let _ = writeln!(stdout, "{}", command.bold().red());
+    } else {
         if show.display_success() {
             command = command.bold().to_string();
         }
         let _ = writeln!(stdout, "{command}");
-    } else {
-        let command = call_result.call.to_string().bold().red();
-        let _ = writeln!(stdout, "{command}");
     }
 
-    if call_result.output.status.success() && !show.display_success() {
-        return;
+    // print command output
+    if is_failed || show.display_success() {
+        write_output(&mut stdout, &call_result.output.stdout);
+        write_output(&mut stderr, &call_result.output.stderr);
     }
-
-    write_output(&mut stdout, &call_result.output.stdout);
-    write_output(&mut stderr, &call_result.output.stderr);
 }
 
 fn write_output(writer: &mut dyn Write, output: &[u8]) {
