@@ -48,7 +48,7 @@ async fn main() {
                     panic!("No world");
                 };
                 let Some(output) = world.output.as_ref() else {
-                    panic!("No command ran yet");
+                    panic!("No command ran");
                 };
                 let mut have = format!(
                     "{}{}",
