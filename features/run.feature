@@ -27,3 +27,7 @@ Feature: run multiple commands concurrently
 			one
 			"""
 		And the exit code is 0
+
+	Scenario: no command
+		When I run "conc"
+		Then the exit code is 0
