@@ -1,5 +1,16 @@
 RTA_VERSION = 0.26.1  # run-that-app version to use
 
+build:  # builds the codebase
+	cargo build
+
+cuke: build  # runs all end-to-end tests
+	rm -rf tmp
+	cargo test --test=cucumber
+
+cukethis: build  # runs only end-to-end tests with a @this tag
+	rm -rf tmp
+	cargo test --test cucumber -- -t @this
+
 fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	cargo +nightly fix --allow-dirty
 	cargo clippy --fix --allow-dirty
