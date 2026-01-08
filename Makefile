@@ -28,7 +28,7 @@ lint: tools/rta@${RTA_VERSION}  # runs all linters
 	git diff --check
 	tools/rta npm exec gherkin-lint
 
-setup:  # install development dependencies on this computer
+setup: tools/rta@${RTA_VERSION}  # install development dependencies on this computer
 	rustup component add clippy
 	rustup toolchain add nightly
 	rustup component add rustfmt --toolchain nightly
