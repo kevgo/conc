@@ -3,27 +3,27 @@
 _Conc_ runs multiple CLI commands concurrently and returns the first non-zero
 exit code it encounters.
 
-This is useful for development scripts, CI jobs, or Makefiles where you want to
-run several tools in parallel and still keep track of test failures.
+It is intended for development scripts and CI pipelines that execute many tools
+in parallel and keep track of failures.
 
 [![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
 [![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
 
 ## usage
 
-Provide the commands to execute as strings.
+Pass the commands to execute as strings.
 
 ```
 conc "echo one" "echo two" "echo three"
 ```
 
-This call executes these three commands concurrently:
+This runs these three commands concurrently:
 
 - `echo one`
 - `echo two`
 - `echo three`
 
-You can also write this on multiple lines:
+For better readability, you can put each command on its own line:
 
 ```
 conc "echo one" \
@@ -31,37 +31,40 @@ conc "echo one" \
      "echo three"
 ```
 
-Commands execute inside a shell, so you can use shell operators:
+Commands execute inside a shell (`sh` on Linux/macOS, `cmd.exe` on Windows), so
+you can use shell features like pipes and redirection:
 
 ```
-conc "echo one | grep on"
+conc "echo one | grep on > file"
 ```
 
-### customize the output
+### output verbosity
 
-When running linters, tests, or compilers, you're often only interested in the
-overall success signal and the details of what failed. The `--show` flag lets
-you control how much output _conc_ emits:
+When running linters, tests, or compilers, you often only care whether
+everything succeeded and want detailed output only when something fails. The
+`--show` flag controls much output _conc_ prints:
 
-- `--show=all` (default) prints the output of every task once it finishes
-- `--show=failed` prints output only for tasks that exit with a non-zero status
+- `--show=all` (default) prints the output of every command after it finishes
+- `--show=failed` prints output only for commands that exit with a non-zero
+  status
 
-Flags for conc must appear before any commands to execute:
+Flags must appear before the commands to execute:
 
 ```bash
 conc --show=failed "echo one" "echo two"
 ```
 
-### configure color output
+### colors
 
-_Conc_ emits ANSI colors if STDOUT and STDERR are connected to a TTY. You can
-override this behavior using the following environment variables:
+_Conc_ emits ANSI colors when STDOUT and STDERR are connected to a TTY. You can
+override this behavior using environment variables:
 
-- `CLICOLOR_FORCE=1` always enables color output, even when not writing to a TTY
-- `NO_COLOR=1` disables color output entirely
+- `CLICOLOR_FORCE=1` always enables color output, even when not connected to a
+  TTY
+- `NO_COLOR=1` disables colors
 
 ## alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): offers similar
+- [gnu parallel](https://www.gnu.org/software/parallel): provides similar
   functionality, but does not reliably propagate a single, meaningful exit code
   suitable for use in scripts and Makefiles.
