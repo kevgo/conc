@@ -5,7 +5,7 @@ Feature: error on output
     When I run "conc --error-on-output 'mkdir test'"
     Then the output contains:
       """
-      			mkdir test
+      mkdir test
       """
     And the exit code is 0
 
@@ -13,8 +13,8 @@ Feature: error on output
     When I run "conc --error-on-output 'echo one'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the exit code is 1
 
@@ -23,7 +23,7 @@ Feature: error on output
     When I run "conc 'mkdir test'"
     Then the output contains:
       """
-      			mkdir test
+      mkdir test
       """
     And the exit code is 0
 
@@ -31,7 +31,7 @@ Feature: error on output
     When I run "conc 'echo one'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the exit code is 0
