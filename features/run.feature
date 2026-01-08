@@ -18,3 +18,12 @@ Feature: run multiple commands concurrently
 			three
 			"""
 		And the exit code is 0
+
+	Scenario: one command
+		When I run "conc 'echo one'"
+		Then the output contains:
+			"""
+			echo one
+			one
+			"""
+		And the exit code is 0
