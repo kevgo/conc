@@ -6,6 +6,7 @@ use tokio::process::Command;
 struct World {
     workspace: Option<tempfile::TempDir>,
     output: Option<std::process::Output>,
+    want_blocks: Vec<String>,
 }
 
 #[given("an empty folder")]
@@ -34,57 +35,34 @@ async fn the_exit_code_is(world: &mut World, expected: i32) {
 }
 #[then("the output contains:")]
 async fn the_output_contains(world: &mut World, step: &Step) {
-    let Some(output) = world.output.as_ref() else {
-        panic!("No command ran yet");
-    };
-    let have = String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
     let want = step.docstring().unwrap().trim();
-    assert!(
-        have.contains(want),
-        "Didn't find '{}' in output:\n{}",
-        want,
-        have
-    );
-}
-
-#[then("the output contains these lines in any order:")]
-async fn the_output_contains_these_lines_in_any_order(world: &mut World, step: &Step) {
-    let Some(output) = world.output.as_ref() else {
-        panic!("No command ran yet");
-    };
-    let output_text =
-        String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
-    let have = output_text.lines().collect::<Vec<_>>();
-    let want_text = step.docstring().unwrap().trim();
-    let want = want_text.lines().collect::<Vec<_>>();
-    assert_eq!(
-        have.len(),
-        want.len(),
-        "Expected {} lines in output, got {}",
-        want.len(),
-        have.len()
-    );
-    for line in want {
-        assert!(
-            have.contains(&line),
-            "Didn't find '{}' in output:\n{}",
-            line,
-            output_text
-        );
-    }
-}
-
-#[then("the output is:")]
-async fn the_output_is(world: &mut World, step: &Step) {
-    let Some(output) = world.output.as_ref() else {
-        panic!("No command ran yet");
-    };
-    let have = String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
-    let want = step.docstring().unwrap().trim();
-    assert_eq!(have, want);
+    world.want_blocks.push(want.to_owned());
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    World::run("features").await;
+    World::cucumber()
+        .after(|_feature, _rule, _scenario, _ev, world| {
+            Box::pin(async move {
+                let Some(world) = world else {
+                    return;
+                };
+                let Some(output) = world.output.as_ref() else {
+                    panic!("No command ran yet");
+                };
+                let mut have = format!(
+                    "{}{}",
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                for want in &world.want_blocks {
+                    if have.contains(want) {
+                        have = have.replace(want, "");
+                    } else {
+                        panic!("Didn't find '{}' in output:\n{}", want, have);
+                    }
+                }
+            })
+        })
+        .run_and_exit("tests/features/book");
 }
