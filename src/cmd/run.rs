@@ -25,14 +25,12 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                let has_output =
-                    !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty();
-                let output_causes_error = error_on_output.into() && has_output;
-                let this_call_failed = !call_result.output.status.success() || output_causes_error;
-                if this_call_failed {
+                let output_causes_error = error_on_output.enabled() && call_result.has_output();
+                let call_failed = !call_result.success() || output_causes_error;
+                if call_failed {
                     exit_code = exit_code.max(call_result.exit_code().max(1));
                 }
-                print_result(&call_result, this_call_failed, show);
+                print_result(&call_result, call_failed, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
@@ -50,15 +48,14 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     let mut stderr = io::stderr();
 
     // print command name
+    let mut command = call_result.call.to_string();
     if is_failed {
-        let command = call_result.call.to_string().bold().red();
-        let _ = writeln!(stdout, "{command}");
+        let _ = stdout.write_all(command.bold().red().as_bytes());
     } else {
-        let mut command = call_result.call.to_string();
         if show.display_success() {
             command = command.bold().to_string();
         }
-        let _ = writeln!(stdout, "{command}");
+        let _ = stdout.write_all(command.as_bytes());
     }
 
     // print command output

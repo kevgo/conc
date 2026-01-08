@@ -25,9 +25,9 @@ impl From<bool> for ErrorOnOutput {
     }
 }
 
-impl From<ErrorOnOutput> for bool {
-    fn from(value: ErrorOnOutput) -> Self {
-        value.0
+impl ErrorOnOutput {
+    pub(crate) fn enabled(&self) -> bool {
+        self.0
     }
 }
 
