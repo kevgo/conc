@@ -1,6 +1,5 @@
 Feature: display the help text
 
-  @this
   Scenario: help
     When I run "conc --help"
     Then the output is:
