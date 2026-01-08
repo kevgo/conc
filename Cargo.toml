@@ -8,6 +8,15 @@ colored = "3.0.0"
 
 [dev-dependencies]
 big_s = "1.0.2"
+cucumber = "0.22.1"
+pretty = { package = "pretty_assertions", version = "1.4.1" }
+shellwords = "1.1.0"
+tempfile = "3.24.0"
+tokio = { version = "1.49", features = ["fs", "io-util", "macros", "process", "rt"] }
+
+[[test]]
+name = "cucumber"
+harness = false # allows Cucumber to print output instead of libtest
 
 [profile.release]
 opt-level = 's' # Optimize for size

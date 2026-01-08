@@ -1,10 +1,20 @@
 RTA_VERSION = 0.26.1  # run-that-app version to use
 
+build:  # builds the codebase
+	cargo build
+
+cuke: build  # runs all end-to-end tests
+	cargo test --test=cucumber
+
+cukethis: build  # runs only end-to-end tests with a @this tag
+	cargo test --test cucumber -- -t @this
+
 fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	cargo +nightly fix --allow-dirty
 	cargo clippy --fix --allow-dirty
 	cargo +nightly fmt
 	tools/rta dprint fmt
+	tools/rta ghokin fmt replace features/
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
@@ -16,11 +26,13 @@ lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic  # lint production code
 	cargo clippy --all-targets --all-features -- --deny=warnings --allow=clippy::unwrap_used # lint all code including test code
 	git diff --check
+	tools/rta npm exec gherkin-lint
 
-setup:  # install development dependencies on this computer
+setup: tools/rta@${RTA_VERSION}  # install development dependencies on this computer
 	rustup component add clippy
 	rustup toolchain add nightly
 	rustup component add rustfmt --toolchain nightly
+	tools/rta npm ci
 
 test: fix unit lint  # runs all tests
 
