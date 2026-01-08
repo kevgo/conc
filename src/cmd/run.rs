@@ -29,7 +29,7 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
                 if !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty() {
                     has_output = true;
                 }
-                print_result(&call_result, show);
+                print_result(&call_result, error_on_output, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
@@ -45,28 +45,33 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
 }
 
 /// prints the result of a single command execution to stdout and stderr
-fn print_result(call_result: &CallResult, show: Show) {
+fn print_result(call_result: &CallResult, error_on_output: ErrorOnOutput, show: Show) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
+    // Check if this command produced output that should be treated as an error
+    let has_output = !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty();
+    let output_causes_error = error_on_output.into() && has_output;
+
+    // Determine if this command should be considered "failed" for display purposes
+    let is_failed = !call_result.output.status.success() || output_causes_error;
+
     // print command name
-    if call_result.output.status.success() {
+    if is_failed {
+        let command = call_result.call.to_string().bold().red();
+        let _ = writeln!(stdout, "{command}");
+    } else {
         let mut command = call_result.call.to_string();
         if show.display_success() {
             command = command.bold().to_string();
         }
         let _ = writeln!(stdout, "{command}");
-    } else {
-        let command = call_result.call.to_string().bold().red();
-        let _ = writeln!(stdout, "{command}");
     }
 
-    if call_result.output.status.success() && !show.display_success() {
-        return;
+    if is_failed || show.display_success() {
+        write_output(&mut stdout, &call_result.output.stdout);
+        write_output(&mut stderr, &call_result.output.stderr);
     }
-
-    write_output(&mut stdout, &call_result.output.stdout);
-    write_output(&mut stderr, &call_result.output.stderr);
 }
 
 fn write_output(writer: &mut dyn Write, output: &[u8]) {
