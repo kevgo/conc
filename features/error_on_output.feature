@@ -1,6 +1,6 @@
-Feature: run multiple commands concurrently
+Feature: error on output
 
-	Scenario: run multiple commands
+	Scenario: enabled
 		When I run "conc --show=failed 'echo one' 'echo two' 'echo three'"
 		Then the output contains these lines in any order:
 			"""
