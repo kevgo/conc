@@ -35,7 +35,7 @@ Commands are executed inside a shell (`sh` on Linux/macOS, `cmd.exe` on
 Windows), so you can use shell features like pipes and redirection:
 
 ```
-conc "echo one | grep on > file"
+conc "echo one && echo two | grep on > file"
 ```
 
 ### output verbosity
