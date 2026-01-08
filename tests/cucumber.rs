@@ -42,8 +42,8 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 
 #[then("the output contains:")]
 fn the_output_contains(world: &mut World, step: &Step) {
-    let want = step.docstring().unwrap().trim();
-    world.want_blocks.push(want.to_owned());
+    let want_block = step.docstring().unwrap().trim();
+    world.want_blocks.push(want_block.to_owned());
 }
 
 #[then("the output is:")]
