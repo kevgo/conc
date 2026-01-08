@@ -23,7 +23,7 @@ This call executes these three commands concurrently:
 - `echo two`
 - `echo three`
 
-You can also write this on multiple lines:
+You can - of course - write each command on a new line for better readability:
 
 ```
 conc "echo one" \
@@ -31,34 +31,36 @@ conc "echo one" \
      "echo three"
 ```
 
-Commands execute inside a shell, so you can use shell operators:
+Commands execute inside a shell (`sh` on Linux/macOS, `cmd.exe` on Windows), so
+you can use shell operators:
 
 ```
-conc "echo one | grep on"
+conc "echo one | grep on > file"
 ```
 
-### customize the output
+### output verbosity
 
 When running linters, tests, or compilers, you're often only interested in the
-overall success signal and the details of what failed. The `--show` flag lets
-you control how much output _conc_ emits:
+overall success signal and detailed output only for problems. The `--show` flag
+lets you control how much output _conc_ emits:
 
-- `--show=all` (default) prints the output of every task once it finishes
-- `--show=failed` prints output only for tasks that exit with a non-zero status
+- `--show=all` (default) prints the output of every task, once the task finishes
+- `--show=failed` prints only the output of tasks that exit with a non-zero
+  status
 
-Flags for conc must appear before any commands to execute:
+Flags for conc must appear before any commands to execute, like this:
 
 ```bash
 conc --show=failed "echo one" "echo two"
 ```
 
-### configure color output
+### colors
 
 _Conc_ emits ANSI colors if STDOUT and STDERR are connected to a TTY. You can
-override this behavior using the following environment variables:
+override this behavior using environment variables:
 
 - `CLICOLOR_FORCE=1` always enables color output, even when not writing to a TTY
-- `NO_COLOR=1` disables color output entirely
+- `NO_COLOR=1` disables colors
 
 ## alternatives
 
