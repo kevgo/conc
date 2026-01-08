@@ -11,7 +11,7 @@ struct World {
 }
 
 #[given("I'm in an empty folder")]
-fn an_empty_folder(world: &mut World) {
+fn in_empty_folder(world: &mut World) {
     world.workspace = Some(tempfile::tempdir().unwrap());
 }
 
