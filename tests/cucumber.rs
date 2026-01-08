@@ -56,7 +56,6 @@ async fn the_output_is(world: &mut World, step: &Step) {
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
     );
-    panic!("have: {:?}", want);
     pretty::assert_eq!(have.trim(), want.trim());
 }
 

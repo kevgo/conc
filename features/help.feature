@@ -18,7 +18,7 @@ Feature: display the help text
 
       Examples:
 
-        conc --show=failed "echo one" "echo two" "echo three"
+      conc --show=failed "echo one" "echo two" "echo three"
 
       This executes the following commands concurrently:
 
