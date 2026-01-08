@@ -22,14 +22,17 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
 
     // print results as they arrive and collect exit codes
     let mut exit_code = 0;
-    let mut has_output = false;
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                if !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty() {
-                    has_output = true;
+                let has_output =
+                    !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty();
+                let output_causes_error = error_on_output.into() && has_output;
+                let this_call_failed = !call_result.output.status.success() || output_causes_error;
+                if this_call_failed {
+                    exit_code = exit_code.max(call_result.exit_code().max(1));
                 }
-                print_result(&call_result, error_on_output, show);
+                print_result(&call_result, this_call_failed, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
             Err(err) => {
@@ -38,23 +41,13 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
             }
         }
     }
-    if error_on_output.into() && has_output {
-        exit_code = exit_code.max(1);
-    }
     ExitCode::from(exit_code)
 }
 
 /// prints the result of a single command execution to stdout and stderr
-fn print_result(call_result: &CallResult, error_on_output: ErrorOnOutput, show: Show) {
+fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
-
-    // Check if this command produced output that should be treated as an error
-    let has_output = !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty();
-    let output_causes_error = error_on_output.into() && has_output;
-
-    // Determine if this command should be considered "failed" for display purposes
-    let is_failed = !call_result.output.status.success() || output_causes_error;
 
     // print command name
     if is_failed {
@@ -68,6 +61,7 @@ fn print_result(call_result: &CallResult, error_on_output: ErrorOnOutput, show: 
         let _ = writeln!(stdout, "{command}");
     }
 
+    // print command output
     if is_failed || show.display_success() {
         write_output(&mut stdout, &call_result.output.stdout);
         write_output(&mut stderr, &call_result.output.stderr);
