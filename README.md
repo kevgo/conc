@@ -88,6 +88,3 @@ conc "command 1" "conc --error-on-output 'command 2'" "command 3"
 - [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
   concurrently, but does not reliably propagate a single, meaningful exit code
   suitable for use in scripts and Makefiles.
-
-```
-```
