@@ -1,11 +1,11 @@
-use crate::commands::{Command, Show};
+use crate::commands::{Command, ErrorOnOutput, Show};
 use crate::errors::{Result, UserError};
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
     let mut calls = vec![];
     let mut show = Show::All;
-    let mut error_on_output = false;
+    let mut error_on_output = ErrorOnOutput::from(false);
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
         if arg == "--" {
@@ -17,7 +17,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
         }
         if parse_flags && arg.starts_with('-') {
             match arg.as_ref() {
-                "--error-on-output" => error_on_output = true,
+                "--error-on-output" => error_on_output = ErrorOnOutput::from(true),
                 "--help" | "-h" => return Ok(Command::Help),
                 "--show=all" | "--show" => show = Show::All,
                 "--show=failed" => show = Show::Failed,
@@ -49,7 +49,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello world")],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -65,7 +65,7 @@ mod tests {
                     Call::from("ls -la"),
                     Call::from("pwd"),
                 ],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -77,7 +77,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -89,7 +89,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::Failed,
             };
             assert_eq!(have, want);
@@ -101,7 +101,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -121,7 +121,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
-                error_on_output: false,
+                error_on_output: false.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -165,7 +165,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
-                error_on_output: true,
+                error_on_output: true.into(),
                 show: Show::All,
             };
             assert_eq!(have, want);
@@ -178,7 +178,7 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
-                error_on_output: true,
+                error_on_output: true.into(),
                 show: Show::Failed,
             };
             assert_eq!(have, want);

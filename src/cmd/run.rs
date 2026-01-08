@@ -1,4 +1,4 @@
-use crate::commands::Show;
+use crate::commands::{ErrorOnOutput, Show};
 use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(calls: Vec<Call>, show: Show, error_on_output: bool) -> ExitCode {
+pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
@@ -26,7 +26,6 @@ pub fn run(calls: Vec<Call>, show: Show, error_on_output: bool) -> ExitCode {
     for call_result in receive {
         match call_result {
             Ok(call_result) => {
-                // Check if this command produced any output
                 if !call_result.output.stdout.is_empty() || !call_result.output.stderr.is_empty() {
                     has_output = true;
                 }
@@ -39,8 +38,7 @@ pub fn run(calls: Vec<Call>, show: Show, error_on_output: bool) -> ExitCode {
             }
         }
     }
-    // If error_on_output is set and any command produced output, exit with code 1
-    if error_on_output && has_output {
+    if error_on_output.into() && has_output {
         exit_code = exit_code.max(1);
     }
     ExitCode::from(exit_code)
