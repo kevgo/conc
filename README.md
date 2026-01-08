@@ -75,8 +75,19 @@ conc --error-on-output "echo foo"
 
 This invocation exits with code 1 because a command printed `foo`.
 
+To enable error on output for only one of the executed commands, wrap that
+command in a nested _conc_ call. For example, to enable error on output only for
+`command 2`:
+
+```
+conc "command 1" "conc --error-on-output command 2" "command 3"
+```
+
 ## alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): offers similar
-  functionality, but does not reliably propagate a single, meaningful exit code
+- [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
+  concurrently, but does not reliably propagate a single, meaningful exit code
   suitable for use in scripts and Makefiles.
+
+```
+```
