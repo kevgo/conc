@@ -27,11 +27,11 @@ async fn i_run(world: &mut World, command: String) {
 
 #[then("the output contains:")]
 async fn the_output_contains(world: &mut World, step: &Step) {
-    let want = step.docstring().unwrap().trim();
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran yet");
     };
     let have = String::from_utf8_lossy(&output.stdout) + String::from_utf8_lossy(&output.stderr);
+    let want = step.docstring().unwrap().trim();
     assert!(
         have.contains(want),
         "Didn't find '{}' in output:\n{}",
