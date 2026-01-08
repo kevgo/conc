@@ -4,18 +4,18 @@ Feature: run multiple commands concurrently
     When I run "conc 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the output contains:
       """
-      			echo two
-      			two
+      echo two
+      two
       """
     And the output contains:
       """
-      			echo three
-      			three
+      echo three
+      three
       """
     And the exit code is 0
 
@@ -23,8 +23,8 @@ Feature: run multiple commands concurrently
     When I run "conc 'echo one'"
     Then the output contains:
       """
-      			echo one
-      			one
+      echo one
+      one
       """
     And the exit code is 0
 
