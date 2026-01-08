@@ -32,6 +32,7 @@ setup:  # install development dependencies on this computer
 	rustup component add clippy
 	rustup toolchain add nightly
 	rustup component add rustfmt --toolchain nightly
+	tools/rta npm ci
 
 test: fix unit lint  # runs all tests
 
