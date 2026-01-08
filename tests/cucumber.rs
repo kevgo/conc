@@ -57,7 +57,7 @@ async fn the_output_is(world: &mut World, step: &Step) {
         String::from_utf8_lossy(&output.stderr)
     );
     pretty::assert_eq!(have.trim(), want.trim());
-    world.want_blocks.push(have);
+    world.want_blocks.push(want.trim().to_string());
 }
 
 #[tokio::main(flavor = "current_thread")]
