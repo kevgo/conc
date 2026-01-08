@@ -26,10 +26,10 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
         match call_result {
             Ok(call_result) => {
                 let error_from_output = error_on_output.enabled() && call_result.has_output();
-                let call_failed = !call_result.success() || error_from_output;
-                if call_failed {
+                if error_from_output {
                     exit_code = exit_code.max(1);
                 }
+                let call_failed = !call_result.success() || error_from_output;
                 print_result(&call_result, call_failed, show);
                 exit_code = exit_code.max(call_result.exit_code());
             }
