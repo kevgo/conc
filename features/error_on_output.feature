@@ -10,7 +10,6 @@ Feature: error on output
 		And the exit code is 0
 
 	Scenario: enabled, with output
-		Given I'm in an empty folder
 		When I run "conc --error-on-output --show=failed 'echo one'"
 		Then the output contains:
 			"""
