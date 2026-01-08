@@ -80,7 +80,7 @@ command in a nested _conc_ call. For example, to enable error on output only for
 `command 2`:
 
 ```
-conc "command 1" "conc --error-on-output command 2" "command 3"
+conc "command 1" "conc --error-on-output 'command 2'" "command 3"
 ```
 
 ## alternatives
