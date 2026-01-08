@@ -35,7 +35,7 @@ async fn i_run(world: &mut World, command: String) {
 #[then(expr = "the exit code is {int}")]
 fn the_exit_code_is(world: &mut World, expected: i32) {
     let Some(output) = world.output.as_ref() else {
-        panic!("No command ran yet");
+        panic!("No command ran");
     };
     assert_eq!(output.status.code().unwrap(), expected);
 }
@@ -50,7 +50,7 @@ fn the_output_contains(world: &mut World, step: &Step) {
 fn the_output_is(world: &mut World, step: &Step) {
     let want = step.docstring().unwrap();
     let Some(output) = world.output.as_ref() else {
-        panic!("No command ran yet");
+        panic!("No command ran");
     };
     let have = format!(
         "{}{}",
