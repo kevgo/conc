@@ -56,11 +56,10 @@ async fn main() {
                     String::from_utf8_lossy(&output.stderr)
                 );
                 for want in &world.want_blocks {
-                    if have.contains(want) {
-                        have = have.replace(want, "");
-                    } else {
+                    if !have.contains(want) {
                         panic!("Didn't find '{}' in output:\n{}", want, have);
                     }
+                    have = have.replace(want, "");
                 }
             })
         })
