@@ -16,7 +16,6 @@ fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
 	tools/rta dprint fmt
 	tools/rta ghokin fmt replace features/
 
-
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
 
@@ -27,6 +26,7 @@ lint: tools/rta@${RTA_VERSION}  # runs all linters
 	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic  # lint production code
 	cargo clippy --all-targets --all-features -- --deny=warnings --allow=clippy::unwrap_used # lint all code including test code
 	git diff --check
+	tools/rta npm exec gherkin-lint
 
 setup:  # install development dependencies on this computer
 	rustup component add clippy
