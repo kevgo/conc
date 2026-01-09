@@ -1,10 +1,10 @@
 # conc
 
-_Conc_ runs multiple CLI commands concurrently and returns the first non-zero
-exit code it encounters.
+_Conc_ runs multiple CLI commands concurrently, returns the first non-zero exit
+code it encounters, and filters CLI output.
 
 It is designed for development scripts and CI pipelines that execute many tools
-in parallel while reliably detecting failures.
+in parallel.
 
 [![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
 [![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
