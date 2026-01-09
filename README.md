@@ -1,10 +1,9 @@
 # conc
 
 _Conc_ runs multiple CLI commands concurrently, returns the first non-zero exit
-code it encounters, and filters CLI output.
+code it encounters, and filters command output.
 
-It is designed for development scripts and CI pipelines that execute many tools
-in parallel.
+It is intended for development scripts and CI pipelines.
 
 [![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
 [![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
@@ -17,7 +16,7 @@ Pass the commands to execute as strings.
 conc "echo one" "echo two" "echo three"
 ```
 
-This runs the following commands concurrently:
+This executes the following commands concurrently:
 
 - `echo one`
 - `echo two`
@@ -32,7 +31,7 @@ conc "echo one" \
 ```
 
 Commands are executed inside a shell (`sh` on Linux/macOS, `cmd.exe` on
-Windows), so you can use shell features like pipes and redirection:
+Windows), so you can use shell features:
 
 ```
 conc "echo one && echo two | grep on > file"
@@ -41,14 +40,13 @@ conc "echo one && echo two | grep on > file"
 ### output verbosity
 
 When running linters, tests, or compilers, you often only care whether
-everything succeeded and want detailed output only when something fails. The
-`--show` flag controls how much output _conc_ prints:
+everything passed and want detailed output only for problems. The `--show` flag
+controls how much output _conc_ prints:
 
 - `--show=all` (default) prints the output of every command after it finishes
-- `--show=failed` prints output only for commands that exit with a non-zero
-  status
+- `--show=failed` prints output only for commands that failed
 
-Flags must appear before the commands:
+Flags for _conc_ must appear before the first command to execute:
 
 ```bash
 conc --show=failed "echo one" "echo two"
@@ -66,25 +64,25 @@ override this behavior using environment variables:
 ### error on output
 
 Some tools report findings via STDOUT or STDERR but still exit with a success
-code. To catch these cases, the `--error-on-output` flag causes _conc_ to fail
-when any command produces output.
+code. The `--error-on-output` flag treats any output as failure.
 
 ```
 conc --error-on-output "echo foo"
 ```
 
-This invocation exits with code 1 because a command printed `foo`.
+This exits with status code 1 because the command produced output.
 
-To enable error on output for only one of the executed commands, wrap that
-command in a nested _conc_ call. For example, to enable error on output only for
-`command 2`:
+If you want this behavior only for specific commands, wrap them in a nested
+_conc_ call. For example, to enable error on output only for `command 2`:
 
 ```
-conc "command 1" "conc --error-on-output 'command 2'" "command 3"
+conc "command 1" \
+     "conc --error-on-output 'command 2'" \
+     "command 3"
 ```
 
 ## alternatives
 
 - [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
   concurrently, but does not reliably propagate a single, meaningful exit code
-  suitable for use in scripts and Makefiles.
+  suitable for scripts
