@@ -61,6 +61,15 @@ fn the_output_is(world: &mut World, step: &Step) {
     world.want_blocks.push(want.trim().to_owned());
 }
 
+#[then("the output is empty")]
+fn the_output_is_empty(world: &mut World) {
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran");
+    };
+    assert!(output.stdout.is_empty());
+    assert!(output.stderr.is_empty());
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     World::cucumber()

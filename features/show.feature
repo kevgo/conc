@@ -53,3 +53,8 @@ Feature: run multiple commands concurrently
       three
       """
     And the exit code is 1
+
+  Scenario: --show=min
+    When I run "conc --show=min 'echo one' 'echo two' 'echo three'"
+    Then the output is empty
+    And the exit code is 0

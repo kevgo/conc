@@ -21,6 +21,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
                 "--help" | "-h" => return Ok(Command::Help),
                 "--show=all" | "--show" => show = Show::All,
                 "--show=commands" => show = Show::Commands,
+                "--show=min" => show = Show::Min,
                 "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(UserError::UnknownFlag(arg)),
             }
