@@ -17,6 +17,7 @@ tokio = { version = "1.49", features = ["fs", "io-util", "macros", "process", "r
 [[test]]
 name = "cucumber"
 harness = false # allows Cucumber to print output instead of libtest
+test = false # don't run this as part of "cargo test"
 
 [profile.release]
 opt-level = 's' # Optimize for size
