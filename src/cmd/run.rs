@@ -48,14 +48,16 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     let mut stderr = io::stderr();
 
     // print command name
-    let mut command = call_result.call.to_string();
-    if is_failed {
-        let _ = writeln!(stdout, "{}", command.bold().red());
-    } else {
-        if show.display_success() {
-            command = command.bold().to_string();
+    if show.display_command() {
+        let mut command = call_result.call.to_string();
+        if is_failed {
+            let _ = writeln!(stdout, "{}", command.bold().red());
+        } else {
+            if show.display_success() {
+                command = command.bold().to_string();
+            }
+            let _ = writeln!(stdout, "{command}");
         }
-        let _ = writeln!(stdout, "{command}");
     }
 
     // print command output
