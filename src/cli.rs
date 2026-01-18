@@ -20,7 +20,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
                 "--error-on-output" => error_on_output = ErrorOnOutput::from(true),
                 "--help" | "-h" => return Ok(Command::Help),
                 "--show=all" | "--show" => show = Show::All,
-                "--show=failed" => show = Show::Failed,
+                "--show=commands" => show = Show::Commands,
                 "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(UserError::UnknownFlag(arg)),
             }
@@ -84,13 +84,13 @@ mod tests {
         }
 
         #[test]
-        fn show_failed() {
-            let give = vec![S("--show=failed"), S("echo hello")].into_iter();
+        fn show_commands() {
+            let give = vec![S("--show=commands"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
                 error_on_output: false.into(),
-                show: Show::Failed,
+                show: Show::Commands,
             };
             assert_eq!(have, want);
         }
@@ -173,13 +173,17 @@ mod tests {
 
         #[test]
         fn error_on_output_with_show_failed() {
-            let give =
-                vec![S("--error-on-output"), S("--show=failed"), S("echo hello")].into_iter();
+            let give = vec![
+                S("--error-on-output"),
+                S("--show=commands"),
+                S("echo hello"),
+            ]
+            .into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
                 error_on_output: true.into(),
-                show: Show::Failed,
+                show: Show::Commands,
             };
             assert_eq!(have, want);
         }
