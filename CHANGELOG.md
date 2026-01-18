@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.2.0
+
+- `--show=min` flag to only show failed commands
+
 ## 0.1.0
 
 - runs given apps concurrently
