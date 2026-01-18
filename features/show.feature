@@ -1,6 +1,6 @@
 Feature: run multiple commands concurrently
 
-  Scenario: show output
+  Scenario: --show=all
     When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
@@ -19,7 +19,7 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 0
 
-  Scenario: show executed commands
+  Scenario: --show=commands
     When I run "conc --show=commands 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
@@ -35,7 +35,7 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 0
 
-  Scenario: show executed commands with error-on-output
+  Scenario: --show=commands --error-on-output
     When I run "conc --show=commands --error-on-output 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
