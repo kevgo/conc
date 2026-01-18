@@ -34,11 +34,11 @@ impl ErrorOnOutput {
 /// the different ways to display the output of the commands
 #[derive(Copy, Debug, Eq, PartialEq, Clone)]
 pub enum Show {
-    /// display the output of all commands
+    /// display all executed commands and their output
     All,
 
-    /// display only the output of failed commands
-    Failed,
+    /// display all executed commands and the output of failed commands
+    Commands,
 }
 
 impl Show {
@@ -46,7 +46,7 @@ impl Show {
     pub fn display_success(self) -> bool {
         match self {
             Show::All => true,
-            Show::Failed => false,
+            Show::Commands => false,
         }
     }
 }

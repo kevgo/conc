@@ -1,7 +1,7 @@
 Feature: run multiple commands concurrently
 
   Scenario: show output
-    When I run "conc --show=output 'echo one' 'echo two' 'echo three'"
+    When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
       echo one
