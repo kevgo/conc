@@ -45,6 +45,13 @@ pub enum Show {
 }
 
 impl Show {
+    pub fn display_command(self) -> bool {
+        match self {
+            Show::All | Show::Commands => true,
+            Show::Min => false,
+        }
+    }
+
     /// indicates whether to display the output of successful commands
     pub fn display_success(self) -> bool {
         match self {
