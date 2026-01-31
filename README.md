@@ -45,9 +45,9 @@ controls how much output _conc_ prints:
 
 - `--show=all` (default) prints the name and output of every command after it
   finishes
-- `--show=failed` prints the name of every command after it finishes, but only
+- `--show=names` prints the name of every command after it finishes, and only
   the output of failed commands
-- `--show=min` prints only the name and output of failed commands
+- `--show=failed` prints only the name and output of failed commands
 
 Flags for _conc_ must appear before the first command to execute:
 

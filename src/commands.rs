@@ -37,18 +37,18 @@ pub enum Show {
     /// display all executed commands and their output
     All,
 
-    /// display all executed commands and the output of failed commands
-    Commands,
+    /// display the names of all executed commands and the output of failed commands
+    Names,
 
     /// display only failed commands
-    Min,
+    Failed,
 }
 
 impl Show {
     pub fn display_command(self) -> bool {
         match self {
-            Show::All | Show::Commands => true,
-            Show::Min => false,
+            Show::All | Show::Names => true,
+            Show::Failed => false,
         }
     }
 
@@ -56,7 +56,7 @@ impl Show {
     pub fn display_success(self) -> bool {
         match self {
             Show::All => true,
-            Show::Commands | Show::Min => false,
+            Show::Names | Show::Failed => false,
         }
     }
 }

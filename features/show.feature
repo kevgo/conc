@@ -19,8 +19,8 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 0
 
-  Scenario: --show=commands
-    When I run "conc --show=commands 'echo one' 'echo two' 'echo three'"
+  Scenario: --show=names
+    When I run "conc --show=names 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
       echo one
@@ -35,8 +35,8 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 0
 
-  Scenario: --show=commands --error-on-output
-    When I run "conc --show=commands --error-on-output 'echo one' 'echo two' 'echo three'"
+  Scenario: --show=names --error-on-output
+    When I run "conc --show=names --error-on-output 'echo one' 'echo two' 'echo three'"
     Then the output contains:
       """
       echo one
@@ -54,7 +54,7 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 1
 
-  Scenario: --show=min
-    When I run "conc --show=min 'echo one' 'echo two' 'echo three'"
+  Scenario: --show=failed
+    When I run "conc --show=failed 'echo one' 'echo two' 'echo three'"
     Then the output is empty
     And the exit code is 0
