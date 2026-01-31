@@ -20,8 +20,8 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
                 "--error-on-output" => error_on_output = ErrorOnOutput::from(true),
                 "--help" | "-h" => return Ok(Command::Help),
                 "--show=all" | "--show" => show = Show::All,
-                "--show=commands" => show = Show::Commands,
-                "--show=min" => show = Show::Min,
+                "--show=names" => show = Show::Names,
+                "--show=failed" => show = Show::Failed,
                 "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(UserError::UnknownFlag(arg)),
             }
@@ -91,7 +91,7 @@ mod tests {
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
                 error_on_output: false.into(),
-                show: Show::Commands,
+                show: Show::Names,
             };
             assert_eq!(have, want);
         }
@@ -184,7 +184,7 @@ mod tests {
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
                 error_on_output: true.into(),
-                show: Show::Commands,
+                show: Show::Names,
             };
             assert_eq!(have, want);
         }
