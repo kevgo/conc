@@ -86,7 +86,7 @@ mod tests {
 
         #[test]
         fn show_commands() {
-            let give = vec![S("--show=commands"), S("echo hello")].into_iter();
+            let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
@@ -174,12 +174,7 @@ mod tests {
 
         #[test]
         fn error_on_output_with_show_failed() {
-            let give = vec![
-                S("--error-on-output"),
-                S("--show=commands"),
-                S("echo hello"),
-            ]
-            .into_iter();
+            let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
                 calls: vec![Call::from("echo hello")],
