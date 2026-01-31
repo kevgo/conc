@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.3.0
+
+Improved arguments for `--show`: `all`, `names`, `failed`
+
 ## 0.2.0
 
 - `--show=min` flag to only show failed commands
