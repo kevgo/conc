@@ -8,10 +8,11 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-/// arguments for the `run` function
+/// named arguments for the `run` function
+#[derive(Debug, Eq, PartialEq)]
 pub struct RunArgs {
     /// the commands to run
-    pub calls: Vec<String>,
+    pub commands: Vec<String>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
@@ -29,7 +30,7 @@ pub struct RunArgs {
 /// use std::process::ExitCode;
 ///
 /// let args = RunArgs {
-///     calls: vec!["echo one".into(), "echo two".into()],
+///     commands: vec!["echo one".into(), "echo two".into()],
 ///     error_on_output: false,
 ///     show: Show::All,
 /// };
@@ -42,7 +43,7 @@ pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in args.calls {
+    for call in args.commands {
         let send_clone = send.clone();
         thread::spawn(move || {
             let _ = send_clone.send(subshell::run(call));
