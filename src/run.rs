@@ -1,25 +1,10 @@
+use crate::library;
 use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
-
-/// Whether to error if any command produces output.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub struct ErrorOnOutput(bool);
-
-impl From<bool> for ErrorOnOutput {
-    fn from(value: bool) -> Self {
-        ErrorOnOutput(value)
-    }
-}
-
-impl ErrorOnOutput {
-    pub(crate) fn enabled(self) -> bool {
-        self.0
-    }
-}
 
 /// The different ways to display the output of the commands.
 #[derive(Copy, Debug, Eq, PartialEq, Clone)]
@@ -55,7 +40,7 @@ impl Show {
 
 /// Runs the given commands concurrently, prints their results, and returns the exit code.
 #[must_use]
-pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
+pub fn run(calls: Vec<Call>, error_on_output: library::ErrorOnOutput, show: Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
