@@ -13,6 +13,13 @@ repository = "https://github.com/kevgo/conc"
 rust-version = "1.85.0"
 description = "runs commands concurrently and display their name and output, with configurable filtering of output"
 
+[lib]
+name = "conc"
+
+[[bin]]
+name = "conc"
+path = "src/main.rs"
+
 [dependencies]
 colored = "3.0.0"
 
