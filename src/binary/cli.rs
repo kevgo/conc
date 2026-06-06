@@ -1,5 +1,4 @@
-use crate::binary::CliError;
-use crate::commands::Command;
+use super::{CliError, Command};
 use conc::{ErrorOnOutput, Show};
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
