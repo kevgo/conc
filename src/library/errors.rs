@@ -15,6 +15,3 @@ impl std::fmt::Display for ConcError {
         }
     }
 }
-
-/// A Result that always has a `UserError` as the error.
-pub type Result<T> = core::result::Result<T, ConcError>;

@@ -1,4 +1,4 @@
-use crate::conc_errors::{ConcError, Result};
+use crate::ConcError;
 use std::fmt::Display;
 use std::process::Command;
 
@@ -24,7 +24,7 @@ impl Call {
     }
 
     /// Executes this call in a shell
-    pub(crate) fn run(self) -> Result<CallResult> {
+    pub(crate) fn run(self) -> Result<CallResult, ConcError> {
         let mut command = self.command();
         let output = command.output().map_err(|err| ConcError::CannotRunCall {
             call: self.clone(),
