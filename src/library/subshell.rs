@@ -1,28 +1,12 @@
 use std::io;
 use std::process::Command;
 
-/// Executes this call in a shell
+/// executes the given command
 pub fn run(command: String) -> Result<CallResult, RunError> {
     match shell_command(&command).output() {
         Ok(output) => Ok(CallResult { command, output }),
         Err(error) => Err(RunError { command, error }),
     }
-}
-
-/// provides a Command instance that executes this call in a shell
-#[cfg(unix)]
-pub fn shell_command(command: &str) -> Command {
-    let mut cmd = Command::new("sh");
-    cmd.arg("-c").arg(command);
-    cmd
-}
-
-/// provides a Command instance that executes this call in a shell
-#[cfg(windows)]
-pub(crate) fn shell_command(command: &str) -> Command {
-    let mut cmd = Command::new("cmd.exe");
-    cmd.arg("/C").arg(command);
-    cmd
 }
 
 /// `CallResult` represents the result of a single command execution.
@@ -49,6 +33,22 @@ impl CallResult {
     pub(crate) fn success(&self) -> bool {
         self.output.status.success()
     }
+}
+
+/// provides a Command instance that executes this call in a shell
+#[cfg(unix)]
+fn shell_command(command: &str) -> Command {
+    let mut cmd = Command::new("sh");
+    cmd.arg("-c").arg(command);
+    cmd
+}
+
+/// provides a Command instance that executes this call in a shell
+#[cfg(windows)]
+fn shell_command(command: &str) -> Command {
+    let mut cmd = Command::new("cmd.exe");
+    cmd.arg("/C").arg(command);
+    cmd
 }
 
 fn to_exitcode_u8(value: i32) -> u8 {
