@@ -1,5 +1,11 @@
 RTA_VERSION = 0.26.1  # run-that-app version to use
 
+RTA = tools/rta@${RTA_VERSION}
+DPRINT = $(RTA) dprint
+GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
+GHOKIN = $(RTA) ghokin
+NPM = $(RTA) npm
+
 build:  # builds the codebase
 	cargo build
 
@@ -9,12 +15,12 @@ cuke: build  # runs all end-to-end tests
 cukethis: build  # runs only end-to-end tests with a @this tag
 	cargo test --test cucumber -- -t @this
 
-fix: tools/rta@${RTA_VERSION}  # auto-corrects issues
+fix: ${RTA}  # auto-corrects issues
 	cargo +nightly fix --allow-dirty
 	cargo clippy --fix --allow-dirty
 	cargo +nightly fmt
-	tools/rta dprint fmt
-	tools/rta ghokin fmt replace features/
+	${DPRINT} fmt
+	${GHOKIN} fmt replace features/
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
@@ -22,17 +28,17 @@ help:  # shows all available Make commands
 install:  # installs this tool on the local machine
 	cargo install --locked --path .
 
-lint: tools/rta@${RTA_VERSION}  # runs all linters
+lint: ${RTA}  # runs all linters
 	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic  # lint production code
 	cargo clippy --all-targets --all-features -- --deny=warnings --allow=clippy::unwrap_used # lint all code including test code
 	git diff --check
-	tools/rta npm exec gherkin-lint
+	${GHERKIN_LINT}
 
-setup: tools/rta@${RTA_VERSION}  # install development dependencies on this computer
+setup: ${RTA}  # install development dependencies on this computer
 	rustup component add clippy
 	rustup toolchain add nightly
 	rustup component add rustfmt --toolchain nightly
-	tools/rta npm ci
+	${NPM} ci
 
 test: fix unit lint  # runs all tests
 
@@ -47,15 +53,13 @@ update:  # updates the dependencies
 	cargo machete
 	cargo upgrade
 	cargo run -- --update
-	tools/rta --update
+	${RTA} --update
 
 # --- HELPER TARGETS --------------------------------------------------------------------------------------------------------------------------------
 
-tools/rta@${RTA_VERSION}:
+${RTA}:
 	@rm -f tools/rta*
-	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s ${RTA_VERSION})
-	@mv tools/rta tools/rta@${RTA_VERSION}
-	@ln -s rta@${RTA_VERSION} tools/rta
+	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s -- --version ${RTA_VERSION} --name rta@${RTA_VERSION})
 
 .DEFAULT_GOAL := help
 .SILENT:
