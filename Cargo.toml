@@ -1,8 +1,8 @@
 [package]
 name = "concurrent_shell_commands"
 version = "0.3.0"
-edition = "2024"
 autobins = false
+edition = "2024"
 include = [
   "src/",
   "LICENSE.md",
