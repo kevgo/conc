@@ -1,21 +1,51 @@
-use super::{Call, CallResult};
-use super::{ErrorOnOutput, Show};
+use crate::library::subshell;
+
+use super::CallResult;
+use super::Show;
 use colored::Colorize;
 use std::io::{self, Write};
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
+/// arguments for the `run` function
+pub struct RunArgs {
+    /// the commands to run
+    pub calls: Vec<String>,
+
+    /// whether to error if any command produces output
+    pub error_on_output: bool,
+
+    /// which output to show
+    pub show: Show,
+}
+
 /// Runs the given commands concurrently, prints their results, and returns the highest exit code.
+///
+/// # Examples
+///
+/// ```
+/// use conc::{RunArgs, Show, run};
+/// use std::process::ExitCode;
+///
+/// let args = RunArgs {
+///     calls: vec!["echo one".into(), "echo two".into()],
+///     error_on_output: false,
+///     show: Show::All,
+/// };
+///
+/// let exit_code = run(args);
+/// assert_eq!(exit_code, ExitCode::SUCCESS);
+/// ```
 #[must_use]
-pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
+pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in calls {
+    for call in args.calls {
         let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = send_clone.send(call.run());
+            let _ = send_clone.send(subshell::run(call));
         });
     }
 
@@ -28,12 +58,12 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
         match call_result {
             Ok(call_result) => {
                 exit_code = exit_code.max(call_result.exit_code());
-                let error_from_output = error_on_output.enabled() && call_result.has_output();
+                let error_from_output = args.error_on_output && call_result.has_output();
                 if error_from_output {
                     exit_code = exit_code.max(1);
                 }
                 let call_failed = !call_result.success() || error_from_output;
-                print_result(&call_result, call_failed, show);
+                print_result(&call_result, call_failed, args.show);
             }
             Err(err) => {
                 eprintln!("{}", err.to_string().red());
@@ -51,7 +81,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
 
     // print command name
     if show.display_command() {
-        let mut command = call_result.call.to_string();
+        let mut command = call_result.command.clone();
         if is_failed {
             let _ = writeln!(stdout, "{}", command.bold().red());
         } else {
