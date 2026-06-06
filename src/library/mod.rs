@@ -6,4 +6,4 @@ mod subshell;
 pub use error_on_output::ErrorOnOutput;
 pub use run::{RunArgs, run};
 pub use show::Show;
-pub use subshell::{Call, CallResult};
+pub use subshell::CallResult;

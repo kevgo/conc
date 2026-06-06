@@ -1,61 +1,33 @@
-use std::fmt::Display;
 use std::io;
 use std::process::Command;
 
-/// Call represents a command to execute.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Call(String);
-
-impl Call {
-    /// provides a Command instance that executes this call in a shell
-    #[cfg(unix)]
-    pub(crate) fn command(&self) -> Command {
-        let mut command = Command::new("sh");
-        command.arg("-c").arg(&self.0);
-        command
-    }
-
-    /// provides a Command instance that executes this call in a shell
-    #[cfg(windows)]
-    pub(crate) fn command(&self) -> Command {
-        let mut command = Command::new("cmd.exe");
-        command.arg("/C").arg(&self.0);
-        command
-    }
-
-    /// Executes this call in a shell
-    pub(crate) fn run(self) -> Result<CallResult, RunError> {
-        match self.command().output() {
-            Ok(output) => Ok(CallResult { call: self, output }),
-            Err(err) => Err(RunError {
-                command: self.0.clone(),
-                error: err,
-            }),
-        }
+/// Executes this call in a shell
+pub fn run(command: String) -> Result<CallResult, RunError> {
+    match shell_command(&command).output() {
+        Ok(output) => Ok(CallResult { command, output }),
+        Err(error) => Err(RunError { command, error }),
     }
 }
 
-impl Display for Call {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.0)
-    }
+/// provides a Command instance that executes this call in a shell
+#[cfg(unix)]
+pub fn shell_command(command: &str) -> Command {
+    let mut cmd = Command::new("sh");
+    cmd.arg("-c").arg(command);
+    cmd
 }
 
-impl From<String> for Call {
-    fn from(value: String) -> Self {
-        Call(value)
-    }
-}
-
-impl From<&str> for Call {
-    fn from(value: &str) -> Self {
-        Call(value.to_owned())
-    }
+/// provides a Command instance that executes this call in a shell
+#[cfg(windows)]
+pub(crate) fn shell_command(command: &str) -> Command {
+    let mut cmd = Command::new("cmd.exe");
+    cmd.arg("/C").arg(command);
+    cmd
 }
 
 /// `CallResult` represents the result of a single command execution.
 pub struct CallResult {
-    pub call: Call,
+    pub command: String,
     pub output: std::process::Output,
 }
 

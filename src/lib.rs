@@ -1,3 +1,3 @@
 mod library;
 
-pub use library::{Call, ErrorOnOutput, RunArgs, Show, run};
+pub use library::{ErrorOnOutput, RunArgs, Show, run};
