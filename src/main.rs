@@ -1,6 +1,6 @@
 mod binary;
 
-use crate::binary::cli::Command;
+use binary::cli::Command;
 use binary::{AppError, cli, cmd};
 use colored::Colorize;
 use std::env;
