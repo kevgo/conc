@@ -9,6 +9,7 @@ use std::sync::mpsc;
 use std::thread;
 
 /// named arguments for the `run` function
+#[derive(Debug, Eq, PartialEq)]
 pub struct RunArgs {
     /// the commands to run
     pub commands: Vec<String>,

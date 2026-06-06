@@ -19,15 +19,7 @@ fn main() -> ExitCode {
 fn inner() -> Result<ExitCode, AppError> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
-        Command::Run {
-            commands: calls,
-            error_on_output,
-            show,
-        } => conc::run(conc::RunArgs {
-            commands: calls,
-            error_on_output,
-            show,
-        }),
+        Command::Run(args) => conc::run(args),
         Command::Version => cmd::version(),
     })
 }
