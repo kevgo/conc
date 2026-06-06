@@ -1,5 +1,5 @@
+use super::{Call, CallResult};
 use super::{ErrorOnOutput, Show};
-use crate::subshell::{Call, CallResult};
 use colored::Colorize;
 use std::io::{self, Write};
 use std::process::ExitCode;

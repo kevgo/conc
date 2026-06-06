@@ -1,4 +1,4 @@
-use crate::subshell::Call;
+use crate::library::Call;
 
 /// Errors that can occur while running commands.
 #[derive(Debug, Eq, PartialEq)]
