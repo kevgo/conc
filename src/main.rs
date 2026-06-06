@@ -1,9 +1,8 @@
 mod binary;
-mod cli;
 mod cmd;
 mod commands;
 
-use binary::CliError;
+use binary::{CliError, cli};
 use colored::Colorize;
 use commands::Command;
 use std::env;
