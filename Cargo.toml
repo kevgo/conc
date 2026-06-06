@@ -5,6 +5,12 @@ edition = "2024"
 exclude = [
   "*rc",
   ".github",
+  "Makefile",
+  "RELEASE.md",
+  "dprint.json",
+  "features",
+  "tests",
+  "tools",
 ]
 license = "ISC"
 readme = "README.md"
