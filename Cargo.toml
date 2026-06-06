@@ -11,6 +11,8 @@ exclude = [
   "features",
   "tests",
   "tools",
+  "run-that-app",
+  "package*.json",
 ]
 license = "ISC"
 readme = "README.md"
