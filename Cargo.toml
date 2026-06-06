@@ -5,7 +5,7 @@ edition = "2024"
 exclude = [
   "*rc",
   ".github",
-  "gitignore",
+  ".gitignore",
   "CHANGELOG.md",
   "Makefile",
   "RELEASE.md",
