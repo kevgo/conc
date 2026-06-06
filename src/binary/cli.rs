@@ -1,8 +1,23 @@
-use super::{CliError, Command};
-use conc::{ErrorOnOutput, Show};
+use super::AppError;
+use conc::{Call, ErrorOnOutput, Show};
+
+/// the different top-level commands that conc can execute
+#[derive(Debug, Eq, PartialEq)]
+pub enum Command {
+    /// display the help text
+    Help,
+    /// execute the given commands concurrently
+    Run {
+        calls: Vec<Call>,
+        error_on_output: ErrorOnOutput,
+        show: Show,
+    },
+    /// display the version
+    Version,
+}
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, CliError> {
+pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
     let mut calls = vec![];
     let mut show = Show::All;
     let mut error_on_output = ErrorOnOutput::from(false);
@@ -23,7 +38,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, CliError>
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
                 "--version" | "-V" => return Ok(Command::Version),
-                _ => return Err(CliError::UnknownFlag(arg)),
+                _ => return Err(AppError::UnknownFlag(arg)),
             }
             continue;
         }
@@ -112,7 +127,7 @@ mod tests {
         fn unknown_flag() {
             let give = vec![S("--zonk"), S("echo hello")].into_iter();
             let have = parse(give);
-            let want = Err(CliError::UnknownFlag(S("--zonk")));
+            let want = Err(AppError::UnknownFlag(S("--zonk")));
             assert_eq!(have, want);
         }
 

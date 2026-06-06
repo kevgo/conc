@@ -1,7 +1,7 @@
 mod binary;
 
 use crate::binary::Command;
-use binary::{CliError, cli, cmd};
+use binary::{AppError, cli, cmd};
 use colored::Colorize;
 use std::env;
 use std::process::ExitCode;
@@ -16,7 +16,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn inner() -> Result<ExitCode, CliError> {
+fn inner() -> Result<ExitCode, AppError> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run {
