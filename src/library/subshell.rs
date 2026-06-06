@@ -25,8 +25,7 @@ impl Call {
 
     /// Executes this call in a shell
     pub(crate) fn run(self) -> Result<CallResult, RunError> {
-        let mut command = self.command();
-        match command.output() {
+        match self.command().output() {
             Ok(output) => Ok(CallResult { call: self, output }),
             Err(err) => Err(RunError {
                 command: self.0.clone(),
