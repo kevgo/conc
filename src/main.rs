@@ -24,7 +24,7 @@ fn inner() -> Result<ExitCode, AppError> {
             error_on_output,
             show,
         } => conc::run(conc::RunArgs {
-            calls,
+            commands: calls,
             error_on_output,
             show,
         }),
