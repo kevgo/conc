@@ -5,6 +5,7 @@ edition = "2024"
 include = [
   "src/",
   "LICENSE.md",
+  "README.md",
 ]
 license = "ISC"
 readme = "README.md"
