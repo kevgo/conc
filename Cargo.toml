@@ -1,6 +1,7 @@
 [package]
-name = "conc"
+name = "concurrent_shell_commands"
 version = "0.3.0"
+autobins = false
 edition = "2024"
 include = [
   "src/",
@@ -12,6 +13,13 @@ readme = "README.md"
 repository = "https://github.com/kevgo/conc"
 rust-version = "1.85.0"
 description = "runs commands concurrently and display their name and output, with configurable filtering of output"
+
+[lib]
+name = "conc"
+
+[[bin]]
+name = "conc"
+path = "src/main.rs"
 
 [dependencies]
 colored = "3.0.0"
