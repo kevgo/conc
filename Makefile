@@ -34,6 +34,8 @@ lint: ${RTA}  # runs all linters
 	git diff --check
 	${GHERKIN_LINT}
 
+ps: fix test  # runs all automations
+
 setup: ${RTA}  # install development dependencies on this computer
 	rustup component add clippy
 	rustup toolchain add nightly
