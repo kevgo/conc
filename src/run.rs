@@ -1,0 +1,123 @@
+use crate::subshell::{Call, CallResult};
+use colored::Colorize;
+use std::io::{self, Write};
+use std::process::ExitCode;
+use std::sync::mpsc;
+use std::thread;
+
+/// Whether to error if any command produces output.
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct ErrorOnOutput(bool);
+
+impl From<bool> for ErrorOnOutput {
+    fn from(value: bool) -> Self {
+        ErrorOnOutput(value)
+    }
+}
+
+impl ErrorOnOutput {
+    pub(crate) fn enabled(self) -> bool {
+        self.0
+    }
+}
+
+/// The different ways to display the output of the commands.
+#[derive(Copy, Debug, Eq, PartialEq, Clone)]
+pub enum Show {
+    /// Display all executed commands and their output.
+    All,
+
+    /// Display the names of all executed commands and the output of failed commands.
+    Names,
+
+    /// Display only failed commands.
+    Failed,
+}
+
+impl Show {
+    pub fn display_command(self) -> bool {
+        match self {
+            Show::All | Show::Names => true,
+            Show::Failed => false,
+        }
+    }
+
+    /// Indicates whether to display the output of successful commands.
+    pub fn display_success(self) -> bool {
+        match self {
+            Show::All => true,
+            Show::Names | Show::Failed => false,
+        }
+    }
+}
+
+/// Runs the given commands concurrently, prints their results, and returns the exit code.
+pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
+    let (send, receive) = mpsc::channel();
+
+    // execute all commands concurrently and let them signal via the channel when they are done
+    for call in calls {
+        let send_clone = send.clone();
+        thread::spawn(move || {
+            let _ = send_clone.send(call.run());
+        });
+    }
+
+    // drop the original sender so the receiver knows when all senders are closed
+    drop(send);
+
+    // print results as they arrive and collect exit codes
+    let mut exit_code = 0;
+    for call_result in receive {
+        match call_result {
+            Ok(call_result) => {
+                exit_code = exit_code.max(call_result.exit_code());
+                let error_from_output = error_on_output.enabled() && call_result.has_output();
+                if error_from_output {
+                    exit_code = exit_code.max(1);
+                }
+                let call_failed = !call_result.success() || error_from_output;
+                print_result(&call_result, call_failed, show);
+            }
+            Err(err) => {
+                eprintln!("{}", err.to_string().red());
+                exit_code = exit_code.max(1);
+            }
+        }
+    }
+    ExitCode::from(exit_code)
+}
+
+/// prints the result of a single command execution to stdout and stderr
+fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
+    let mut stdout = io::stdout();
+    let mut stderr = io::stderr();
+
+    // print command name
+    if show.display_command() {
+        let mut command = call_result.call.to_string();
+        if is_failed {
+            let _ = writeln!(stdout, "{}", command.bold().red());
+        } else {
+            if show.display_success() {
+                command = command.bold().to_string();
+            }
+            let _ = writeln!(stdout, "{command}");
+        }
+    }
+
+    // print command output
+    if is_failed || show.display_success() {
+        write_output(&mut stdout, &call_result.output.stdout);
+        write_output(&mut stderr, &call_result.output.stderr);
+    }
+}
+
+fn write_output(writer: &mut dyn Write, output: &[u8]) {
+    if !output.is_empty() {
+        let _ = writer.write_all(output);
+        if !output.ends_with(b"\n") {
+            let _ = writer.write_all(b"\n");
+        }
+    }
+}

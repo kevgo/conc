@@ -1,10 +1,9 @@
 use crate::subshell::Call;
 
-/// errors that should be printed to the user to help them use this app correctly
+/// Errors that can occur while running commands.
 #[derive(Debug, Eq, PartialEq)]
 pub enum UserError {
     CannotRunCall { call: Call, error: String },
-    UnknownFlag(String),
 }
 
 impl std::fmt::Display for UserError {
@@ -13,12 +12,9 @@ impl std::fmt::Display for UserError {
             UserError::CannotRunCall { call, error } => {
                 write!(f, "Cannot start command '{call}': {error}")
             }
-            UserError::UnknownFlag(flag) => {
-                write!(f, "Unknown flag: {flag}")
-            }
         }
     }
 }
 
-/// a Result that always has a `UserError` as the error and therefore doesn't require to specify it at each call point
+/// A Result that always has a `UserError` as the error.
 pub type Result<T> = core::result::Result<T, UserError>;

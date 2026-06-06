@@ -1,5 +1,6 @@
-use crate::commands::{Command, ErrorOnOutput, Show};
-use crate::errors::{Result, UserError};
+use crate::cli_errors::{Result, UserError};
+use crate::commands::Command;
+use conc::{ErrorOnOutput, Show};
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
@@ -41,8 +42,8 @@ mod tests {
 
     mod parse {
         use super::super::*;
-        use crate::subshell::Call;
         use big_s::S;
+        use conc::Call;
 
         #[test]
         fn single_command() {

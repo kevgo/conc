@@ -1,12 +1,11 @@
 mod cli;
+mod cli_errors;
 mod cmd;
 mod commands;
-mod errors;
-mod subshell;
 
 use colored::Colorize;
 use commands::Command;
-use errors::Result;
+use cli_errors::Result;
 use std::env;
 use std::process::ExitCode;
 
