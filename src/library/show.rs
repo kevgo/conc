@@ -12,6 +12,7 @@ pub enum Show {
 }
 
 impl Show {
+    /// indicates whether to display the command name
     #[must_use]
     pub fn display_command(self) -> bool {
         match self {
@@ -20,7 +21,7 @@ impl Show {
         }
     }
 
-    /// Indicates whether to display the output of successful commands.
+    /// indicates whether to display the output of successful commands
     #[must_use]
     pub fn display_success(self) -> bool {
         match self {
