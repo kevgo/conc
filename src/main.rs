@@ -3,9 +3,9 @@ mod cli_errors;
 mod cmd;
 mod commands;
 
+use cli_errors::Result;
 use colored::Colorize;
 use commands::Command;
-use cli_errors::Result;
 use std::env;
 use std::process::ExitCode;
 

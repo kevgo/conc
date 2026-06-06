@@ -35,6 +35,7 @@ pub enum Show {
 }
 
 impl Show {
+    #[must_use]
     pub fn display_command(self) -> bool {
         match self {
             Show::All | Show::Names => true,
@@ -43,6 +44,7 @@ impl Show {
     }
 
     /// Indicates whether to display the output of successful commands.
+    #[must_use]
     pub fn display_success(self) -> bool {
         match self {
             Show::All => true,
@@ -52,6 +54,7 @@ impl Show {
 }
 
 /// Runs the given commands concurrently, prints their results, and returns the exit code.
+#[must_use]
 pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
