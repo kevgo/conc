@@ -1,5 +1,5 @@
 [package]
-name = "conc"
+name = "concurrent-shell-commands"
 version = "0.3.0"
 edition = "2024"
 include = [

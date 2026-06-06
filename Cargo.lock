@@ -164,7 +164,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "conc"
+name = "concurrent-shell-commands"
 version = "0.3.0"
 dependencies = [
  "big_s",
