@@ -6,9 +6,15 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
+/// Arguments for the `run` function.
 pub struct RunArgs {
+    /// the commands to run
     pub calls: Vec<Call>,
+
+    /// whether to error if any command produces output
     pub error_on_output: ErrorOnOutput,
+
+    /// which output to show
     pub show: Show,
 }
 
