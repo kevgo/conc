@@ -23,7 +23,11 @@ fn inner() -> Result<ExitCode, AppError> {
             calls,
             error_on_output,
             show,
-        } => conc::run(calls, error_on_output, show),
+        } => conc::run(conc::RunArgs {
+            calls,
+            error_on_output,
+            show,
+        }),
         Command::Version => cmd::version(),
     })
 }

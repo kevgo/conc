@@ -6,13 +6,19 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
+pub struct RunArgs {
+    pub calls: Vec<Call>,
+    pub error_on_output: ErrorOnOutput,
+    pub show: Show,
+}
+
 /// Runs the given commands concurrently, prints their results, and returns the highest exit code.
 #[must_use]
-pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
+pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in calls {
+    for call in args.calls {
         let send_clone = send.clone();
         thread::spawn(move || {
             let _ = send_clone.send(call.run());
@@ -28,12 +34,12 @@ pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> Exit
         match call_result {
             Ok(call_result) => {
                 exit_code = exit_code.max(call_result.exit_code());
-                let error_from_output = error_on_output.enabled() && call_result.has_output();
+                let error_from_output = args.error_on_output.enabled() && call_result.has_output();
                 if error_from_output {
                     exit_code = exit_code.max(1);
                 }
                 let call_failed = !call_result.success() || error_from_output;
-                print_result(&call_result, call_failed, show);
+                print_result(&call_result, call_failed, args.show);
             }
             Err(err) => {
                 eprintln!("{}", err.to_string().red());
