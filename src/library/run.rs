@@ -29,7 +29,7 @@ pub struct RunArgs {
 /// use std::process::ExitCode;
 ///
 /// let args = RunArgs {
-///     calls: vec!["echo one".into(), "echo two".into(), "echo three".into()],
+///     calls: vec!["echo one".into(), "echo two".into()],
 ///     error_on_output: false,
 ///     show: Show::All,
 /// };
