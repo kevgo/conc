@@ -31,7 +31,7 @@ pub struct RunArgs {
 /// let args = RunArgs {
 ///     calls: vec!["echo one".into(), "echo two".into()],
 ///     error_on_output: false,
-///     show: Show::All,
+///     show: Show::Failed,
 /// };
 ///
 /// let exit_code = run(args);
