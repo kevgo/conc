@@ -2,7 +2,7 @@ RTA_VERSION = 0.26.1  # run-that-app version to use
 
 RTA = tools/rta@${RTA_VERSION}
 DPRINT = $(RTA) dprint
-GHERKIN_LINT = $(NPM) exec gherkin-lint
+GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
 GHOKIN = $(RTA) ghokin
 NPM = $(RTA) npm
 
