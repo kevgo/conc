@@ -2,19 +2,8 @@
 name = "conc"
 version = "0.3.0"
 edition = "2024"
-exclude = [
-  ".gherkin-lintrc",
-  ".github",
-  ".gitignore",
-  "CHANGELOG.md",
-  "Makefile",
-  "RELEASE.md",
-  "dprint.json",
-  "features",
-  "tests",
-  "tools",
-  "run-that-app",
-  "package*.json",
+include = [
+  "src/",
 ]
 license = "ISC"
 readme = "README.md"
