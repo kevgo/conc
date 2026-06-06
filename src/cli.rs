@@ -1,9 +1,9 @@
-use crate::cli_errors::{Result, UserError};
+use crate::binary::CliError;
 use crate::commands::Command;
 use conc::{ErrorOnOutput, Show};
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
-pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
+pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, CliError> {
     let mut calls = vec![];
     let mut show = Show::All;
     let mut error_on_output = ErrorOnOutput::from(false);
@@ -24,7 +24,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command> {
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
                 "--version" | "-V" => return Ok(Command::Version),
-                _ => return Err(UserError::UnknownFlag(arg)),
+                _ => return Err(CliError::UnknownFlag(arg)),
             }
             continue;
         }
@@ -113,7 +113,7 @@ mod tests {
         fn unknown_flag() {
             let give = vec![S("--zonk"), S("echo hello")].into_iter();
             let have = parse(give);
-            let want = Err(UserError::UnknownFlag(S("--zonk")));
+            let want = Err(CliError::UnknownFlag(S("--zonk")));
             assert_eq!(have, want);
         }
 

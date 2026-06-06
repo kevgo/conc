@@ -1,9 +1,9 @@
+mod binary;
 mod cli;
-mod cli_errors;
 mod cmd;
 mod commands;
 
-use cli_errors::Result;
+use binary::CliError;
 use colored::Colorize;
 use commands::Command;
 use std::env;
@@ -19,7 +19,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn inner() -> Result<ExitCode> {
+fn inner() -> Result<ExitCode, CliError> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run {
