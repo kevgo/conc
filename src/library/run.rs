@@ -8,7 +8,7 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-/// arguments for the `run` function
+/// named arguments for the `run` function
 pub struct RunArgs {
     /// the commands to run
     pub calls: Vec<String>,
