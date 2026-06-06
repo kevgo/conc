@@ -26,7 +26,7 @@ fn inner() -> Result<ExitCode> {
             calls,
             error_on_output,
             show,
-        } => cmd::run(calls, error_on_output, show),
+        } => conc::run(calls, error_on_output, show),
         Command::Version => cmd::version(),
     })
 }
