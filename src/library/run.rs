@@ -1,11 +1,13 @@
-use crate::commands::{ErrorOnOutput, Show};
-use crate::subshell::{Call, CallResult};
+use super::{Call, CallResult};
+use super::{ErrorOnOutput, Show};
 use colored::Colorize;
 use std::io::{self, Write};
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
+/// Runs the given commands concurrently, prints their results, and returns the highest exit code.
+#[must_use]
 pub fn run(calls: Vec<Call>, error_on_output: ErrorOnOutput, show: Show) -> ExitCode {
     let (send, receive) = mpsc::channel();
 

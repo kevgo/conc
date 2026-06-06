@@ -1,12 +1,8 @@
-mod cli;
-mod cmd;
-mod commands;
-mod errors;
-mod subshell;
+mod binary;
 
+use binary::cli::Command;
+use binary::{AppError, cli, cmd};
 use colored::Colorize;
-use commands::Command;
-use errors::Result;
 use std::env;
 use std::process::ExitCode;
 
@@ -20,14 +16,14 @@ fn main() -> ExitCode {
     }
 }
 
-fn inner() -> Result<ExitCode> {
+fn inner() -> Result<ExitCode, AppError> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run {
             calls,
             error_on_output,
             show,
-        } => cmd::run(calls, error_on_output, show),
+        } => conc::run(calls, error_on_output, show),
         Command::Version => cmd::version(),
     })
 }

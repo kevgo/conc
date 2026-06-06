@@ -1,5 +1,5 @@
-use crate::errors::{Result, UserError};
 use std::fmt::Display;
+use std::io;
 use std::process::Command;
 
 /// Call represents a command to execute.
@@ -24,13 +24,14 @@ impl Call {
     }
 
     /// Executes this call in a shell
-    pub(crate) fn run(self) -> Result<CallResult> {
-        let mut command = self.command();
-        let output = command.output().map_err(|err| UserError::CannotRunCall {
-            call: self.clone(),
-            error: err.to_string(),
-        })?;
-        Ok(CallResult { call: self, output })
+    pub(crate) fn run(self) -> Result<CallResult, RunError> {
+        match self.command().output() {
+            Ok(output) => Ok(CallResult { call: self, output }),
+            Err(err) => Err(RunError {
+                command: self.0.clone(),
+                error: err,
+            }),
+        }
     }
 }
 
@@ -83,6 +84,19 @@ fn to_exitcode_u8(value: i32) -> u8 {
         return 255;
     }
     u8::try_from(value.abs()).unwrap_or(255)
+}
+
+pub struct RunError {
+    /// the command that failed to execute
+    pub command: String,
+    /// the error that occurred while executing the command
+    pub error: io::Error,
+}
+
+impl std::fmt::Display for RunError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Cannot execute '{}': {}", self.command, self.error)
+    }
 }
 
 #[cfg(test)]
