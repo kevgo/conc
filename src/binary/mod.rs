@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod cmd;
 mod commands;
 mod errors;
 

@@ -1,12 +1,10 @@
 mod binary;
-mod cmd;
 
-use binary::{CliError, cli};
+use crate::binary::Command;
+use binary::{CliError, cli, cmd};
 use colored::Colorize;
 use std::env;
 use std::process::ExitCode;
-
-use crate::binary::Command;
 
 fn main() -> ExitCode {
     match inner() {
