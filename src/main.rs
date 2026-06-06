@@ -20,7 +20,7 @@ fn inner() -> Result<ExitCode, AppError> {
     Ok(match cli::parse(env::args().skip(1))? {
         Command::Help => cmd::help(),
         Command::Run {
-            calls,
+            commands: calls,
             error_on_output,
             show,
         } => conc::run(conc::RunArgs {

@@ -8,7 +8,7 @@ pub enum Command {
     Help,
     /// execute the given commands concurrently
     Run {
-        calls: Vec<String>,
+        commands: Vec<String>,
         error_on_output: bool,
         show: Show,
     },
@@ -18,7 +18,7 @@ pub enum Command {
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
-    let mut calls = vec![];
+    let mut commands = vec![];
     let mut show = Show::All;
     let mut error_on_output = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
@@ -42,10 +42,10 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        calls.push(arg);
+        commands.push(arg);
     }
     Ok(Command::Run {
-        calls,
+        commands,
         error_on_output,
         show,
     })
@@ -63,7 +63,7 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello world")],
+                commands: vec![S("echo hello world")],
                 error_on_output: false,
                 show: Show::All,
             };
@@ -75,7 +75,7 @@ mod tests {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello"), S("ls -la"), S("pwd")],
+                commands: vec![S("echo hello"), S("ls -la"), S("pwd")],
                 error_on_output: false,
                 show: Show::All,
             };
@@ -87,7 +87,7 @@ mod tests {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![],
+                commands: vec![],
                 error_on_output: false,
                 show: Show::All,
             };
@@ -99,7 +99,7 @@ mod tests {
             let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello")],
+                commands: vec![S("echo hello")],
                 error_on_output: false,
                 show: Show::Names,
             };
@@ -111,7 +111,7 @@ mod tests {
             let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello")],
+                commands: vec![S("echo hello")],
                 error_on_output: false,
                 show: Show::All,
             };
@@ -131,7 +131,7 @@ mod tests {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello")],
+                commands: vec![S("echo hello")],
                 error_on_output: false,
                 show: Show::All,
             };
@@ -175,7 +175,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello")],
+                commands: vec![S("echo hello")],
                 error_on_output: true,
                 show: Show::All,
             };
@@ -187,7 +187,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run {
-                calls: vec![S("echo hello")],
+                commands: vec![S("echo hello")],
                 error_on_output: true,
                 show: Show::Names,
             };
