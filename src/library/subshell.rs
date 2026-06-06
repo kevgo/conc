@@ -26,7 +26,7 @@ impl Call {
     /// Executes this call in a shell
     pub(crate) fn run(self) -> Result<CallResult, ConcError> {
         let mut command = self.command();
-        let output = command.output().map_err(|err| ConcError::CannotRunCall {
+        let output = command.output().map_err(|err| ConcError::CannotExecute {
             call: self.clone(),
             error: err.to_string(),
         })?;
