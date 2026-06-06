@@ -1,3 +1,3 @@
 mod library;
 
-pub use library::{Call, ConcError, ErrorOnOutput, Show, run};
+pub use library::{Call, ErrorOnOutput, Show, run};
