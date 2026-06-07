@@ -65,7 +65,7 @@ You can override this behavior using environment variables:
   TTY
 - `NO_COLOR=1` disables colors
 
-### Error on output
+## Error on output
 
 Some tools report findings via STDOUT or STDERR
 but still exit with a success code.
