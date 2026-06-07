@@ -1,17 +1,25 @@
+use crate::library::run::Executable;
 use std::io;
 use std::process::Command;
 
 /// executes the given command
-pub fn run(command: String) -> Result<CallResult, RunError> {
-    match shell_command(&command).output() {
-        Ok(output) => Ok(CallResult { command, output }),
-        Err(error) => Err(RunError { command, error }),
+pub fn run(executable: Executable) -> Result<CallResult, RunError> {
+    let mut command = executable.command;
+    match command.output() {
+        Ok(output) => Ok(CallResult {
+            name: executable.name,
+            output,
+        }),
+        Err(error) => Err(RunError {
+            name: executable.name,
+            error,
+        }),
     }
 }
 
 /// `CallResult` represents the result of a single command execution.
 pub struct CallResult {
-    pub command: String,
+    pub name: String,
     pub output: std::process::Output,
 }
 
@@ -35,9 +43,16 @@ impl CallResult {
     }
 }
 
+/// creates an Executable that runs the given command in a shell
+pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
+    let name = command.into();
+    let command = shell_command(&name);
+    Executable { name, command }
+}
+
 /// provides a Command instance that executes this call in a shell
 #[cfg(unix)]
-fn shell_command(command: &str) -> Command {
+pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("sh");
     cmd.arg("-c").arg(command);
     cmd
@@ -45,7 +60,7 @@ fn shell_command(command: &str) -> Command {
 
 /// provides a Command instance that executes this call in a shell
 #[cfg(windows)]
-fn shell_command(command: &str) -> Command {
+pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("cmd.exe");
     cmd.arg("/C").arg(command);
     cmd
@@ -59,15 +74,15 @@ fn to_exitcode_u8(value: i32) -> u8 {
 }
 
 pub struct RunError {
-    /// the command that failed to execute
-    pub command: String,
+    /// textual description of the command that failed to execute
+    pub name: String,
     /// the error that occurred while executing the command
     pub error: io::Error,
 }
 
 impl std::fmt::Display for RunError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Cannot execute '{}': {}", self.command, self.error)
+        write!(f, "Cannot execute '{}': {}", self.name, self.error)
     }
 }
 
