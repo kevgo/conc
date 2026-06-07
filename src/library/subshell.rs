@@ -43,14 +43,17 @@ impl CallResult {
     }
 }
 
-/// creates an Executable that runs the given command in a shell
+/// creates an Executable that runs the given command
+/// in a shell environment so that shell features can be used
+#[must_use]
 pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
     let name = command.into();
     let command = shell_command(&name);
     Executable { name, command }
 }
 
-/// provides a Command instance that executes this call in a shell
+/// provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used
 #[cfg(unix)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
