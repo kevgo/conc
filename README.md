@@ -87,7 +87,7 @@ conc "command 1" \
      "command 3"
 ```
 
-## Alternatives
+## alternatives
 
 - [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
   concurrently, but does not reliably propagate a single, meaningful exit code
