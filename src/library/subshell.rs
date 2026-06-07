@@ -3,17 +3,10 @@ use std::io;
 use std::process::Command;
 
 /// executes the given command
-pub fn run(executable: Executable) -> Result<CallResult, RunError> {
-    let mut command = executable.command;
+pub fn run(Executable { mut command, name }: Executable) -> Result<CallResult, RunError> {
     match command.output() {
-        Ok(output) => Ok(CallResult {
-            name: executable.name,
-            output,
-        }),
-        Err(error) => Err(RunError {
-            name: executable.name,
-            error,
-        }),
+        Ok(output) => Ok(CallResult { name, output }),
+        Err(error) => Err(RunError { name, error }),
     }
 }
 
