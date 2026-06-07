@@ -165,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "concurrent_shell_commands"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "big_s",
  "colored",
