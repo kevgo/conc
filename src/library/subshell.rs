@@ -82,7 +82,7 @@ fn to_exitcode_u8(value: i32) -> u8 {
 }
 
 pub struct RunError {
-    /// textual description of the command that failed to execute
+    /// display version of the command that failed to execute
     pub name: String,
     /// the error that occurred while executing the command
     pub error: io::Error,
