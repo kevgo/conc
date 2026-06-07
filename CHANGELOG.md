@@ -1,5 +1,10 @@
 # conc changelog
 
+## 0.3.2
+
+Publishes the crate including all source code
+and tests to allow the Rust team to include this in crater runs.
+
 ## 0.3.1
 
 Rust API updates
