@@ -43,8 +43,11 @@ impl CallResult {
     }
 }
 
-/// creates an Executable that runs the given command
-/// in a shell environment so that shell features can be used
+/// Creates an Executable that runs the given command
+/// in a shell environment so that shell features can be used.
+///
+/// In unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
 #[must_use]
 pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
     let name = command.into();
