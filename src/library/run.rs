@@ -1,8 +1,6 @@
-use crate::library::subshell;
-use crate::shell_command;
-
 use super::CallResult;
 use super::Show;
+use crate::library::subshell;
 use colored::Colorize;
 use std::io::{self, Write};
 use std::process::Command;

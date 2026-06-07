@@ -52,6 +52,7 @@ pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
 
 /// provides a Command instance that executes this call in a shell
 #[cfg(unix)]
+#[must_use]
 pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("sh");
     cmd.arg("-c").arg(command);
@@ -60,6 +61,7 @@ pub fn shell_command(command: &str) -> Command {
 
 /// provides a Command instance that executes this call in a shell
 #[cfg(windows)]
+#[must_use]
 pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("cmd.exe");
     cmd.arg("/C").arg(command);
