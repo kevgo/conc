@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.3.1
+
+Rust API updates
+
 ## 0.3.0
 
 Improved arguments for `--show`: `all`, `names`, `failed`
