@@ -48,8 +48,8 @@ pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
     Executable { name, command }
 }
 
-/// provides a Command instance that executes the given command
-/// in a shell environment so that shell features can be used
+/// Provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used.
 ///
 /// In Unix-like environments, this uses the `sh` shell.
 /// In Windows, it uses `cmd.exe`.
@@ -61,8 +61,8 @@ pub fn shell_command(command: &str) -> Command {
     cmd
 }
 
-/// provides a Command instance that executes the given command
-/// in a shell environment so that shell features can be used
+/// Provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used.
 ///
 /// In Unix-like environments, this uses the `sh` shell.
 /// In Windows, it uses `cmd.exe`.
