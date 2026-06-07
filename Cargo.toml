@@ -3,11 +3,7 @@ name = "concurrent_shell_commands"
 version = "0.3.0"
 autobins = false
 edition = "2024"
-include = [
-  "src/",
-  "LICENSE.md",
-  "README.md",
-]
+include = ["src/", "LICENSE.md", "README.md"]
 license = "ISC"
 readme = "README.md"
 repository = "https://github.com/kevgo/conc"
@@ -30,16 +26,22 @@ cucumber = "0.22.1"
 pretty = { package = "pretty_assertions", version = "1.4.1" }
 shellwords = "1.1.0"
 tempfile = "3.24.0"
-tokio = { version = "1.49", features = ["fs", "io-util", "macros", "process", "rt"] }
+tokio = { version = "1.49", features = [
+  "fs",
+  "io-util",
+  "macros",
+  "process",
+  "rt",
+] }
 
 [[test]]
 name = "cucumber"
-harness = false # allows Cucumber to print output instead of libtest
-test = false # don't run this as part of "cargo test"
+harness = false   # allows Cucumber to print output instead of libtest
+test = false      # don't run this as part of "cargo test"
 
 [profile.release]
-opt-level = 's' # Optimize for size
-lto = true # enable link-time optimization (removes dead code)
+opt-level = 's'   # Optimize for size
+lto = true        # enable link-time optimization (removes dead code)
 codegen-units = 1 # reduce codegen units to enable additional optimizations
 panic = "unwind"
 
