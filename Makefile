@@ -1,11 +1,12 @@
 RTA_VERSION = 0.36.0  # run-that-app version to use
 
-RTA = tools/rta@${RTA_VERSION}
-DPRINT = $(RTA) dprint
+RTA          = tools/rta@${RTA_VERSION}
+DPRINT       = $(RTA) dprint
 GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
-GHOKIN = $(RTA) ghokin
-NPM = $(RTA) npm
-RUMDL = $(RTA) rumdl
+GHOKIN       = $(RTA) ghokin
+NPM          = $(RTA) npm
+RUMDL        = $(RTA) rumdl
+TAPLO        = $(RTA) taplo
 
 build:  # builds the codebase
 	cargo build
@@ -23,6 +24,7 @@ fix: ${RTA}  # auto-corrects issues
 	${DPRINT} fmt
 	${GHOKIN} fmt replace features/
 	$(RUMDL) fmt
+	$(TAPLO) format
 
 help:  # shows all available Make commands
 	cat Makefile | grep '^[^ ]*:' | grep -v '.PHONY' | grep -v '.SILENT:' | grep '#' | grep -v help | sed 's/:.*#/#/' | column -s "#" -t
@@ -36,6 +38,7 @@ lint: ${RTA}  # runs all linters
 	git diff --check
 	${GHERKIN_LINT}
 	$(RUMDL) check
+	# $(TAPLO) check  # current version has a bug with Cargo.toml, see https://github.com/rust-lang/cargo/issues/15030
 
 ps: fix test  # runs all automations
 
