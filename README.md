@@ -1,4 +1,4 @@
-# Conc
+# conc
 
 _Conc_ runs multiple CLI commands concurrently,
 returns the first non-zero exit code it encounters, and filters command output.
@@ -8,7 +8,7 @@ It is intended for development scripts and CI pipelines.
 [![linux](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_linux.yml)
 [![windows](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml/badge.svg)](https://github.com/kevgo/conc/actions/workflows/ci_windows.yml)
 
-## Usage
+## usage
 
 Pass the commands to execute as strings.
 
@@ -37,7 +37,7 @@ Commands are executed inside a shell
 conc "echo one && echo two | grep on > file"
 ```
 
-### Output verbosity
+## output verbosity
 
 When running linters, tests, or compilers,
 you often only care whether everything passed and want detailed output only
@@ -56,7 +56,7 @@ Flags for _conc_ must appear before the first command to execute:
 conc --show=failed "echo one" "echo two"
 ```
 
-### Colors
+## colors
 
 _Conc_ emits ANSI colors when STDOUT and STDERR are connected to a TTY.
 You can override this behavior using environment variables:
