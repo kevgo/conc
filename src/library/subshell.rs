@@ -46,7 +46,7 @@ impl CallResult {
 /// Creates an Executable that runs the given command
 /// in a shell environment so that shell features can be used.
 ///
-/// In unix-like environments, this uses the `sh` shell.
+/// In Unix-like environments, this uses the `sh` shell.
 /// In Windows, it uses `cmd.exe`.
 #[must_use]
 pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
@@ -57,6 +57,9 @@ pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
 
 /// provides a Command instance that executes the given command
 /// in a shell environment so that shell features can be used
+///
+/// In Unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
 #[cfg(unix)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
@@ -65,7 +68,11 @@ pub fn shell_command(command: &str) -> Command {
     cmd
 }
 
-/// provides a Command instance that executes this call in a shell
+/// provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used
+///
+/// In Unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
 #[cfg(windows)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
