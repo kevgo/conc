@@ -87,6 +87,11 @@ conc "command 1" \
      "command 3"
 ```
 
+## API
+
+For details on how to use `conc` programmatically from Rust see the
+[documentation](https://docs.rs/concurrent_shell_commands/latest/conc/).
+
 ## alternatives
 
 - [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
