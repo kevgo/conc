@@ -89,7 +89,7 @@ conc "command 1" \
 
 ## API
 
-For details on how to run `conc` programmatically see the
+For details on how to use `conc` programmatically from Rust see the
 [documentation](https://docs.rs/concurrent_shell_commands/latest/conc/).
 
 ## alternatives
