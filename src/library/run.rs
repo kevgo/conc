@@ -36,11 +36,11 @@ pub struct RunArgs {
 /// # Examples
 ///
 /// ```
-/// use conc::{RunArgs, Show, run};
+/// use conc::{RunArgs, Show, run, shell_executable};
 /// use std::process::ExitCode;
 ///
 /// let args = RunArgs {
-///     commands: vec!["echo one".into(), "echo two".into()],
+///     executables: vec![shell_executable("echo one"), shell_executable("echo two")],
 ///     error_on_output: false,
 ///     show: Show::All,
 /// };
