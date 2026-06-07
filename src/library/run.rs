@@ -8,10 +8,10 @@ use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
-/// something that Conc can execute
+/// all information Conc needs to execute a command
 #[derive(Debug)]
 pub struct Executable {
-    /// string version of the executable, will be printed as the name
+    /// how the command will be displayed
     pub name: String,
 
     /// the command to execute
@@ -21,13 +21,13 @@ pub struct Executable {
 /// named arguments for the `run` function
 #[derive(Debug)]
 pub struct RunArgs {
-    /// the commands to run
+    /// the commands to execute concurrently
     pub executables: Vec<Executable>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
 
-    /// which output to show
+    /// which output to display
     pub show: Show,
 }
 
