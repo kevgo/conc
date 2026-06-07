@@ -1,3 +1,3 @@
 mod library;
 
-pub use library::{RunArgs, Show, run};
+pub use library::{Executable, RunArgs, Show, run, shell_command, shell_executable};

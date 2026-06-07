@@ -1,23 +1,33 @@
-use crate::library::subshell;
-
 use super::CallResult;
 use super::Show;
+use crate::library::subshell;
 use colored::Colorize;
 use std::io::{self, Write};
+use std::process::Command;
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
 
+/// all information Conc needs to execute a command
+#[derive(Debug)]
+pub struct Executable {
+    /// how the command will be displayed
+    pub name: String,
+
+    /// the command to execute
+    pub command: Command,
+}
+
 /// named arguments for the `run` function
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug)]
 pub struct RunArgs {
-    /// the commands to run
-    pub commands: Vec<String>,
+    /// the commands to execute concurrently
+    pub executables: Vec<Executable>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
 
-    /// which output to show
+    /// which output to display
     pub show: Show,
 }
 
@@ -26,11 +36,19 @@ pub struct RunArgs {
 /// # Examples
 ///
 /// ```
-/// use conc::{RunArgs, Show, run};
+/// use conc::{Executable, RunArgs, Show, run, shell_executable};
 /// use std::process::ExitCode;
+/// use std::process::Command;
 ///
+/// let mut command = Command::new("echo");
+/// command.arg("one");
+/// let executable1 = Executable {
+///     name: "echo one".into(),
+///     command,
+/// };
+/// let executable2 = shell_executable("echo two");
 /// let args = RunArgs {
-///     commands: vec!["echo one".into(), "echo two".into()],
+///     executables: vec![executable1, executable2],
 ///     error_on_output: false,
 ///     show: Show::All,
 /// };
@@ -43,7 +61,7 @@ pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in args.commands {
+    for call in args.executables {
         let send_clone = send.clone();
         thread::spawn(move || {
             let _ = send_clone.send(subshell::run(call));
@@ -82,7 +100,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
 
     // print command name
     if show.display_command() {
-        let mut command = call_result.command.clone();
+        let mut command = call_result.name.clone();
         if is_failed {
             let _ = writeln!(stdout, "{}", command.bold().red());
         } else {

@@ -1,8 +1,8 @@
 use super::AppError;
-use conc::{RunArgs, Show};
+use conc::{RunArgs, Show, shell_executable};
 
 /// the different top-level commands that conc can execute
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug)]
 pub enum Command {
     /// display the help text
     Help,
@@ -16,7 +16,7 @@ pub enum Command {
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
-    let mut commands = vec![];
+    let mut executables = vec![];
     let mut show = Show::All;
     let mut error_on_output = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
@@ -40,10 +40,10 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        commands.push(arg);
+        executables.push(shell_executable(arg));
     }
     Ok(Command::Run(RunArgs {
-        commands,
+        executables,
         error_on_output,
         show,
     }))
@@ -61,11 +61,11 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello world")],
+                executables: vec![shell_executable("echo hello world")],
                 error_on_output: false,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -73,11 +73,15 @@ mod tests {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello"), S("ls -la"), S("pwd")],
+                executables: vec![
+                    shell_executable("echo hello"),
+                    shell_executable("ls -la"),
+                    shell_executable("pwd"),
+                ],
                 error_on_output: false,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -85,11 +89,11 @@ mod tests {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![],
+                executables: vec![],
                 error_on_output: false,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -97,11 +101,11 @@ mod tests {
             let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello")],
+                executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
                 show: Show::Names,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -109,19 +113,19 @@ mod tests {
             let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello")],
+                executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
         fn unknown_flag() {
             let give = vec![S("--zonk"), S("echo hello")].into_iter();
             let have = parse(give);
-            let want = Err(AppError::UnknownFlag(S("--zonk")));
-            assert_eq!(have, want);
+            let want: Result<Command, AppError> = Err(AppError::UnknownFlag(S("--zonk")));
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -129,11 +133,11 @@ mod tests {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello")],
+                executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -141,7 +145,7 @@ mod tests {
             let give = vec![S("--help")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Help;
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -149,7 +153,7 @@ mod tests {
             let give = vec![S("-h")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Help;
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -157,7 +161,7 @@ mod tests {
             let give = vec![S("-V")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Version;
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -165,7 +169,7 @@ mod tests {
             let give = vec![S("--version")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Version;
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -173,11 +177,11 @@ mod tests {
             let give = vec![S("--error-on-output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello")],
+                executables: vec![shell_executable("echo hello")],
                 error_on_output: true,
                 show: Show::All,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
 
         #[test]
@@ -185,11 +189,11 @@ mod tests {
             let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                commands: vec![S("echo hello")],
+                executables: vec![shell_executable("echo hello")],
                 error_on_output: true,
                 show: Show::Names,
             });
-            assert_eq!(have, want);
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
     }
 }

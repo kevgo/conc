@@ -12,7 +12,7 @@ It is intended for development scripts and CI pipelines.
 
 Pass the commands to execute as strings.
 
-```
+```text
 conc "echo one" "echo two" "echo three"
 ```
 
@@ -24,7 +24,7 @@ This executes the following commands concurrently:
 
 For readability, you can put each command on its own line:
 
-```
+```text
 conc "echo one" \
      "echo two" \
      "echo three"
@@ -33,7 +33,7 @@ conc "echo one" \
 Commands are executed inside a shell (`sh` on Linux/macOS, `cmd.exe` on
 Windows), so you can use shell features:
 
-```
+```text
 conc "echo one && echo two | grep on > file"
 ```
 
@@ -69,7 +69,7 @@ override this behavior using environment variables:
 Some tools report findings via STDOUT or STDERR but still exit with a success
 code. The `--error-on-output` flag treats any output as failure.
 
-```
+```text
 conc --error-on-output "echo foo"
 ```
 
@@ -78,7 +78,7 @@ This exits with status code 1 because the command produced output.
 If you want this behavior only for specific commands, wrap them in a nested
 _conc_ call. For example, to enable error on output only for `command 2`:
 
-```
+```text
 conc "command 1" \
      "conc --error-on-output 'command 2'" \
      "command 3"

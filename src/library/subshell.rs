@@ -1,17 +1,18 @@
+use crate::library::run::Executable;
 use std::io;
 use std::process::Command;
 
 /// executes the given command
-pub fn run(command: String) -> Result<CallResult, RunError> {
-    match shell_command(&command).output() {
-        Ok(output) => Ok(CallResult { command, output }),
-        Err(error) => Err(RunError { command, error }),
+pub fn run(Executable { mut command, name }: Executable) -> Result<CallResult, RunError> {
+    match command.output() {
+        Ok(output) => Ok(CallResult { name, output }),
+        Err(error) => Err(RunError { name, error }),
     }
 }
 
 /// `CallResult` represents the result of a single command execution.
 pub struct CallResult {
-    pub command: String,
+    pub name: String,
     pub output: std::process::Output,
 }
 
@@ -35,17 +36,39 @@ impl CallResult {
     }
 }
 
-/// provides a Command instance that executes this call in a shell
+/// Creates an Executable that runs the given command
+/// in a shell environment so that shell features can be used.
+///
+/// In Unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
+#[must_use]
+pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
+    let name = command.into();
+    let command = shell_command(&name);
+    Executable { name, command }
+}
+
+/// Provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used.
+///
+/// In Unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
 #[cfg(unix)]
-fn shell_command(command: &str) -> Command {
+#[must_use]
+pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("sh");
     cmd.arg("-c").arg(command);
     cmd
 }
 
-/// provides a Command instance that executes this call in a shell
+/// Provides a Command instance that executes the given command
+/// in a shell environment so that shell features can be used.
+///
+/// In Unix-like environments, this uses the `sh` shell.
+/// In Windows, it uses `cmd.exe`.
 #[cfg(windows)]
-fn shell_command(command: &str) -> Command {
+#[must_use]
+pub fn shell_command(command: &str) -> Command {
     let mut cmd = Command::new("cmd.exe");
     cmd.arg("/C").arg(command);
     cmd
@@ -59,15 +82,15 @@ fn to_exitcode_u8(value: i32) -> u8 {
 }
 
 pub struct RunError {
-    /// the command that failed to execute
-    pub command: String,
+    /// display version of the command that failed to execute
+    pub name: String,
     /// the error that occurred while executing the command
     pub error: io::Error,
 }
 
 impl std::fmt::Display for RunError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Cannot execute '{}': {}", self.command, self.error)
+        write!(f, "Cannot execute '{}': {}", self.name, self.error)
     }
 }
 
