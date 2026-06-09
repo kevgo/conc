@@ -35,7 +35,8 @@ install:  # installs this tool on the local machine
 lint: ${RTA}  # runs all linters
 	cargo clippy -- -Wclippy::pedantic --deny=clippy::unwrap_used --deny=clippy::expect_used --deny=clippy::panic  # lint production code
 	cargo clippy --all-targets --all-features -- --deny=warnings --allow=clippy::unwrap_used # lint all code including test code
-	cargo clippy --test=cucumber --all-features -- --deny=warnings
+	cargo clippy --test=cucumber --all-features -- --deny=warnings \
+		--allow=clippy::unwrap-used
 	git diff --check
 	${GHERKIN_LINT}
 	$(RUMDL) check
