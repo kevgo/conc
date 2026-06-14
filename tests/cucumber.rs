@@ -42,13 +42,13 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 }
 
 #[then("STDOUT contains:")]
-fn prints_to_stdout(world: &mut World, step: &Step) {
+fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
     world.want_stdout.push(want_block.to_owned());
 }
 
 #[then("STDERR contains:")]
-fn prints_to_stderr(world: &mut World, step: &Step) {
+fn stderr_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
     world.want_stderr.push(want_block.to_owned());
 }
