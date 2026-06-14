@@ -10,7 +10,7 @@ fn main() -> ExitCode {
     match inner() {
         Ok(exit_code) => exit_code,
         Err(err) => {
-            eprintln!("{}", err.to_string().red());
+            println!("{}", err.to_string().red());
             ExitCode::FAILURE
         }
     }
