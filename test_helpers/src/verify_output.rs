@@ -19,16 +19,16 @@ mod tests {
 
     #[test]
     fn exact_match() {
-        let have = "hello world".to_string();
-        let wants = vec!["hello".to_string(), "world".to_string()];
+        let have = S("hello world");
+        let wants = vec![S("hello"), S("world")];
         verify_output("stdout", have, &wants);
     }
 
     #[test]
     #[should_panic(expected = "Extra stdout output found:\nworld")]
     fn expect_too_little() {
-        let have = "hello world".to_string();
-        let wants = vec!["hello".to_string()];
+        let have = S("hello world");
+        let wants = vec![S("hello")];
         verify_output("stdout", have, &wants);
     }
 
@@ -36,19 +36,15 @@ mod tests {
     #[should_panic(expected = "Didn't find 'extra' in stdout\nremaining text: ' '")]
     fn expect_too_much() {
         let have = S("hello world");
-        let wants = vec![
-            "hello".to_string(),
-            "world".to_string(),
-            "extra".to_string(),
-        ];
+        let wants = vec![S("hello"), S("world"), S("extra")];
         verify_output("stdout", have, &wants);
     }
 
     #[test]
     #[should_panic(expected = "Didn't find 'hallo' in stdout\nremaining text: 'hello'")]
     fn different() {
-        let have = "hello".to_string();
-        let wants = vec!["hallo".to_string()];
+        let have = S("hello");
+        let wants = vec![S("hallo")];
         verify_output("stdout", have, &wants);
     }
 }
