@@ -62,8 +62,8 @@ fn the_output_is_empty(world: &mut World) {
     assert!(output.stderr.is_empty());
 }
 
-#[then("the stderr is empty")]
-fn the_stderr_is_empty(world: &mut World) {
+#[then("STDERR is empty")]
+fn stderr_is_empty(world: &mut World) {
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran");
     };

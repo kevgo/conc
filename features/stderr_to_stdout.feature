@@ -7,7 +7,7 @@ Feature: stderr to stdout
       echo error-output >&2
       error-output
       """
-    And the stderr is empty
+    And STDERR is empty
     And the exit code is 0
 
   Scenario: disabled
