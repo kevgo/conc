@@ -56,6 +56,17 @@ Flags for _conc_ must appear before the first command to execute:
 conc --show=failed "echo one" "echo two"
 ```
 
+## output redirection
+
+The `--stderr-to-stdout` flag redirects STDERR to STDOUT.
+
+```bash
+conc --stderr-to-stdout` 'echo hello >&2'
+```
+
+This example would normally print "hello" on STDERR,
+but thanks to the flag it prints it to STDOUT.
+
 ## colors
 
 _Conc_ emits ANSI colors when STDOUT and STDERR are connected to a TTY.
