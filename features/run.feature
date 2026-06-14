@@ -7,12 +7,12 @@ Feature: run multiple commands concurrently
       echo one
       one
       """
-    Then STDOUT contains:
+    And STDOUT contains:
       """
       echo two
       two
       """
-    Then STDOUT contains:
+    And STDOUT contains:
       """
       echo three
       three
