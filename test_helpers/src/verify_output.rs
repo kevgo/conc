@@ -2,7 +2,7 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
     for want in wants {
         assert!(
             have.contains(want),
-            "Didn't find '{want}' in {name}\nHAVE: {have}"
+            "Didn't find '{want}' in {name}\nremaining text: '{have}'"
         );
         have = have.replace(want, "");
     }
@@ -31,7 +31,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Didn't find 'extra' in stdout\nHAVE:  ")]
+    #[should_panic(expected = "Didn't find 'extra' in stdout\nremaining text: ' '")]
     fn expect_too_much() {
         let have = S("hello world");
         let wants = vec![
@@ -39,6 +39,14 @@ mod tests {
             "world".to_string(),
             "extra".to_string(),
         ];
+        verify_output("stdout", have, &wants);
+    }
+
+    #[test]
+    #[should_panic(expected = "Didn't find 'hallo' in stdout\nremaining text: 'hello'")]
+    fn different() {
+        let have = "hello".to_string();
+        let wants = vec!["hallo".to_string()];
         verify_output("stdout", have, &wants);
     }
 }
