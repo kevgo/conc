@@ -2,17 +2,17 @@ Feature: run multiple commands concurrently
 
   Scenario: multiple commands
     When I run "conc 'echo one' 'echo two' 'echo three'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one
       """
-    And the output contains:
+    Then STDOUT contains:
       """
       echo two
       two
       """
-    And the output contains:
+    Then STDOUT contains:
       """
       echo three
       three
@@ -21,7 +21,7 @@ Feature: run multiple commands concurrently
 
   Scenario: one command
     When I run "conc 'echo one'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one

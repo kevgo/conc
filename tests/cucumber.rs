@@ -83,7 +83,7 @@ async fn main() {
                     stdout = stdout.replace(want, "");
                 }
                 stdout = stdout.trim().to_owned();
-                assert!(stdout.is_empty(), "Extra output found:\n{stdout}");
+                assert!(stdout.is_empty(), "Extra stdout output found:\n{stdout}");
                 // verify STDERR
                 let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
                 for want in &world.want_stderr {
@@ -94,7 +94,7 @@ async fn main() {
                     stderr = stderr.replace(want, "");
                 }
                 stderr = stderr.trim().to_owned();
-                assert!(stderr.is_empty(), "Extra output found:\n{stderr}");
+                assert!(stderr.is_empty(), "Extra stderr output found:\n{stderr}");
             })
         })
         .run_and_exit("features")
