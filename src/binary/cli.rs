@@ -19,6 +19,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
     let mut executables = vec![];
     let mut show = Show::All;
     let mut error_on_output = false;
+    let mut stderr_to_stdout = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     for arg in args {
         if arg == "--" {
@@ -35,6 +36,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
                 "--show=all" | "--show" => show = Show::All,
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
+                "--stderr-to-stdout" => stderr_to_stdout = true,
                 "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(AppError::UnknownFlag(arg)),
             }
@@ -45,6 +47,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
     Ok(Command::Run(RunArgs {
         executables,
         error_on_output,
+        stderr_to_stdout,
         show,
     }))
 }
@@ -63,6 +66,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello world")],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -79,6 +83,7 @@ mod tests {
                     shell_executable("pwd"),
                 ],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -91,6 +96,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -103,6 +109,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::Names,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -115,6 +122,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -135,6 +143,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello")],
                 error_on_output: false,
+                stderr_to_stdout: false,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -179,6 +188,20 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello")],
                 error_on_output: true,
+                stderr_to_stdout: false,
+                show: Show::All,
+            });
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
+        }
+
+        #[test]
+        fn stderr_to_stdout() {
+            let give = vec![S("--stderr-to-stdout"), S("echo hello")].into_iter();
+            let have = parse(give).unwrap();
+            let want = Command::Run(RunArgs {
+                executables: vec![shell_executable("echo hello")],
+                error_on_output: false,
+                stderr_to_stdout: true,
                 show: Show::All,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
@@ -191,6 +214,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 executables: vec![shell_executable("echo hello")],
                 error_on_output: true,
+                stderr_to_stdout: false,
                 show: Show::Names,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
