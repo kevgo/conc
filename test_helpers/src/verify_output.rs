@@ -1,3 +1,5 @@
+/// verifies STDOUT or STDERR output collected in Cucumber tests
+/// against the collected expected output
 pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
     for want in wants {
         assert!(
