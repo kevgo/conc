@@ -1,5 +1,10 @@
 # conc changelog
 
+## 0.4.1
+
+- all relevant output including error messages go to STDOUT,
+  STDERR is only for internal logging
+
 ## 0.4.0
 
 - [--stderr-to-stdout](https://github.com/kevgo/conc#output-redirection) flag
