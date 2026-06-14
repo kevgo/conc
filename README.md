@@ -58,14 +58,14 @@ conc --show=failed "echo one" "echo two"
 
 ## output redirection
 
-The `--stderr-to-stdout` flag redirects STDERR to STDOUT.
+Use `--stderr-to-stdout` to redirect STDERR to STDOUT.
 
 ```bash
 conc --stderr-to-stdout` 'echo hello >&2'
 ```
 
-This example would normally print "hello" on STDERR,
-but thanks to the flag it prints it to STDOUT.
+Without the flag, this command writes "hello" to STDERR.
+With the flag enabled, it prints "hello" to STDOUT instead.
 
 ## colors
 
