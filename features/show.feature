@@ -2,17 +2,17 @@ Feature: run multiple commands concurrently
 
   Scenario: --show=all
     When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo two
       two
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo three
       three
@@ -21,15 +21,15 @@ Feature: run multiple commands concurrently
 
   Scenario: --show=names
     When I run "conc --show=names 'echo one' 'echo two' 'echo three'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo two
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo three
       """
@@ -37,17 +37,17 @@ Feature: run multiple commands concurrently
 
   Scenario: --show=names --error-on-output
     When I run "conc --show=names --error-on-output 'echo one' 'echo two' 'echo three'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo two
       two
       """
-    And the output contains:
+    And STDOUT contains:
       """
       echo three
       three

@@ -57,6 +57,7 @@ todo:  # displays all TODO items
 
 unit:  # runs the unit tests
 	cargo test --locked
+	cargo test -p test_helpers
 
 update:  # updates the dependencies
 	cargo install cargo-edit cargo-machete

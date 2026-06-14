@@ -2,7 +2,7 @@ Feature: display the version
 
   Scenario: version
     When I run "conc --version"
-    Then the output contains:
+    Then STDOUT contains:
       """
       conc 0.3.2
       """
