@@ -28,4 +28,16 @@ mod tests {
         let wants = vec!["hello".to_string()];
         verify_output("stdout", have, &wants);
     }
+
+    #[test]
+    #[should_panic(expected = "Didn't find 'extra' in stdout:\n")]
+    fn expect_too_little() {
+        let have = "hello world".to_string();
+        let wants = vec![
+            "hello".to_string(),
+            "world".to_string(),
+            "extra".to_string(),
+        ];
+        verify_output("stdout", have, &wants);
+    }
 }
