@@ -173,6 +173,7 @@ dependencies = [
  "pretty_assertions",
  "shellwords",
  "tempfile",
+ "test-helpers",
  "tokio",
 ]
 
@@ -976,6 +977,10 @@ dependencies = [
  "rustix",
  "windows-sys 0.60.2",
 ]
+
+[[package]]
+name = "test-helpers"
+version = "0.1.0"
 
 [[package]]
 name = "textwrap"

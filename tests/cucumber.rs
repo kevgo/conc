@@ -74,23 +74,11 @@ async fn main() {
                     panic!("No command ran");
                 };
                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-                verify_output("stdout", stdout, &world.want_stdout);
+                test_helpers::verify_output("stdout", stdout, &world.want_stdout);
                 let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                verify_output("stderr", stderr, &world.want_stderr);
+                test_helpers::verify_output("stderr", stderr, &world.want_stderr);
             })
         })
         .run_and_exit("features")
         .await;
-}
-
-fn verify_output(name: &str, mut have: String, wants: &Vec<String>) {
-    for want in wants {
-        assert!(
-            have.contains(want),
-            "Didn't find '{want}' in {name}:\n{have}"
-        );
-        have = have.replace(want, "");
-    }
-    have = have.trim().to_owned();
-    assert!(have.is_empty(), "Extra {name} output found:\n{have}");
 }
