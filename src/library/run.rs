@@ -89,7 +89,7 @@ pub fn run(args: RunArgs) -> ExitCode {
                 print_result(&call_result, call_failed, args.show, args.stderr_to_stdout);
             }
             Err(err) => {
-                eprintln!("{}", err.to_string().red());
+                println!("{}", err.to_string().red());
                 exit_code = exit_code.max(1);
             }
         }
