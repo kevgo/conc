@@ -75,17 +75,8 @@ async fn main() {
                 };
                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();
                 verify_output("stdout", stdout, &world.want_stdout);
-                // verify STDERR
-                let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                for want in &world.want_stderr {
-                    assert!(
-                        stderr.contains(want),
-                        "Didn't find '{want}' in stderr:\n{stderr}"
-                    );
-                    stderr = stderr.replace(want, "");
-                }
-                stderr = stderr.trim().to_owned();
-                assert!(stderr.is_empty(), "Extra stderr output found:\n{stderr}");
+                let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+                verify_output("stderr", stderr, &world.want_stderr);
             })
         })
         .run_and_exit("features")
