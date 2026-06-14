@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.4.0
+
+- [--stderr-to-stdout](https://github.com/kevgo/conc#output-redirection) flag
+
 ## 0.3.2
 
 Publishes the crate including all source code
