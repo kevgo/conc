@@ -27,7 +27,7 @@ pub struct RunArgs {
     /// whether to error if any command produces output
     pub error_on_output: bool,
 
-    /// whether to print stderr output to stdout instead of stderr
+    /// whether to redirect stderr output to stdout
     pub stderr_to_stdout: bool,
 
     /// which output to display
