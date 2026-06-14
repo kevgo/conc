@@ -70,6 +70,18 @@ fn the_output_is_empty(world: &mut World) {
     assert!(output.stderr.is_empty());
 }
 
+#[then("the stderr is empty")]
+fn the_stderr_is_empty(world: &mut World) {
+    let Some(output) = world.output.as_ref() else {
+        panic!("No command ran");
+    };
+    assert!(
+        output.stderr.is_empty(),
+        "Expected stderr to be empty but got: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     World::cucumber()
