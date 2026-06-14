@@ -4,7 +4,7 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
     for want in wants {
         assert!(
             have.contains(want),
-            "Didn't find '{want}' in {name}\nremaining text: '{have}'"
+            "Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'"
         );
         have = have.replace(want, "");
     }
@@ -33,7 +33,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Didn't find 'extra' in stdout\nremaining text: ' '")]
+    #[should_panic(
+        expected = "Didn't find 'extra' in stdout\nremaining unchecked text in stdout:\n' '"
+    )]
     fn expect_too_much() {
         let have = S("hello world");
         let wants = vec![S("hello"), S("world"), S("extra")];
@@ -41,7 +43,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Didn't find 'hallo' in stdout\nremaining text: 'hello'")]
+    #[should_panic(
+        expected = "Didn't find 'hallo' in stdout\nremaining unchecked text in stdout:\n'hello'"
+    )]
     fn different() {
         let have = S("hello");
         let wants = vec![S("hallo")];
