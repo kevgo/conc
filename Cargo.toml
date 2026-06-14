@@ -3,7 +3,7 @@ members = [".", "test_helpers"]
 
 [package]
 name = "concurrent_shell_commands"
-version = "0.4.0"
+version = "0.4.1"
 autobins = false
 edition = "2024"
 include = ["features/", "tests/", "src/", "LICENSE.md", "README.md"]
