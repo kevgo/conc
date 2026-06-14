@@ -2,7 +2,7 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
     for want in wants {
         assert!(
             have.contains(want),
-            "Didn't find '{want}' in {name}:\n{have}"
+            "Didn't find '{want}' in {name}\nHAVE: {have}"
         );
         have = have.replace(want, "");
     }
@@ -13,6 +13,7 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use big_s::S;
 
     #[test]
     fn exact_match() {
@@ -30,9 +31,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Didn't find 'extra' in stdout:\n")]
+    #[should_panic(expected = "Didn't find 'extra' in stdout\nHAVE:  ")]
     fn expect_too_little() {
-        let have = "hello world".to_string();
+        let have = S("hello world");
         let wants = vec![
             "hello".to_string(),
             "world".to_string(),
