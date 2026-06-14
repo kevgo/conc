@@ -2,7 +2,7 @@ Feature: stderr to stdout
 
   Scenario: enabled
     When I run "conc --stderr-to-stdout 'echo error-output >&2'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo error-output >&2
       error-output
@@ -12,9 +12,12 @@ Feature: stderr to stdout
 
   Scenario: disabled
     When I run "conc 'echo error-output >&2'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo error-output >&2
+      """
+    And STDERR contains:
+      """
       error-output
       """
     And the exit code is 0
