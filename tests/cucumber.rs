@@ -73,17 +73,8 @@ async fn main() {
                 let Some(output) = world.output.as_ref() else {
                     panic!("No command ran");
                 };
-                // verify STDOUT
-                let mut stdout = String::from_utf8_lossy(&output.stdout).to_string();
-                for want in &world.want_stdout {
-                    assert!(
-                        stdout.contains(want),
-                        "Didn't find '{want}' in stdout:\n{stdout}"
-                    );
-                    stdout = stdout.replace(want, "");
-                }
-                stdout = stdout.trim().to_owned();
-                assert!(stdout.is_empty(), "Extra stdout output found:\n{stdout}");
+                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                verify_output("stdout", stdout, &world.want_stdout);
                 // verify STDERR
                 let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
                 for want in &world.want_stderr {
@@ -99,4 +90,16 @@ async fn main() {
         })
         .run_and_exit("features")
         .await;
+}
+
+fn verify_output(name: &str, mut have: String, wants: &Vec<String>) {
+    for want in wants {
+        assert!(
+            have.contains(want),
+            "Didn't find '{want}' in {name}:\n{have}"
+        );
+        have = have.replace(want, "");
+    }
+    have = have.trim().to_owned();
+    assert!(have.is_empty(), "Extra {name} output found:\n{have}");
 }
