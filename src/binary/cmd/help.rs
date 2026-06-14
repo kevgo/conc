@@ -10,6 +10,7 @@ Flags:
   --help, -h          this help text
   --show=all          show the output of all commands
   --show=failed       show the output of only failed commands
+  --stderr-to-stdout  print stderr of commands to stdout
   --version, -V       show the version
 
 Examples:

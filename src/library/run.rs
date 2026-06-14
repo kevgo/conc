@@ -27,6 +27,9 @@ pub struct RunArgs {
     /// whether to error if any command produces output
     pub error_on_output: bool,
 
+    /// whether to print stderr output to stdout instead of stderr
+    pub stderr_to_stdout: bool,
+
     /// which output to display
     pub show: Show,
 }
@@ -50,6 +53,7 @@ pub struct RunArgs {
 /// let args = RunArgs {
 ///     executables: vec![executable1, executable2],
 ///     error_on_output: false,
+///     stderr_to_stdout: false,
 ///     show: Show::All,
 /// };
 ///
@@ -82,7 +86,7 @@ pub fn run(args: RunArgs) -> ExitCode {
                     exit_code = exit_code.max(1);
                 }
                 let call_failed = !call_result.success() || error_from_output;
-                print_result(&call_result, call_failed, args.show);
+                print_result(&call_result, call_failed, args.show, args.stderr_to_stdout);
             }
             Err(err) => {
                 eprintln!("{}", err.to_string().red());
@@ -94,7 +98,7 @@ pub fn run(args: RunArgs) -> ExitCode {
 }
 
 /// prints the result of a single command execution to stdout and stderr
-fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
+fn print_result(call_result: &CallResult, is_failed: bool, show: Show, stderr_to_stdout: bool) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
@@ -114,7 +118,11 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show) {
     // print command output
     if is_failed || show.display_success() {
         write_output(&mut stdout, &call_result.output.stdout);
-        write_output(&mut stderr, &call_result.output.stderr);
+        if stderr_to_stdout {
+            write_output(&mut stdout, &call_result.output.stderr);
+        } else {
+            write_output(&mut stderr, &call_result.output.stderr);
+        }
     }
 }
 
