@@ -50,7 +50,7 @@ setup: ${RTA}  # install development dependencies on this computer
 	rustup component add rustfmt --toolchain nightly
 	${NPM} ci
 
-test: fix unit lint  # runs all tests
+test: fix unit lint cuke  # runs all tests
 
 todo:  # displays all TODO items
 	@git grep --color=always --line-number TODO ':!target' | grep -v Makefile
