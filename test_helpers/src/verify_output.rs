@@ -9,3 +9,15 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
     have = have.trim().to_owned();
     assert!(have.is_empty(), "Extra {name} output found:\n{have}");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verify_output() {
+        let have = "hello world".to_string();
+        let wants = vec!["hello".to_string(), "world".to_string()];
+        verify_output("stdout", have, &wants);
+    }
+}

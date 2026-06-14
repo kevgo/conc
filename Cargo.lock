@@ -173,7 +173,7 @@ dependencies = [
  "pretty_assertions",
  "shellwords",
  "tempfile",
- "test-helpers",
+ "test_helpers",
  "tokio",
 ]
 
@@ -979,7 +979,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "test-helpers"
+name = "test_helpers"
 version = "0.1.0"
 
 [[package]]

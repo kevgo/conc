@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "test-helpers"]
+members = [".", "test_helpers"]
 
 [package]
 name = "concurrent_shell_commands"
@@ -25,7 +25,7 @@ colored = "3.0.0"
 
 [dev-dependencies]
 big_s = "1.0.2"
-test-helpers = { path = "test-helpers" }
+test_helpers = { path = "test_helpers" }
 cucumber = "0.22.1"
 pretty = { package = "pretty_assertions", version = "1.4.1" }
 shellwords = "1.1.0"
