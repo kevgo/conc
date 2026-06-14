@@ -7,7 +7,8 @@ use tokio::process::Command;
 struct World {
     workspace: Option<tempfile::TempDir>,
     output: Option<std::process::Output>,
-    want_blocks: Vec<String>,
+    want_stdout: Vec<String>,
+    want_stderr: Vec<String>,
 }
 
 #[given("I'm in an empty folder")]
@@ -40,25 +41,16 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
     assert_eq!(output.status.code().unwrap(), expected);
 }
 
-#[then("the output contains:")]
-fn the_output_contains(world: &mut World, step: &Step) {
+#[then("STDOUT contains:")]
+fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_blocks.push(want_block.to_owned());
+    world.want_stdout.push(want_block.to_owned());
 }
 
-#[then("the output is:")]
-fn the_output_is(world: &mut World, step: &Step) {
-    let want = step.docstring().unwrap();
-    let Some(output) = world.output.as_ref() else {
-        panic!("No command ran");
-    };
-    let have = format!(
-        "{}{}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-    pretty::assert_eq!(have.trim(), want.trim());
-    world.want_blocks.push(want.trim().to_owned());
+#[then("STDERR contains:")]
+fn stderr_contains(world: &mut World, step: &Step) {
+    let want_block = step.docstring().unwrap().trim();
+    world.want_stderr.push(want_block.to_owned());
 }
 
 #[then("the output is empty")]
@@ -81,20 +73,10 @@ async fn main() {
                 let Some(output) = world.output.as_ref() else {
                     panic!("No command ran");
                 };
-                let mut have = format!(
-                    "{}{}",
-                    String::from_utf8_lossy(&output.stdout),
-                    String::from_utf8_lossy(&output.stderr)
-                );
-                for want in &world.want_blocks {
-                    assert!(
-                        have.contains(want),
-                        "Didn't find '{want}' in output:\n{have}"
-                    );
-                    have = have.replace(want, "");
-                }
-                have = have.trim().to_owned();
-                assert!(have.is_empty(), "Extra output found:\n{have}");
+                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                test_helpers::verify_output("stdout", stdout, &world.want_stdout);
+                let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+                test_helpers::verify_output("stderr", stderr, &world.want_stderr);
             })
         })
         .run_and_exit("features")

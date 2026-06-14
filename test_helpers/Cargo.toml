@@ -1,0 +1,8 @@
+[package]
+name = "test_helpers"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+big_s = "1.0.2"

@@ -3,7 +3,7 @@ Feature: error on output
   Scenario: enabled, no output
     Given I'm in an empty folder
     When I run "conc --error-on-output 'mkdir test'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       mkdir test
       """
@@ -11,7 +11,7 @@ Feature: error on output
 
   Scenario: enabled, with output
     When I run "conc --error-on-output 'echo one'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one
@@ -21,7 +21,7 @@ Feature: error on output
   Scenario: disabled, no output
     Given I'm in an empty folder
     When I run "conc 'mkdir test'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       mkdir test
       """
@@ -29,7 +29,7 @@ Feature: error on output
 
   Scenario: disabled, with output
     When I run "conc 'echo one'"
-    Then the output contains:
+    Then STDOUT contains:
       """
       echo one
       one

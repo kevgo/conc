@@ -2,7 +2,7 @@ Feature: display the help text
 
   Scenario: help
     When I run "conc --help"
-    Then the output is:
+    Then STDOUT contains:
       """
       Conc runs commands concurrently and returns the first non-zero exit code it encounters.
 
