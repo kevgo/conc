@@ -15,9 +15,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_verify_output() {
+    fn exact_match() {
         let have = "hello world".to_string();
         let wants = vec!["hello".to_string(), "world".to_string()];
+        verify_output("stdout", have, &wants);
+    }
+
+    #[test]
+    #[should_panic(expected = "Extra stdout output found:\nworld")]
+    fn expect_too_much() {
+        let have = "hello world".to_string();
+        let wants = vec!["hello".to_string()];
         verify_output("stdout", have, &wants);
     }
 }
