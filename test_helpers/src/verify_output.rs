@@ -24,7 +24,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "Extra stdout output found:\nworld")]
-    fn expect_too_much() {
+    fn expect_too_little() {
         let have = "hello world".to_string();
         let wants = vec!["hello".to_string()];
         verify_output("stdout", have, &wants);
@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "Didn't find 'extra' in stdout\nHAVE:  ")]
-    fn expect_too_little() {
+    fn expect_too_much() {
         let have = S("hello world");
         let wants = vec![
             "hello".to_string(),
