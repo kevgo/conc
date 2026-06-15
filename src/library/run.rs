@@ -40,24 +40,28 @@ pub struct RunArgs {
     pub show: Show,
 }
 
-/// Runs the given commands concurrently, prints their results, and returns the highest exit code.
+/// Runs the given runnables concurrently, prints their results, and returns the highest exit code.
 ///
 /// # Examples
 ///
 /// ```
-/// use conc::{Executable, RunArgs, Show, run, shell_executable};
+/// use conc::{Executable, RunArgs, Runnable, Show, run, shell_executable};
 /// use std::process::ExitCode;
 /// use std::process::Command;
 ///
 /// let mut command = Command::new("echo");
 /// command.arg("one");
-/// let executable1 = Executable {
+/// let runnable1 = Runnable::Single(Executable {
 ///     name: "echo one".into(),
 ///     command,
-/// };
-/// let executable2 = shell_executable("echo two");
+/// });
+/// let runnable2 = Runnable::Single(shell_executable("echo two"));
+/// let runnable3 = Runnable::Multiple(vec![
+///     shell_executable("echo three"),
+///     shell_executable("echo four"),
+/// ]);
 /// let args = RunArgs {
-///     executables: vec![executable1, executable2],
+///     runnables: vec![runnable1, runnable2, runnable3],
 ///     error_on_output: false,
 ///     stderr_to_stdout: false,
 ///     show: Show::All,
