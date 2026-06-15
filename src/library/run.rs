@@ -74,7 +74,7 @@ pub fn run(args: RunArgs) -> ExitCode {
     for call in args.runnables {
         let send_clone = send.clone();
         thread::spawn(move || {
-            subshell::run(call, send_clone);
+            subshell::run(call, &send_clone);
         });
     }
 
