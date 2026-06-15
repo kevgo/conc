@@ -18,11 +18,17 @@ pub struct Executable {
     pub command: Command,
 }
 
+#[derive(Debug)]
+pub enum Runnable {
+    Single(Executable),
+    Multiple(Vec<Executable>),
+}
+
 /// named arguments for the `run` function
 #[derive(Debug)]
 pub struct RunArgs {
     /// the commands to execute concurrently
-    pub executables: Vec<Executable>,
+    pub runnables: Vec<Runnable>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
@@ -65,10 +71,10 @@ pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in args.executables {
+    for call in args.runnables {
         let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = send_clone.send(subshell::run(call));
+            subshell::run(call, send_clone);
         });
     }
 

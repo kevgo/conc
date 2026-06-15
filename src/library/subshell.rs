@@ -1,12 +1,29 @@
-use crate::library::run::Executable;
+use crate::library::run::{Executable, Runnable};
 use std::io;
 use std::process::Command;
+use std::sync::mpsc::Sender;
+
+pub fn run(runnable: Runnable, sender: Sender<Result<CallResult, RunError>>) {
+    match runnable {
+        Runnable::Single(executable) => run_single(executable, sender),
+        Runnable::Multiple(executables) => run_multiple(executables, sender),
+    }
+}
 
 /// executes the given command
-pub fn run(Executable { mut command, name }: Executable) -> Result<CallResult, RunError> {
-    match command.output() {
+fn run_single(
+    Executable { mut command, name }: Executable,
+    sender: Sender<Result<CallResult, RunError>>,
+) {
+    let _ = sender.send(match command.output() {
         Ok(output) => Ok(CallResult { name, output }),
         Err(error) => Err(RunError { name, error }),
+    });
+}
+
+fn run_multiple(executables: Vec<Executable>, sender: Sender<Result<CallResult, RunError>>) {
+    for executable in executables {
+        run_single(executable, sender.clone());
     }
 }
 
