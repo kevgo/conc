@@ -245,7 +245,7 @@ mod tests {
         #[test]
         fn noisy_success_is_failure() {
             let exit_code = run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo one"))],
+                runnables: vec![Runnable::Single(shell_executable("echo noisy"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::All,
