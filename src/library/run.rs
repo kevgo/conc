@@ -20,8 +20,11 @@ pub struct Executable {
 
 #[derive(Debug)]
 pub enum Runnable {
+    /// run a single command
     Single(Executable),
-    Multiple(Vec<Executable>),
+
+    /// run multiple commands one after the other
+    Sequence(Vec<Executable>),
 }
 
 /// named arguments for the `run` function
@@ -194,7 +197,7 @@ mod tests {
 
     #[test]
     fn sequential_commands() {
-        let group = Runnable::Multiple(vec![
+        let group = Runnable::Sequence(vec![
             shell_executable("echo one"),
             shell_executable("echo two"),
         ]);

@@ -6,7 +6,7 @@ use std::sync::mpsc::Sender;
 pub fn run(runnable: Runnable, sender: &Sender<Result<CallResult, RunError>>) {
     match runnable {
         Runnable::Single(executable) => run_single(executable, sender),
-        Runnable::Multiple(executables) => run_multiple(executables, sender),
+        Runnable::Sequence(executables) => run_multiple(executables, sender),
     }
 }
 
