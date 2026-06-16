@@ -11,8 +11,9 @@ Feature: display the help text
       Flags:
         --error-on-output   error if any command produces output
         --help, -h          this help text
-        --show=all          show the output of all commands
-        --show=failed       show the output of only failed commands
+        --show=all          show the name and output of all commands
+        --show=names        show the names of all commands
+        --show=failed       show only the output of failed commands
         --stderr-to-stdout  print stderr of commands to stdout
         --version, -V       show the version
 
