@@ -59,7 +59,7 @@ pub struct RunArgs {
 ///     command,
 /// });
 /// let runnable2 = Runnable::Single(shell_executable("echo two"));
-/// let runnable3 = Runnable::Multiple(vec![
+/// let runnable3 = Runnable::Sequence(vec![
 ///     shell_executable("echo three"),
 ///     shell_executable("echo four"),
 /// ]);
