@@ -245,7 +245,7 @@ mod tests {
         use std::process::{Command, ExitCode};
 
         #[test]
-        fn noisy_success_is_failure() {
+        fn outputs_spaces() {
             let mut command = Command::new("echo");
             command.arg("  ");
             let exit_code = run(RunArgs {
@@ -261,7 +261,7 @@ mod tests {
         }
 
         #[test]
-        fn silent_success() {
+        fn outputs_nothing() {
             let exit_code = run(RunArgs {
                 runnables: vec![Runnable::Single(shell_executable("true"))],
                 error_on_output: true,
