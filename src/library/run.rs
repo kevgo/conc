@@ -150,6 +150,8 @@ fn write_output(writer: &mut dyn Write, output: &[u8]) {
 
 #[cfg(test)]
 mod tests {
+    use big_s::S;
+
     use super::*;
     use crate::shell_executable;
 
@@ -170,7 +172,7 @@ mod tests {
         command.arg("one");
         let exit_code = run(RunArgs {
             runnables: vec![Runnable::Single(Executable {
-                name: "echo one".into(),
+                name: S("echo one"),
                 command,
             })],
             error_on_output: false,
