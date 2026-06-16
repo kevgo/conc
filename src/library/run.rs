@@ -150,10 +150,9 @@ fn write_output(writer: &mut dyn Write, output: &[u8]) {
 
 #[cfg(test)]
 mod tests {
-    use big_s::S;
-
     use super::*;
     use crate::shell_executable;
+    use big_s::S;
 
     #[test]
     fn single_shell_executable() {
@@ -214,7 +213,6 @@ mod tests {
 
     #[test]
     fn sequence_stops_on_failure() {
-        // step 1 exits 2, step 2 would exit 3 — if both ran the max would be 3
         let group =
             Runnable::Sequence(vec![shell_executable("exit 2"), shell_executable("exit 3")]);
         let exit_code = run(RunArgs {
