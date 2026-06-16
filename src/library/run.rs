@@ -18,11 +18,20 @@ pub struct Executable {
     pub command: Command,
 }
 
+#[derive(Debug)]
+pub enum Runnable {
+    /// run a single command
+    Single(Executable),
+
+    /// run the given commands one after the other
+    Sequence(Vec<Executable>),
+}
+
 /// named arguments for the `run` function
 #[derive(Debug)]
 pub struct RunArgs {
     /// the commands to execute concurrently
-    pub executables: Vec<Executable>,
+    pub runnables: Vec<Runnable>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
@@ -34,24 +43,28 @@ pub struct RunArgs {
     pub show: Show,
 }
 
-/// Runs the given commands concurrently, prints their results, and returns the highest exit code.
+/// Runs the given runnables concurrently, prints their results, and returns the highest exit code.
 ///
 /// # Examples
 ///
 /// ```
-/// use conc::{Executable, RunArgs, Show, run, shell_executable};
+/// use conc::{Executable, RunArgs, Runnable, Show, run, shell_executable};
 /// use std::process::ExitCode;
 /// use std::process::Command;
 ///
 /// let mut command = Command::new("echo");
 /// command.arg("one");
-/// let executable1 = Executable {
+/// let runnable1 = Runnable::Single(Executable {
 ///     name: "echo one".into(),
 ///     command,
-/// };
-/// let executable2 = shell_executable("echo two");
+/// });
+/// let runnable2 = Runnable::Single(shell_executable("echo two"));
+/// let runnable3 = Runnable::Sequence(vec![
+///     shell_executable("echo three"),
+///     shell_executable("echo four"),
+/// ]);
 /// let args = RunArgs {
-///     executables: vec![executable1, executable2],
+///     runnables: vec![runnable1, runnable2, runnable3],
 ///     error_on_output: false,
 ///     stderr_to_stdout: false,
 ///     show: Show::All,
@@ -65,10 +78,10 @@ pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
     // execute all commands concurrently and let them signal via the channel when they are done
-    for call in args.executables {
+    for call in args.runnables {
         let send_clone = send.clone();
         thread::spawn(move || {
-            let _ = send_clone.send(subshell::run(call));
+            subshell::run(call, &send_clone, args.error_on_output);
         });
     }
 
@@ -131,6 +144,162 @@ fn write_output(writer: &mut dyn Write, output: &[u8]) {
         let _ = writer.write_all(output);
         if !output.ends_with(b"\n") {
             let _ = writer.write_all(b"\n");
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::shell_executable;
+    use big_s::S;
+
+    #[test]
+    fn single_shell_executable() {
+        let exit_code = run(RunArgs {
+            runnables: vec![Runnable::Single(shell_executable("echo one"))],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::SUCCESS);
+    }
+
+    #[test]
+    fn single_raw_command() {
+        let mut command = Command::new("echo");
+        command.arg("one");
+        let exit_code = run(RunArgs {
+            runnables: vec![Runnable::Single(Executable {
+                name: S("echo one"),
+                command,
+            })],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::SUCCESS);
+    }
+
+    #[test]
+    fn concurrent_commands() {
+        let exit_code = run(RunArgs {
+            runnables: vec![
+                Runnable::Single(shell_executable("echo one")),
+                Runnable::Single(shell_executable("echo two")),
+                Runnable::Single(shell_executable("echo three")),
+            ],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::SUCCESS);
+    }
+
+    #[test]
+    fn sequential_commands() {
+        let group = Runnable::Sequence(vec![
+            shell_executable("echo one"),
+            shell_executable("echo two"),
+        ]);
+        let exit_code = run(RunArgs {
+            runnables: vec![group],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::SUCCESS);
+    }
+
+    #[test]
+    fn sequence_stops_on_failure() {
+        let group =
+            Runnable::Sequence(vec![shell_executable("exit 2"), shell_executable("exit 3")]);
+        let exit_code = run(RunArgs {
+            runnables: vec![group],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::from(2));
+    }
+
+    #[test]
+    fn failing_command() {
+        let exit_code = run(RunArgs {
+            runnables: vec![Runnable::Single(shell_executable("false"))],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::FAILURE);
+    }
+
+    #[test]
+    fn returns_highest_exit_code() {
+        let exit_code = run(RunArgs {
+            runnables: vec![
+                Runnable::Single(shell_executable("exit 0")),
+                Runnable::Single(shell_executable("exit 2")),
+                Runnable::Single(shell_executable("exit 1")),
+            ],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::from(2));
+    }
+
+    mod error_on_output {
+        use big_s::S;
+
+        use crate::{Executable, RunArgs, Runnable, Show, run, shell_executable};
+        use std::process::{Command, ExitCode};
+
+        #[test]
+        fn outputs_spaces() {
+            let mut command = Command::new("echo");
+            command.arg("  ");
+            let exit_code = run(RunArgs {
+                runnables: vec![Runnable::Single(Executable {
+                    name: S(""),
+                    command,
+                })],
+                error_on_output: true,
+                stderr_to_stdout: false,
+                show: Show::All,
+            });
+            assert_eq!(exit_code, ExitCode::FAILURE);
+        }
+
+        #[test]
+        fn outputs_nothing() {
+            let exit_code = run(RunArgs {
+                runnables: vec![Runnable::Single(shell_executable("true"))],
+                error_on_output: true,
+                stderr_to_stdout: false,
+                show: Show::Failed,
+            });
+            assert_eq!(exit_code, ExitCode::SUCCESS);
+        }
+
+        #[test]
+        fn sequence_stops_when_step_has_output() {
+            let mut command = Command::new("echo");
+            command.arg("  ");
+            let exit_code = run(RunArgs {
+                runnables: vec![Runnable::Sequence(vec![
+                    Executable {
+                        name: S(""),
+                        command,
+                    },
+                    shell_executable("exit 3"),
+                ])],
+                error_on_output: true,
+                stderr_to_stdout: false,
+                show: Show::Failed,
+            });
+            assert_eq!(exit_code, ExitCode::from(1));
         }
     }
 }

@@ -1,5 +1,5 @@
 use super::AppError;
-use conc::{RunArgs, Show, shell_executable};
+use conc::{RunArgs, Runnable, Show, shell_executable};
 
 /// the different top-level commands that conc can execute
 #[derive(Debug)]
@@ -16,7 +16,7 @@ pub enum Command {
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
-    let mut executables = vec![];
+    let mut runnables = vec![];
     let mut show = Show::All;
     let mut error_on_output = false;
     let mut stderr_to_stdout = false;
@@ -42,10 +42,10 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        executables.push(shell_executable(arg));
+        runnables.push(Runnable::Single(shell_executable(arg)));
     }
     Ok(Command::Run(RunArgs {
-        executables,
+        runnables,
         error_on_output,
         stderr_to_stdout,
         show,
@@ -64,7 +64,7 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello world")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello world"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -77,10 +77,10 @@ mod tests {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![
-                    shell_executable("echo hello"),
-                    shell_executable("ls -la"),
-                    shell_executable("pwd"),
+                runnables: vec![
+                    Runnable::Single(shell_executable("echo hello")),
+                    Runnable::Single(shell_executable("ls -la")),
+                    Runnable::Single(shell_executable("pwd")),
                 ],
                 error_on_output: false,
                 stderr_to_stdout: false,
@@ -94,7 +94,7 @@ mod tests {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![],
+                runnables: vec![],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -107,7 +107,7 @@ mod tests {
             let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
@@ -120,7 +120,7 @@ mod tests {
             let give = vec![S("--show=all"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -141,7 +141,7 @@ mod tests {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -186,7 +186,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -199,7 +199,7 @@ mod tests {
             let give = vec![S("--stderr-to-stdout"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: true,
                 show: Show::All,
@@ -212,7 +212,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                executables: vec![shell_executable("echo hello")],
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Names,
