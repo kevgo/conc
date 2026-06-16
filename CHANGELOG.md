@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.5.0
+
+- the API allows that some of the executed commands are a sequence of commands
+
 ## 0.4.1
 
 - all relevant output including error messages go to STDOUT,
