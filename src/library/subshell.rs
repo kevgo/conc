@@ -3,10 +3,14 @@ use std::io;
 use std::process::Command;
 use std::sync::mpsc::Sender;
 
-pub fn run(runnable: Runnable, sender: &Sender<Result<CallResult, RunError>>) {
+pub fn run(
+    runnable: Runnable,
+    sender: &Sender<Result<CallResult, RunError>>,
+    error_on_output: bool,
+) {
     match runnable {
         Runnable::Single(executable) => run_single(executable, sender),
-        Runnable::Sequence(executables) => run_multiple(executables, sender),
+        Runnable::Sequence(executables) => run_multiple(executables, sender, error_on_output),
     }
 }
 
@@ -21,11 +25,18 @@ fn run_single(executable: Executable, sender: &Sender<Result<CallResult, RunErro
     let _ = sender.send(execute(executable));
 }
 
-fn run_multiple(executables: Vec<Executable>, sender: &Sender<Result<CallResult, RunError>>) {
+fn run_multiple(
+    executables: Vec<Executable>,
+    sender: &Sender<Result<CallResult, RunError>>,
+    error_on_output: bool,
+) {
     for executable in executables {
         let result = execute(executable);
         let failed = match &result {
-            Ok(call_result) => !call_result.output.status.success(),
+            Ok(call_result) => {
+                !call_result.output.status.success()
+                    || (error_on_output && call_result.has_output())
+            }
             Err(_) => true,
         };
         let _ = sender.send(result);

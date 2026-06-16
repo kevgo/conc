@@ -81,7 +81,7 @@ pub fn run(args: RunArgs) -> ExitCode {
     for call in args.runnables {
         let send_clone = send.clone();
         thread::spawn(move || {
-            subshell::run(call, &send_clone);
+            subshell::run(call, &send_clone, args.error_on_output);
         });
     }
 
@@ -281,6 +281,25 @@ mod tests {
                 show: Show::Failed,
             });
             assert_eq!(exit_code, ExitCode::SUCCESS);
+        }
+
+        #[test]
+        fn sequence_stops_when_step_has_output() {
+            let mut command = Command::new("echo");
+            command.arg("  ");
+            let exit_code = run(RunArgs {
+                runnables: vec![Runnable::Sequence(vec![
+                    Executable {
+                        name: S(""),
+                        command,
+                    },
+                    shell_executable("exit 3"),
+                ])],
+                error_on_output: true,
+                stderr_to_stdout: false,
+                show: Show::Failed,
+            });
+            assert_eq!(exit_code, ExitCode::from(1));
         }
     }
 }
