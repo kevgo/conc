@@ -10,20 +10,28 @@ pub fn run(runnable: Runnable, sender: &Sender<Result<CallResult, RunError>>) {
     }
 }
 
-/// executes the given command
-fn run_single(
-    Executable { mut command, name }: Executable,
-    sender: &Sender<Result<CallResult, RunError>>,
-) {
-    let _ = sender.send(match command.output() {
+fn execute(Executable { mut command, name }: Executable) -> Result<CallResult, RunError> {
+    match command.output() {
         Ok(output) => Ok(CallResult { name, output }),
         Err(error) => Err(RunError { name, error }),
-    });
+    }
+}
+
+fn run_single(executable: Executable, sender: &Sender<Result<CallResult, RunError>>) {
+    let _ = sender.send(execute(executable));
 }
 
 fn run_multiple(executables: Vec<Executable>, sender: &Sender<Result<CallResult, RunError>>) {
     for executable in executables {
-        run_single(executable, sender);
+        let result = execute(executable);
+        let failed = match &result {
+            Ok(call_result) => !call_result.output.status.success(),
+            Err(_) => true,
+        };
+        let _ = sender.send(result);
+        if failed {
+            break;
+        }
     }
 }
 

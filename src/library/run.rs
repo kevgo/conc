@@ -213,6 +213,20 @@ mod tests {
     }
 
     #[test]
+    fn sequence_stops_on_failure() {
+        // step 1 exits 2, step 2 would exit 3 — if both ran the max would be 3
+        let group =
+            Runnable::Sequence(vec![shell_executable("exit 2"), shell_executable("exit 3")]);
+        let exit_code = run(RunArgs {
+            runnables: vec![group],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Failed,
+        });
+        assert_eq!(exit_code, ExitCode::from(2));
+    }
+
+    #[test]
     fn failing_command() {
         let exit_code = run(RunArgs {
             runnables: vec![Runnable::Single(shell_executable("false"))],
