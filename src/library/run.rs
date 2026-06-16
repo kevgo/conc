@@ -239,13 +239,20 @@ mod tests {
     }
 
     mod error_on_output {
-        use crate::{RunArgs, Runnable, Show, run, shell_executable};
-        use std::process::ExitCode;
+        use big_s::S;
+
+        use crate::{Executable, RunArgs, Runnable, Show, run, shell_executable};
+        use std::process::{Command, ExitCode};
 
         #[test]
         fn noisy_success_is_failure() {
+            let mut command = Command::new("echo");
+            command.arg("  ");
             let exit_code = run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo noisy"))],
+                runnables: vec![Runnable::Single(Executable {
+                    name: S(""),
+                    command,
+                })],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::All,
@@ -259,7 +266,7 @@ mod tests {
                 runnables: vec![Runnable::Single(shell_executable("true"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Failed,
             });
             assert_eq!(exit_code, ExitCode::SUCCESS);
         }
