@@ -23,7 +23,7 @@ pub enum Runnable {
     /// run a single command
     Single(Executable),
 
-    /// run multiple commands one after the other
+    /// run the given commands one after the other
     Sequence(Vec<Executable>),
 }
 
