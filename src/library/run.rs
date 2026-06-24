@@ -28,6 +28,7 @@ pub enum Runnable {
 }
 
 impl Runnable {
+    /// indicates whether the runnable executes any commands
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
