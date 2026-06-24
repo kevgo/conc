@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.6.0
+
+- new API methods: `Runnable.len()` and `Runnable.is_empty()`
+
 ## 0.5.0
 
 - the API allows that some of the executed commands are a sequence of commands
