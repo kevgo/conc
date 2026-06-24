@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.6.1
+
+- `Runnable` emits a more readable `Debug` format
+
 ## 0.6.0
 
 - new API methods: `Runnable.len()` and `Runnable.is_empty()`
