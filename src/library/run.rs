@@ -2,6 +2,7 @@ use super::CallResult;
 use super::Show;
 use crate::library::subshell;
 use colored::Colorize;
+use std::fmt::Debug;
 use std::io::{self, Write};
 use std::process::Command;
 use std::process::ExitCode;
@@ -9,13 +10,25 @@ use std::sync::mpsc;
 use std::thread;
 
 /// all information Conc needs to execute a command
-#[derive(Debug)]
 pub struct Executable {
     /// how the command will be displayed
     pub name: String,
 
     /// the command to execute
     pub command: Command,
+}
+
+impl Debug for Executable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            r"Executable {{
+    name: {}
+    command: {:?}
+}}",
+            self.name, self.command
+        )
+    }
 }
 
 #[derive(Debug)]
