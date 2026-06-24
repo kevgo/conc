@@ -27,6 +27,22 @@ pub enum Runnable {
     Sequence(Vec<Executable>),
 }
 
+impl Runnable {
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// returns the number of commands in the runnable
+    #[must_use]
+    pub fn len(&self) -> usize {
+        match self {
+            Runnable::Single(_) => 1,
+            Runnable::Sequence(executables) => executables.len(),
+        }
+    }
+}
+
 /// named arguments for the `run` function
 #[derive(Debug)]
 pub struct RunArgs {
@@ -248,6 +264,73 @@ mod tests {
             show: Show::Failed,
         });
         assert_eq!(exit_code, ExitCode::from(2));
+    }
+
+    mod runnable_is_empty {
+        use super::*;
+        use big_s::S;
+
+        fn make_executable() -> Executable {
+            Executable {
+                name: S(""),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single_is_never_empty() {
+            assert!(!Runnable::Single(make_executable()).is_empty());
+        }
+
+        #[test]
+        fn empty_sequence_is_empty() {
+            assert!(Runnable::Sequence(vec![]).is_empty());
+        }
+
+        #[test]
+        fn non_empty_sequence_is_not_empty() {
+            assert!(!Runnable::Sequence(vec![make_executable()]).is_empty());
+        }
+    }
+
+    mod runnable_len {
+        use super::*;
+        use big_s::S;
+
+        fn make_executable() -> Executable {
+            Executable {
+                name: S(""),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single_is_always_one() {
+            assert_eq!(Runnable::Single(make_executable()).len(), 1);
+        }
+
+        #[test]
+        fn empty_sequence_is_zero() {
+            assert_eq!(Runnable::Sequence(vec![]).len(), 0);
+        }
+
+        #[test]
+        fn sequence_of_one() {
+            assert_eq!(Runnable::Sequence(vec![make_executable()]).len(), 1);
+        }
+
+        #[test]
+        fn sequence_of_many() {
+            assert_eq!(
+                Runnable::Sequence(vec![
+                    make_executable(),
+                    make_executable(),
+                    make_executable(),
+                ])
+                .len(),
+                3
+            );
+        }
     }
 
     mod error_on_output {
