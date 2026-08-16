@@ -24,9 +24,10 @@ impl Executable {
         let mut result = self.command.get_program().to_string_lossy().into_owned();
         for arg in self.command.get_args() {
             result.push(' ');
-            result.push('"');
-            result.push_str(arg.to_string_lossy().as_ref());
-            result.push('"');
+            let arg_str = arg.to_string_lossy();
+            let arg_str_2 = arg_str.clone();
+            let quoted = shlex::try_quote(&arg_str).unwrap_or(arg_str_2);
+            result.push_str(&quoted);
         }
         result
     }
@@ -389,7 +390,7 @@ mod tests {
                 command,
             };
             let have = executable.command_line();
-            let want = r#"echo "one" "two""#;
+            let want = "echo one two";
             assert_eq!(have, want);
         }
 
@@ -398,7 +399,7 @@ mod tests {
         fn shell_command() {
             let executable = shell_executable("echo one two");
             let have = executable.command_line();
-            let want = r#"sh "-c" "echo one two""#;
+            let want = r#"sh -c 'echo one two'"#;
             assert_eq!(have, want);
         }
     }
