@@ -55,7 +55,7 @@ fn stderr_contains(world: &mut World, step: &Step) {
 
 /// the program and first argument used to run commands in a shell, per platform
 #[cfg(unix)]
-const SHELL: &str = r#"sh "-c""#;
+const SHELL: &str = "sh -c";
 
 /// the program and first argument used to run commands in a shell, per platform
 #[cfg(windows)]

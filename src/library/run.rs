@@ -399,7 +399,7 @@ mod tests {
         fn shell_command() {
             let executable = shell_executable("echo one two");
             let have = executable.command_line();
-            let want = r#"sh -c 'echo one two'"#;
+            let want = "sh -c 'echo one two'";
             assert_eq!(have, want);
         }
     }

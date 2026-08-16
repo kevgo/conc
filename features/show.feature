@@ -5,7 +5,7 @@ Feature: run multiple commands concurrently
     Then STDOUT contains:
       """
       echo one
-      {shell} "echo one"
+      {shell} 'echo one'
       one
       """
     And the exit code is 0
