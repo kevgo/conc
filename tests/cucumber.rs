@@ -44,13 +44,26 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 #[then("STDOUT contains:")]
 fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stdout.push(want_block.to_owned());
+    world.want_stdout.push(substitute_placeholders(want_block));
 }
 
 #[then("STDERR contains:")]
 fn stderr_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stderr.push(want_block.to_owned());
+    world.want_stderr.push(substitute_placeholders(want_block));
+}
+
+/// the program and first argument used to run commands in a shell, per platform
+#[cfg(unix)]
+const SHELL: &str = r#"sh "-c""#;
+
+/// the program and first argument used to run commands in a shell, per platform
+#[cfg(windows)]
+const SHELL: &str = r#"cmd.exe "/C""#;
+
+/// replaces platform-specific placeholders in expected output with their concrete values
+fn substitute_placeholders(text: &str) -> String {
+    text.replace("{shell}", SHELL)
 }
 
 #[then("the output is empty")]

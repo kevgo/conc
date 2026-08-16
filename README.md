@@ -44,6 +44,8 @@ you often only care whether everything passed and want detailed output only
 for problems.
 The `--show` flag controls how much output _conc_ prints:
 
+- `--show=verbose` prints the name, full command line (including all
+  arguments), and output of every command after it finishes
 - `--show=all` (default) prints the name and output of every command after it
   finishes
 - `--show=names` prints the name of every command after it finishes, and only

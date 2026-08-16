@@ -1,5 +1,15 @@
 Feature: run multiple commands concurrently
 
+  Scenario: --show=verbose
+    When I run "conc --show=verbose 'echo one'"
+    Then STDOUT contains:
+      """
+      echo one
+      {shell} "echo one"
+      one
+      """
+    And the exit code is 0
+
   Scenario: --show=all
     When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
     Then STDOUT contains:

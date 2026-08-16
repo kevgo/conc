@@ -18,6 +18,19 @@ pub struct Executable {
     pub command: Command,
 }
 
+impl Executable {
+    /// the program and arguments that will be executed
+    pub(crate) fn command_line(&self) -> String {
+        use std::fmt::Write as _;
+
+        let mut result = self.command.get_program().to_string_lossy().into_owned();
+        for arg in self.command.get_args() {
+            let _ = write!(result, " {arg:?}");
+        }
+        result
+    }
+}
+
 impl Debug for Executable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -158,6 +171,11 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show, stderr_to
         }
     }
 
+    // print full command line
+    if show.display_full_command() {
+        let _ = writeln!(stdout, "{}", call_result.command_line);
+    }
+
     // print command output
     if is_failed || show.display_success() {
         write_output(&mut stdout, &call_result.output.stdout);
@@ -183,6 +201,17 @@ mod tests {
     use super::*;
     use crate::shell_executable;
     use big_s::S;
+
+    #[test]
+    fn single_shell_executable_verbose() {
+        let exit_code = run(RunArgs {
+            runnables: vec![Runnable::Single(shell_executable("echo one"))],
+            error_on_output: false,
+            stderr_to_stdout: false,
+            show: Show::Verbose,
+        });
+        assert_eq!(exit_code, ExitCode::SUCCESS);
+    }
 
     #[test]
     fn single_shell_executable() {
@@ -344,6 +373,28 @@ mod tests {
                 .len(),
                 3
             );
+        }
+    }
+
+    mod command_line {
+        use super::*;
+
+        #[test]
+        fn raw_command() {
+            let mut command = Command::new("echo");
+            command.arg("one");
+            let executable = Executable {
+                name: S("echo one"),
+                command,
+            };
+            assert_eq!(executable.command_line(), r#"echo "one""#);
+        }
+
+        #[test]
+        #[cfg(unix)]
+        fn shell_command() {
+            let executable = shell_executable("echo one");
+            assert_eq!(executable.command_line(), r#"sh "-c" "echo one""#);
         }
     }
 
