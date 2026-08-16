@@ -36,6 +36,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
                 "--show=all" | "--show" => show = Show::All,
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
+                "--show=verbose" => show = Show::Verbose,
                 "--stderr-to-stdout" => stderr_to_stdout = true,
                 "--version" | "-V" => return Ok(Command::Version),
                 _ => return Err(AppError::UnknownFlag(arg)),
@@ -111,6 +112,19 @@ mod tests {
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
+            });
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
+        }
+
+        #[test]
+        fn show_verbose() {
+            let give = vec![S("--show=verbose"), S("echo hello")].into_iter();
+            let have = parse(give).unwrap();
+            let want = Command::Run(RunArgs {
+                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                error_on_output: false,
+                stderr_to_stdout: false,
+                show: Show::Verbose,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }

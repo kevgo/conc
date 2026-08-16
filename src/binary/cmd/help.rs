@@ -8,6 +8,7 @@ Usage: conc [flags] [commands...]
 Flags:
   --error-on-output   error if any command produces output
   --help, -h          this help text
+  --show=verbose      show the full command line and output of all commands
   --show=all          show the name and output of all commands
   --show=names        show the names of all commands
   --show=failed       show only the output of failed commands

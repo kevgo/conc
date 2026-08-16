@@ -14,9 +14,15 @@ pub fn run(
     }
 }
 
-fn execute(Executable { mut command, name }: Executable) -> Result<CallResult, RunError> {
+fn execute(executable: Executable) -> Result<CallResult, RunError> {
+    let command_line = executable.command_line();
+    let Executable { mut command, name } = executable;
     match command.output() {
-        Ok(output) => Ok(CallResult { name, output }),
+        Ok(output) => Ok(CallResult {
+            name,
+            command_line,
+            output,
+        }),
         Err(error) => Err(RunError { name, error }),
     }
 }
@@ -49,6 +55,7 @@ fn run_multiple(
 /// `CallResult` represents the result of a single command execution.
 pub struct CallResult {
     pub name: String,
+    pub command_line: String,
     pub output: std::process::Output,
 }
 
