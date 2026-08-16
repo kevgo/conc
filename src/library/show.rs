@@ -26,7 +26,7 @@ impl Show {
 
     /// indicates whether to display the full command line
     #[must_use]
-    pub(crate) fn display_full_command(self) -> bool {
+    pub(crate) fn display_command(self) -> bool {
         match self {
             Show::Verbose => true,
             Show::All | Show::Names | Show::Failed => false,

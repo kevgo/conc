@@ -173,7 +173,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show, stderr_to
     }
 
     // print full command line
-    if show.display_full_command() {
+    if show.display_command() {
         let _ = writeln!(stdout, "{}", call_result.command_line);
     }
 
