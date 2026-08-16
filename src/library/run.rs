@@ -388,14 +388,18 @@ mod tests {
                 name: S("test"),
                 command,
             };
-            assert_eq!(executable.command_line(), r#"echo "one" "two""#);
+            let have = executable.command_line();
+            let want = r#"echo "one" "two""#;
+            assert_eq!(have, want);
         }
 
         #[test]
         #[cfg(unix)]
         fn shell_command() {
             let executable = shell_executable("echo one two");
-            assert_eq!(executable.command_line(), r#"sh "-c" "echo one two""#);
+            let have = executable.command_line();
+            let want = r#"sh "-c" "echo one two""#;
+            assert_eq!(have, want);
         }
     }
 
