@@ -383,19 +383,19 @@ mod tests {
         #[test]
         fn raw_command() {
             let mut command = Command::new("echo");
-            command.arg("one");
+            command.args(vec!["one", "two"]);
             let executable = Executable {
                 name: S("test"),
                 command,
             };
-            assert_eq!(executable.command_line(), r#"echo "one""#);
+            assert_eq!(executable.command_line(), r#"echo "one" "two""#);
         }
 
         #[test]
         #[cfg(unix)]
         fn shell_command() {
-            let executable = shell_executable("echo one");
-            assert_eq!(executable.command_line(), r#"sh "-c" "echo one""#);
+            let executable = shell_executable("echo one two");
+            assert_eq!(executable.command_line(), r#"sh "-c" "echo one two""#);
         }
     }
 
