@@ -397,9 +397,9 @@ mod tests {
         #[test]
         #[cfg(unix)]
         fn shell_command() {
-            let executable = shell_executable("echo one 'two three'");
+            let executable = shell_executable("echo one \"two three\"");
             let have = executable.command_line();
-            let want = "sh -c \"echo one 'two three'\"";
+            let want = "sh -c 'echo one \"two three\"'";
             assert_eq!(have, want);
         }
     }
