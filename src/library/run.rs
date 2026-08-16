@@ -146,7 +146,7 @@ fn print_result(call_result: &CallResult, is_failed: bool, show: Show, stderr_to
     let mut stderr = io::stderr();
 
     // print command name
-    if show.display_command() {
+    if show.display_name() {
         let mut command = call_result.name.clone();
         if is_failed {
             let _ = writeln!(stdout, "{}", command.bold().red());
