@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.7.0
+
+The new `--show=verbose` flag prints the full commands executed.
+
 ## 0.6.1
 
 - `Runnable` emits a more readable `Debug` format
