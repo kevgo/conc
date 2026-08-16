@@ -17,7 +17,7 @@ pub enum Show {
 impl Show {
     /// indicates whether to display the command name
     #[must_use]
-    pub(crate) fn display_command(self) -> bool {
+    pub(crate) fn display_name(self) -> bool {
         match self {
             Show::Verbose | Show::All | Show::Names => true,
             Show::Failed => false,
