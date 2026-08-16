@@ -24,7 +24,9 @@ impl Executable {
         let mut result = self.command.get_program().to_string_lossy().into_owned();
         for arg in self.command.get_args() {
             result.push(' ');
+            result.push('"');
             result.push_str(arg.to_string_lossy().as_ref());
+            result.push('"');
         }
         result
     }
