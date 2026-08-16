@@ -385,7 +385,7 @@ mod tests {
             let mut command = Command::new("echo");
             command.arg("one");
             let executable = Executable {
-                name: S("echo one"),
+                name: S("test"),
                 command,
             };
             assert_eq!(executable.command_line(), r#"echo "one""#);
