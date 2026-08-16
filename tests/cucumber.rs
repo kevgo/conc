@@ -59,7 +59,7 @@ const SHELL: &str = "sh -c";
 
 /// the program and first argument used to run commands in a shell, per platform
 #[cfg(windows)]
-const SHELL: &str = r#"cmd.exe "/C""#;
+const SHELL: &str = "cmd.exe /C";
 
 /// replaces platform-specific placeholders in expected output with their concrete values
 fn substitute_placeholders(text: &str) -> String {
