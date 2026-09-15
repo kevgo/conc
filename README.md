@@ -46,7 +46,7 @@ The `--show` flag controls how much output _conc_ prints:
 
 - `--show=verbose` prints the name, command line, and output of every command
   after it finishes
-- `--show=all` (default) prints the name and output of every command after it
+- `--show=output` (default) prints the name and output of every command after it
   finishes
 - `--show=names` prints the name of every command after it finishes, and only
   the output of failed commands

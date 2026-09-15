@@ -1,7 +1,7 @@
 Feature: pass the received exit code to the parent process
 
   Scenario: exit code 0
-    When I run "conc --show=all 'exit 0'"
+    When I run "conc --show=output 'exit 0'"
     Then STDOUT contains:
       """
       exit 0
@@ -9,7 +9,7 @@ Feature: pass the received exit code to the parent process
     And the exit code is 0
 
   Scenario: exit code 1
-    When I run "conc --show=all 'exit 1'"
+    When I run "conc --show=output 'exit 1'"
     Then STDOUT contains:
       """
       exit 1
@@ -17,7 +17,7 @@ Feature: pass the received exit code to the parent process
     And the exit code is 1
 
   Scenario: exit code 2
-    When I run "conc --show=all 'exit 2'"
+    When I run "conc --show=output 'exit 2'"
     Then STDOUT contains:
       """
       exit 2
@@ -25,7 +25,7 @@ Feature: pass the received exit code to the parent process
     And the exit code is 2
 
   Scenario: exit code 255
-    When I run "conc --show=all 'exit 255'"
+    When I run "conc --show=output 'exit 255'"
     Then STDOUT contains:
       """
       exit 255

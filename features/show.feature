@@ -10,8 +10,8 @@ Feature: run multiple commands concurrently
       """
     And the exit code is 0
 
-  Scenario: --show=all
-    When I run "conc --show=all 'echo one' 'echo two' 'echo three'"
+  Scenario: --show=output
+    When I run "conc --show=output 'echo one' 'echo two' 'echo three'"
     Then STDOUT contains:
       """
       echo one

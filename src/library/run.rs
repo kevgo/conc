@@ -112,7 +112,7 @@ pub struct RunArgs {
 ///     runnables: vec![runnable1, runnable2, runnable3],
 ///     error_on_output: false,
 ///     stderr_to_stdout: false,
-///     show: Show::All,
+///     show: Show::Output,
 /// };
 ///
 /// let exit_code = run(args);
@@ -421,7 +421,7 @@ mod tests {
                 })],
                 error_on_output: true,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(exit_code, ExitCode::FAILURE);
         }

@@ -5,7 +5,7 @@ pub enum Show {
     Verbose,
 
     /// Display the names of the executed commands and their output.
-    All,
+    Output,
 
     /// Display the names of the executed commands and only the output of failed commands.
     Names,
@@ -19,7 +19,7 @@ impl Show {
     #[must_use]
     pub(crate) fn display_name(self) -> bool {
         match self {
-            Show::Verbose | Show::All | Show::Names => true,
+            Show::Verbose | Show::Output | Show::Names => true,
             Show::Failed => false,
         }
     }
@@ -29,7 +29,7 @@ impl Show {
     pub(crate) fn display_command(self) -> bool {
         match self {
             Show::Verbose => true,
-            Show::All | Show::Names | Show::Failed => false,
+            Show::Output | Show::Names | Show::Failed => false,
         }
     }
 
@@ -37,7 +37,7 @@ impl Show {
     #[must_use]
     pub(crate) fn display_success(self) -> bool {
         match self {
-            Show::Verbose | Show::All => true,
+            Show::Verbose | Show::Output => true,
             Show::Names | Show::Failed => false,
         }
     }

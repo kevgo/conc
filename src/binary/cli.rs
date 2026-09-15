@@ -17,7 +17,7 @@ pub enum Command {
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
     let mut runnables = vec![];
-    let mut show = Show::All;
+    let mut show = Show::Output;
     let mut error_on_output = false;
     let mut stderr_to_stdout = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
@@ -33,7 +33,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             match arg.as_ref() {
                 "--error-on-output" => error_on_output = true,
                 "--help" | "-h" => return Ok(Command::Help),
-                "--show=all" | "--show" => show = Show::All,
+                "--show=output" | "--show" => show = Show::Output,
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
                 "--show=verbose" => show = Show::Verbose,
@@ -68,7 +68,7 @@ mod tests {
                 runnables: vec![Runnable::Single(shell_executable("echo hello world"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -85,7 +85,7 @@ mod tests {
                 ],
                 error_on_output: false,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -98,7 +98,7 @@ mod tests {
                 runnables: vec![],
                 error_on_output: false,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -130,14 +130,14 @@ mod tests {
         }
 
         #[test]
-        fn show_all() {
-            let give = vec![S("--show=all"), S("echo hello")].into_iter();
+        fn show_output() {
+            let give = vec![S("--show=output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
                 runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -158,7 +158,7 @@ mod tests {
                 runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -203,7 +203,7 @@ mod tests {
                 runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
@@ -216,7 +216,7 @@ mod tests {
                 runnables: vec![Runnable::Single(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: true,
-                show: Show::All,
+                show: Show::Output,
             });
             assert_eq!(format!("{have:?}"), format!("{want:?}"));
         }
