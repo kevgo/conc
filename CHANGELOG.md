@@ -1,5 +1,7 @@
 # conc changelog
 
+## 0.8.0
+
 Renamed `--show=all` to `--show=output`.
 
 ## 0.7.0
