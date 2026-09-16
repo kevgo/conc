@@ -9,6 +9,7 @@ use std::process::Command;
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
+
 /// all information Conc needs to execute a command
 pub struct Executable {
     /// how the command will be displayed
