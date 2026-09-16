@@ -120,5 +120,21 @@ Executable {{
             );
             assert_eq!(have, want);
         }
+
+        #[test]
+        #[cfg(windows)]
+        fn shell_command() {
+            let executable = shell_executable("echo single \"two words\"");
+            let have = format!("{executable:?}");
+            let want = format!(
+                "\
+Executable {{
+    name: echo single \"two words\"
+    command: {:?}
+}}",
+                executable.command
+            );
+            assert_eq!(have, want);
+        }
     }
 }
