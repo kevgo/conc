@@ -54,7 +54,9 @@ impl PartialEq for Executable {
         let name_match = self_name == other_name;
         let program_match = self_command.get_program() == other_command.get_program();
         let args_match = self_command.get_args().eq(other_command.get_args());
-        name_match && program_match && args_match
+        let cwd_match = self_command.get_current_dir() == other_command.get_current_dir();
+        let env_match = self_command.get_envs().eq(other_command.get_envs());
+        name_match && program_match && args_match && cwd_match && env_match
     }
 }
 
