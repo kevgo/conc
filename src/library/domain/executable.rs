@@ -85,7 +85,8 @@ mod tests {
             };
             let have = format!("{executable:?}");
             let want = format!(
-                r"Executable {{
+                "\
+Executable {{
     name: test
     command: {:?}
 }}",
@@ -100,10 +101,11 @@ mod tests {
             let executable = shell_executable("echo one \"two three\"");
             let have = format!("{executable:?}");
             let want = format!(
-                r#"Executable {{
-    name: echo one "two three"
+                "\
+Executable {{
+    name: echo one \"two three\"
     command: {:?}
-}}"#,
+}}",
                 executable.command
             );
             assert_eq!(have, want);
