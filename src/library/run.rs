@@ -444,7 +444,7 @@ mod tests {
         fn empty_sequence() {
             let given = Runnable::Sequence(vec![]);
             let have = given.names();
-            let want: Vec<&str> = Vec::new();
+            let want: Vec<&str> = vec![];
             assert_eq!(have, want);
         }
 
