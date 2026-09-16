@@ -421,6 +421,49 @@ mod tests {
         }
     }
 
+    mod runnable_names {
+        use super::*;
+        use big_s::S;
+
+        fn make_executable(name: &'static str) -> Executable {
+            Executable {
+                name: S(name),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single() {
+            assert_eq!(Runnable::Single(make_executable("a")).names(), ["a"]);
+        }
+
+        #[test]
+        fn empty_sequence() {
+            assert!(Runnable::Sequence(vec![]).names().is_empty());
+        }
+
+        #[test]
+        fn sequence_of_one() {
+            assert_eq!(
+                Runnable::Sequence(vec![make_executable("a")]).names(),
+                ["a"]
+            );
+        }
+
+        #[test]
+        fn sequence_of_many() {
+            assert_eq!(
+                Runnable::Sequence(vec![
+                    make_executable("a"),
+                    make_executable("b"),
+                    make_executable("c"),
+                ])
+                .names(),
+                ["a", "b", "c"]
+            );
+        }
+    }
+
     mod add {
         use super::*;
         use big_s::S;
