@@ -107,7 +107,7 @@ mod tests {
             let mut command = Command::new(command);
             command.args(args);
             Executable {
-                name: name.to_string(),
+                name: name.to_owned(),
                 command,
             }
         }
