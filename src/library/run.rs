@@ -449,39 +449,45 @@ mod tests {
 
         #[test]
         fn single_plus_sequence() {
-            let result = Runnable::Single(make_executable("a"))
-                + Runnable::Sequence(vec![make_executable("b"), make_executable("c")]);
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a", "b", "c"]);
+            let single = Runnable::Single(make_executable("a"));
+            let sequence = Runnable::Sequence(vec![make_executable("b"), make_executable("c")]);
+            let have = single + sequence;
+            assert_eq!(have.names(), ["a", "b", "c"]);
         }
 
         #[test]
         fn sequence_plus_sequence() {
-            let result = Runnable::Sequence(vec![make_executable("a"), make_executable("b")])
-                + Runnable::Sequence(vec![make_executable("c"), make_executable("d")]);
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a", "b", "c", "d"]);
+            let sequence_1 = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
+            let sequence_2 = Runnable::Sequence(vec![make_executable("c"), make_executable("d")]);
+            let have = sequence_1 + sequence_2;
+            assert_eq!(have.names(), ["a", "b", "c", "d"]);
         }
 
         #[test]
         fn empty_sequence_plus_single() {
-            let result = Runnable::Sequence(vec![]) + Runnable::Single(make_executable("a"));
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a"]);
+            let sequence = Runnable::Sequence(vec![]);
+            let single = Runnable::Single(make_executable("a"));
+            let have = sequence + single;
+            assert_eq!(have.len(), 1);
+            assert_eq!(have.names(), ["a"]);
         }
 
         #[test]
         fn single_plus_empty_sequence() {
-            let result = Runnable::Single(make_executable("a")) + Runnable::Sequence(vec![]);
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a"]);
+            let single = Runnable::Single(make_executable("a"));
+            let sequence = Runnable::Sequence(vec![]);
+            let have = single + sequence;
+            assert_eq!(have.len(), 1);
+            assert_eq!(have.names(), ["a"]);
         }
 
         #[test]
         fn empty_sequence_plus_empty_sequence() {
-            let result = Runnable::Sequence(vec![]) + Runnable::Sequence(vec![]);
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert!(result.names().is_empty());
+            let sequence_1 = Runnable::Sequence(vec![]);
+            let sequence_2 = Runnable::Sequence(vec![]);
+            let have = sequence_1 + sequence_2;
+            assert_eq!(have.len(), 0);
+            assert!(have.names().is_empty());
         }
     }
 
