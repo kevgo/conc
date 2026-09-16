@@ -125,31 +125,31 @@ mod tests {
 
         #[test]
         fn different_name() {
-            let have = make_executable("name", "echo", &["hello"]);
-            let want = make_executable("other", "echo", &["hello"]);
+            let have = make_executable("alpha", "echo", &["hello"]);
+            let want = make_executable("beta", "echo", &["hello"]);
             assert_ne!(have, want);
         }
 
         #[test]
         fn different_program() {
-            let have = make_executable("name", "echo", &["hello"]);
-            let want = make_executable("name", "cat", &["hello"]);
+            let have = make_executable("name", "alpha", &["hello"]);
+            let want = make_executable("name", "beta", &["hello"]);
             assert_ne!(have, want);
         }
 
         #[test]
         fn different_args() {
-            let have = make_executable("name", "echo", &["hello"]);
-            let want = make_executable("name", "echo", &["world"]);
+            let have = make_executable("name", "echo", &["alpha"]);
+            let want = make_executable("name", "echo", &["beta"]);
             assert_ne!(have, want);
         }
 
         #[test]
         fn different_cwd() {
             let mut have = make_executable("name", "echo", &["hello"]);
-            have.command.current_dir("dir_a");
+            have.command.current_dir("alpha");
             let mut want = make_executable("name", "echo", &["hello"]);
-            want.command.current_dir("dir_b");
+            want.command.current_dir("beta");
             assert_ne!(have, want);
         }
 
