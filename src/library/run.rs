@@ -4,6 +4,7 @@ use crate::library::subshell;
 use colored::Colorize;
 use std::fmt::Debug;
 use std::io::{self, Write};
+use std::ops;
 use std::process::Command;
 use std::process::ExitCode;
 use std::sync::mpsc;
@@ -68,6 +69,48 @@ impl Runnable {
         match self {
             Runnable::Single(_) => 1,
             Runnable::Sequence(executables) => executables.len(),
+        }
+    }
+
+    /// provides the names of all executables in this Runnable
+    #[must_use]
+    pub fn names(&self) -> Vec<&str> {
+        match self {
+            Runnable::Single(executable) => vec![&executable.name],
+            Runnable::Sequence(executables) => executables
+                .iter()
+                .map(|executable| executable.name.as_str())
+                .collect(),
+        }
+    }
+}
+
+impl ops::Add for Runnable {
+    type Output = Runnable;
+
+    fn add(self, other: Runnable) -> Runnable {
+        match (self, other) {
+            (Runnable::Single(mine), Runnable::Single(other)) => {
+                Runnable::Sequence(vec![mine, other])
+            }
+            (Runnable::Sequence(mine), Runnable::Single(other)) => {
+                let mut result = Vec::with_capacity(mine.len() + 1);
+                result.extend(mine);
+                result.push(other);
+                Runnable::Sequence(result)
+            }
+            (Runnable::Single(mine), Runnable::Sequence(other)) => {
+                let mut result = Vec::with_capacity(other.len() + 1);
+                result.push(mine);
+                result.extend(other);
+                Runnable::Sequence(result)
+            }
+            (Runnable::Sequence(mine), Runnable::Sequence(other)) => {
+                let mut result = Vec::with_capacity(mine.len() + other.len());
+                result.extend(mine);
+                result.extend(other);
+                Runnable::Sequence(result)
+            }
         }
     }
 }
@@ -378,6 +421,76 @@ mod tests {
         }
     }
 
+    mod add {
+        use super::*;
+
+        fn make_executable(name: &'static str) -> Executable {
+            Executable {
+                name: name.to_owned(),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single_plus_single() {
+            let single_a = Runnable::Single(make_executable("a"));
+            let single_b = Runnable::Single(make_executable("b"));
+            let have = single_a + single_b;
+            assert_eq!(have.names(), ["a", "b"]);
+        }
+
+        #[test]
+        fn sequence_plus_single() {
+            let sequence = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
+            let single = Runnable::Single(make_executable("c"));
+            let have = sequence + single;
+            assert_eq!(have.names(), ["a", "b", "c"]);
+        }
+
+        #[test]
+        fn single_plus_sequence() {
+            let single = Runnable::Single(make_executable("a"));
+            let sequence = Runnable::Sequence(vec![make_executable("b"), make_executable("c")]);
+            let have = single + sequence;
+            assert_eq!(have.names(), ["a", "b", "c"]);
+        }
+
+        #[test]
+        fn sequence_plus_sequence() {
+            let sequence_1 = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
+            let sequence_2 = Runnable::Sequence(vec![make_executable("c"), make_executable("d")]);
+            let have = sequence_1 + sequence_2;
+            assert_eq!(have.names(), ["a", "b", "c", "d"]);
+        }
+
+        #[test]
+        fn empty_sequence_plus_single() {
+            let sequence = Runnable::Sequence(vec![]);
+            let single = Runnable::Single(make_executable("a"));
+            let have = sequence + single;
+            assert_eq!(have.len(), 1);
+            assert_eq!(have.names(), ["a"]);
+        }
+
+        #[test]
+        fn single_plus_empty_sequence() {
+            let single = Runnable::Single(make_executable("a"));
+            let sequence = Runnable::Sequence(vec![]);
+            let have = single + sequence;
+            assert_eq!(have.len(), 1);
+            assert_eq!(have.names(), ["a"]);
+        }
+
+        #[test]
+        fn empty_sequence_plus_empty_sequence() {
+            let sequence_1 = Runnable::Sequence(vec![]);
+            let sequence_2 = Runnable::Sequence(vec![]);
+            let have = sequence_1 + sequence_2;
+            assert_eq!(have.len(), 0);
+            assert!(have.names().is_empty());
+        }
+    }
+
     mod command_line {
         use super::*;
 
@@ -454,6 +567,52 @@ mod tests {
                 show: Show::Failed,
             });
             assert_eq!(exit_code, ExitCode::from(1));
+        }
+    }
+
+    mod names {
+        use super::*;
+
+        fn make_executable(name: &'static str) -> Executable {
+            Executable {
+                name: name.to_owned(),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single() {
+            let give = Runnable::Single(make_executable("a"));
+            let have = give.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn empty_sequence() {
+            let give = Runnable::Sequence(vec![]);
+            let have = give.names();
+            let want: Vec<&str> = vec![];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn sequence_of_one() {
+            let give = Runnable::Sequence(vec![make_executable("a")]);
+            let have = give.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+        #[test]
+        fn sequence_of_many() {
+            let give = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ]);
+            let have = give.names();
+            let want = ["a", "b", "c"];
+            assert_eq!(have, want);
         }
     }
 }
