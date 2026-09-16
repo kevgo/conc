@@ -4,11 +4,11 @@ use crate::library::subshell;
 use colored::Colorize;
 use std::fmt::Debug;
 use std::io::{self, Write};
+use std::ops;
 use std::process::Command;
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
-
 /// all information Conc needs to execute a command
 pub struct Executable {
     /// how the command will be displayed
@@ -68,6 +68,36 @@ impl Runnable {
         match self {
             Runnable::Single(_) => 1,
             Runnable::Sequence(executables) => executables.len(),
+        }
+    }
+}
+
+impl ops::Add for Runnable {
+    type Output = Runnable;
+
+    fn add(self, other: Runnable) -> Runnable {
+        match (self, other) {
+            (Runnable::Single(mine), Runnable::Single(other)) => {
+                Runnable::Sequence(vec![mine, other])
+            }
+            (Runnable::Sequence(mine), Runnable::Single(other)) => {
+                let mut result = Vec::with_capacity(mine.len() + 1);
+                result.extend(mine);
+                result.push(other);
+                Runnable::Sequence(result)
+            }
+            (Runnable::Single(mine), Runnable::Sequence(other)) => {
+                let mut result = Vec::with_capacity(other.len() + 1);
+                result.push(mine);
+                result.extend(other);
+                Runnable::Sequence(result)
+            }
+            (Runnable::Sequence(mine), Runnable::Sequence(other)) => {
+                let mut result = Vec::with_capacity(mine.len() + other.len());
+                result.extend(mine);
+                result.extend(other);
+                Runnable::Sequence(result)
+            }
         }
     }
 }
