@@ -1,10 +1,10 @@
-use crate::{Executable, Runnable};
+use crate::{Executable, Sequence};
 use std::io;
 use std::process::Command;
 use std::sync::mpsc::Sender;
 
 pub fn run(
-    runnable: Runnable,
+    runnable: Sequence,
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
