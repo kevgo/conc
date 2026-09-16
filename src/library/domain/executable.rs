@@ -30,7 +30,8 @@ impl Debug for Executable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Executable {{
+            "\
+Executable {{
     name: {}
     command: {:?}
 }}",
