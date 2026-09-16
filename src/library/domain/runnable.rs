@@ -3,7 +3,7 @@ use std::ops;
 
 /// one or multiple commands executing in sequence
 // TODO: rename to Sequence and make it have one guaranteed command plus a vec of additional commands
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Runnable {
     /// run a single command
     Single(Executable),
@@ -25,16 +25,6 @@ impl Runnable {
         match self {
             Runnable::Single(_) => 1,
             Runnable::Sequence(executables) => executables.len(),
-        }
-    }
-}
-
-impl PartialEq for Runnable {
-    fn eq(&self, other: &Runnable) -> bool {
-        match (self, other) {
-            (Runnable::Single(mine), Runnable::Single(other)) => mine == other,
-            (Runnable::Sequence(mine), Runnable::Sequence(other)) => mine == other,
-            _ => false,
         }
     }
 }
