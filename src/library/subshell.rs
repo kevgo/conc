@@ -1,4 +1,4 @@
-use crate::library::run::{Executable, Runnable};
+use crate::{Executable, Runnable};
 use std::io;
 use std::process::Command;
 use std::sync::mpsc::Sender;
