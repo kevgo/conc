@@ -1,82 +1,11 @@
-use super::CallResult;
-use super::Show;
+use super::{CallResult, Runnable, Show};
 use crate::library::subshell;
 use colored::Colorize;
 use std::fmt::Debug;
 use std::io::{self, Write};
-use std::ops;
-use std::process::Command;
 use std::process::ExitCode;
 use std::sync::mpsc;
 use std::thread;
-
-#[derive(Debug)]
-pub enum Runnable {
-    /// run a single command
-    Single(Executable),
-
-    /// run the given commands one after the other
-    Sequence(Vec<Executable>),
-}
-
-impl Runnable {
-    /// indicates whether the runnable executes any commands
-    #[must_use]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    /// returns the number of commands in the runnable
-    #[must_use]
-    pub fn len(&self) -> usize {
-        match self {
-            Runnable::Single(_) => 1,
-            Runnable::Sequence(executables) => executables.len(),
-        }
-    }
-
-    /// provides the names of all executables in this Runnable
-    #[must_use]
-    pub fn names(&self) -> Vec<&str> {
-        match self {
-            Runnable::Single(executable) => vec![&executable.name],
-            Runnable::Sequence(executables) => executables
-                .iter()
-                .map(|executable| executable.name.as_str())
-                .collect(),
-        }
-    }
-}
-
-impl ops::Add for Runnable {
-    type Output = Runnable;
-
-    fn add(self, other: Runnable) -> Runnable {
-        match (self, other) {
-            (Runnable::Single(mine), Runnable::Single(other)) => {
-                Runnable::Sequence(vec![mine, other])
-            }
-            (Runnable::Sequence(mine), Runnable::Single(other)) => {
-                let mut result = Vec::with_capacity(mine.len() + 1);
-                result.extend(mine);
-                result.push(other);
-                Runnable::Sequence(result)
-            }
-            (Runnable::Single(mine), Runnable::Sequence(other)) => {
-                let mut result = Vec::with_capacity(other.len() + 1);
-                result.push(mine);
-                result.extend(other);
-                Runnable::Sequence(result)
-            }
-            (Runnable::Sequence(mine), Runnable::Sequence(other)) => {
-                let mut result = Vec::with_capacity(mine.len() + other.len());
-                result.extend(mine);
-                result.extend(other);
-                Runnable::Sequence(result)
-            }
-        }
-    }
-}
 
 /// named arguments for the `run` function
 #[derive(Debug)]
@@ -207,8 +136,10 @@ fn write_output(writer: &mut dyn Write, output: &[u8]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Executable;
     use crate::shell_executable;
     use big_s::S;
+    use std::process::Command;
 
     #[test]
     fn single_shell_executable_verbose() {

@@ -1,3 +1,6 @@
+use std::fmt::Debug;
+use std::process::Command;
+
 /// all information Conc needs to execute a command
 pub struct Executable {
     /// how the command will be displayed
