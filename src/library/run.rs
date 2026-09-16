@@ -421,53 +421,6 @@ mod tests {
         }
     }
 
-    mod names {
-        use super::*;
-        use big_s::S;
-
-        fn make_executable(name: &'static str) -> Executable {
-            Executable {
-                name: S(name),
-                command: Command::new("true"),
-            }
-        }
-
-        #[test]
-        fn single() {
-            let given = Runnable::Single(make_executable("a"));
-            let have = given.names();
-            let want = ["a"];
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn empty_sequence() {
-            let given = Runnable::Sequence(vec![]);
-            let have = given.names();
-            let want: Vec<&str> = vec![];
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn sequence_of_one() {
-            let given = Runnable::Sequence(vec![make_executable("a")]);
-            let have = given.names();
-            let want = ["a"];
-            assert_eq!(have, want);
-        }
-        #[test]
-        fn sequence_of_many() {
-            let given = Runnable::Sequence(vec![
-                make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-            ]);
-            let have = given.names();
-            let want = ["a", "b", "c"];
-            assert_eq!(have, want);
-        }
-    }
-
     mod add {
         use super::*;
         use big_s::S;
@@ -609,6 +562,53 @@ mod tests {
                 show: Show::Failed,
             });
             assert_eq!(exit_code, ExitCode::from(1));
+        }
+    }
+
+    mod names {
+        use super::*;
+        use big_s::S;
+
+        fn make_executable(name: &'static str) -> Executable {
+            Executable {
+                name: S(name),
+                command: Command::new("true"),
+            }
+        }
+
+        #[test]
+        fn single() {
+            let given = Runnable::Single(make_executable("a"));
+            let have = given.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn empty_sequence() {
+            let given = Runnable::Sequence(vec![]);
+            let have = given.names();
+            let want: Vec<&str> = vec![];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn sequence_of_one() {
+            let given = Runnable::Sequence(vec![make_executable("a")]);
+            let have = given.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+        #[test]
+        fn sequence_of_many() {
+            let given = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ]);
+            let have = given.names();
+            let want = ["a", "b", "c"];
+            assert_eq!(have, want);
         }
     }
 }
