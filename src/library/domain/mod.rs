@@ -1,5 +1,5 @@
 mod executable;
-mod runnable;
+mod sequence;
 
 pub use executable::Executable;
-pub use runnable::Runnable;
+pub use sequence::Sequence;

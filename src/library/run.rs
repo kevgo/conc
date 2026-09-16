@@ -1,4 +1,4 @@
-use super::{CallResult, Runnable, Show};
+use super::{CallResult, Sequence, Show};
 use crate::library::subshell;
 use colored::Colorize;
 use std::fmt::Debug;
