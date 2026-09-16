@@ -99,6 +99,85 @@ mod tests {
         }
     }
 
+    mod partial_eq {
+        use crate::Executable;
+        use big_s::S;
+        use std::process::Command;
+
+        fn make_executable() -> Executable {
+            let mut command = Command::new("echo");
+            command.arg("hello");
+            Executable {
+                name: S("test"),
+                command,
+            }
+        }
+
+        #[test]
+        fn equal() {
+            let have = make_executable();
+            let want = make_executable();
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn equal_with_cwd_and_env() {
+            let mut have = make_executable();
+            have.command.current_dir("dir");
+            have.command.env("FOO", "bar");
+            let mut want = make_executable();
+            want.command.current_dir("dir");
+            want.command.env("FOO", "bar");
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn different_name() {
+            let have = make_executable();
+            let mut want = make_executable();
+            want.name = S("other");
+            assert_ne!(have, want);
+        }
+
+        #[test]
+        fn different_program() {
+            let have = make_executable();
+            let mut command = Command::new("cat");
+            command.arg("hello");
+            let want = Executable {
+                name: S("test"),
+                command,
+            };
+            assert_ne!(have, want);
+        }
+
+        #[test]
+        fn different_args() {
+            let have = make_executable();
+            let mut want = make_executable();
+            want.command.arg("world");
+            assert_ne!(have, want);
+        }
+
+        #[test]
+        fn different_cwd() {
+            let mut have = make_executable();
+            have.command.current_dir("dir_a");
+            let mut want = make_executable();
+            want.command.current_dir("dir_b");
+            assert_ne!(have, want);
+        }
+
+        #[test]
+        fn different_env() {
+            let mut have = make_executable();
+            have.command.env("FOO", "bar");
+            let mut want = make_executable();
+            want.command.env("FOO", "baz");
+            assert_ne!(have, want);
+        }
+    }
+
     mod debug {
         use crate::{Executable, shell_executable};
         use big_s::S;
