@@ -51,22 +51,22 @@ mod tests {
         #[test]
         fn raw_command() {
             let mut command = Command::new("echo");
-            command.args(vec!["single", "two parts"]);
+            command.args(vec!["single", "two words"]);
             let executable = Executable {
                 name: S("test"),
                 command,
             };
             let have = executable.command_line();
-            let want = "echo single 'two parts'";
+            let want = "echo single 'two words'";
             assert_eq!(have, want);
         }
 
         #[test]
         #[cfg(unix)]
         fn shell_command() {
-            let executable = shell_executable("echo single \"two parts\"");
+            let executable = shell_executable("echo single \"two words\"");
             let have = executable.command_line();
-            let want = "sh -c 'echo single \"two parts\"'";
+            let want = "sh -c 'echo single \"two words\"'";
             assert_eq!(have, want);
         }
     }
@@ -79,7 +79,7 @@ mod tests {
         #[test]
         fn raw_command() {
             let mut command = Command::new("echo");
-            command.args(vec!["single", "two parts"]);
+            command.args(vec!["single", "two words"]);
             let executable = Executable {
                 name: S("test"),
                 command,
@@ -99,12 +99,12 @@ Executable {{
         #[test]
         #[cfg(unix)]
         fn shell_command() {
-            let executable = shell_executable("echo single \"two parts\"");
+            let executable = shell_executable("echo single \"two words\"");
             let have = format!("{executable:?}");
             let want = format!(
                 "\
 Executable {{
-    name: echo single \"two parts\"
+    name: echo single \"two words\"
     command: {:?}
 }}",
                 executable.command
