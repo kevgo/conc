@@ -115,13 +115,6 @@ mod tests {
 
         #[test]
         fn equal() {
-            let have = make_executable();
-            let want = make_executable();
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn equal_with_cwd_and_env() {
             let mut have = make_executable();
             have.command.current_dir("dir");
             have.command.env("FOO", "bar");
