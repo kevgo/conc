@@ -583,35 +583,35 @@ mod tests {
 
         #[test]
         fn single() {
-            let given = Runnable::Single(make_executable("a"));
-            let have = given.names();
+            let give = Runnable::Single(make_executable("a"));
+            let have = give.names();
             let want = ["a"];
             assert_eq!(have, want);
         }
 
         #[test]
         fn empty_sequence() {
-            let given = Runnable::Sequence(vec![]);
-            let have = given.names();
+            let give = Runnable::Sequence(vec![]);
+            let have = give.names();
             let want: Vec<&str> = vec![];
             assert_eq!(have, want);
         }
 
         #[test]
         fn sequence_of_one() {
-            let given = Runnable::Sequence(vec![make_executable("a")]);
-            let have = given.names();
+            let give = Runnable::Sequence(vec![make_executable("a")]);
+            let have = give.names();
             let want = ["a"];
             assert_eq!(have, want);
         }
         #[test]
         fn sequence_of_many() {
-            let given = Runnable::Sequence(vec![
+            let give = Runnable::Sequence(vec![
                 make_executable("a"),
                 make_executable("b"),
                 make_executable("c"),
             ]);
-            let have = given.names();
+            let have = give.names();
             let want = ["a", "b", "c"];
             assert_eq!(have, want);
         }
