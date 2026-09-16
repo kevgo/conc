@@ -69,6 +69,15 @@ mod tests {
             let want = "sh -c 'echo single \"two words\"'";
             assert_eq!(have, want);
         }
+
+        #[test]
+        #[cfg(windows)]
+        fn shell_command() {
+            let executable = shell_executable("echo single \"two words\"");
+            let have = executable.command_line();
+            let want = "cmd.exe /C 'echo single \"two words\"'";
+            assert_eq!(have, want);
+        }
     }
 
     mod debug {
