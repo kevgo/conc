@@ -17,9 +17,10 @@ impl Executable {
         for arg in self.command.get_args() {
             result.push(' ');
             let arg_str = arg.to_string_lossy();
-            let arg_str_2 = arg_str.clone();
-            let quoted = shlex::try_quote(&arg_str).unwrap_or(arg_str_2);
-            result.push_str(&quoted);
+            match shlex::try_quote(&arg_str) {
+                Ok(quoted) => result.push_str(&quoted),
+                Err(_) => result.push_str(&arg_str),
+            }
         }
         result
     }
