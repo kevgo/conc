@@ -426,7 +426,7 @@ mod tests {
 
         fn make_executable(name: &'static str) -> Executable {
             Executable {
-                name: name.to_string(),
+                name: name.to_owned(),
                 command: Command::new("true"),
             }
         }
