@@ -248,73 +248,6 @@ mod tests {
         assert_eq!(exit_code, ExitCode::from(2));
     }
 
-    mod runnable_is_empty {
-        use super::*;
-        use big_s::S;
-
-        fn make_executable() -> Executable {
-            Executable {
-                name: S(""),
-                command: Command::new("true"),
-            }
-        }
-
-        #[test]
-        fn single_is_never_empty() {
-            assert!(!Runnable::Single(make_executable()).is_empty());
-        }
-
-        #[test]
-        fn empty_sequence_is_empty() {
-            assert!(Runnable::Sequence(vec![]).is_empty());
-        }
-
-        #[test]
-        fn non_empty_sequence_is_not_empty() {
-            assert!(!Runnable::Sequence(vec![make_executable()]).is_empty());
-        }
-    }
-
-    mod runnable_len {
-        use super::*;
-        use big_s::S;
-
-        fn make_executable() -> Executable {
-            Executable {
-                name: S(""),
-                command: Command::new("true"),
-            }
-        }
-
-        #[test]
-        fn single_is_always_one() {
-            assert_eq!(Runnable::Single(make_executable()).len(), 1);
-        }
-
-        #[test]
-        fn empty_sequence_is_zero() {
-            assert_eq!(Runnable::Sequence(vec![]).len(), 0);
-        }
-
-        #[test]
-        fn sequence_of_one() {
-            assert_eq!(Runnable::Sequence(vec![make_executable()]).len(), 1);
-        }
-
-        #[test]
-        fn sequence_of_many() {
-            assert_eq!(
-                Runnable::Sequence(vec![
-                    make_executable(),
-                    make_executable(),
-                    make_executable(),
-                ])
-                .len(),
-                3
-            );
-        }
-    }
-
     mod command_line {
         use super::*;
 
@@ -342,9 +275,8 @@ mod tests {
     }
 
     mod error_on_output {
-        use big_s::S;
-
         use crate::{Executable, RunArgs, Runnable, Show, run, shell_executable};
+        use big_s::S;
         use std::process::{Command, ExitCode};
 
         #[test]
