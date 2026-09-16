@@ -71,6 +71,18 @@ impl Runnable {
             Runnable::Sequence(executables) => executables.len(),
         }
     }
+
+    /// provides the names of all executables in this Runnable
+    #[must_use]
+    pub fn names(&self) -> Vec<&str> {
+        match self {
+            Runnable::Single(executable) => vec![&executable.name],
+            Runnable::Sequence(executables) => executables
+                .iter()
+                .map(|executable| executable.name.as_str())
+                .collect(),
+        }
+    }
 }
 
 impl ops::Add for Runnable {
@@ -409,7 +421,7 @@ mod tests {
         }
     }
 
-    mod runnable_add {
+    mod add {
         use super::*;
         use big_s::S;
 
@@ -420,22 +432,12 @@ mod tests {
             }
         }
 
-        fn names(runnable: &Runnable) -> Vec<&str> {
-            match runnable {
-                Runnable::Single(executable) => vec![executable.name.as_str()],
-                Runnable::Sequence(executables) => executables
-                    .iter()
-                    .map(|executable| executable.name.as_str())
-                    .collect(),
-            }
-        }
-
         #[test]
         fn single_plus_single() {
             let result =
                 Runnable::Single(make_executable("a")) + Runnable::Single(make_executable("b"));
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a", "b"]);
+            assert_eq!(result.names(), ["a", "b"]);
         }
 
         #[test]
@@ -443,7 +445,7 @@ mod tests {
             let result = Runnable::Sequence(vec![make_executable("a"), make_executable("b")])
                 + Runnable::Single(make_executable("c"));
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a", "b", "c"]);
+            assert_eq!(result.names(), ["a", "b", "c"]);
         }
 
         #[test]
@@ -451,7 +453,7 @@ mod tests {
             let result = Runnable::Single(make_executable("a"))
                 + Runnable::Sequence(vec![make_executable("b"), make_executable("c")]);
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a", "b", "c"]);
+            assert_eq!(result.names(), ["a", "b", "c"]);
         }
 
         #[test]
@@ -459,28 +461,28 @@ mod tests {
             let result = Runnable::Sequence(vec![make_executable("a"), make_executable("b")])
                 + Runnable::Sequence(vec![make_executable("c"), make_executable("d")]);
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a", "b", "c", "d"]);
+            assert_eq!(result.names(), ["a", "b", "c", "d"]);
         }
 
         #[test]
         fn empty_sequence_plus_single() {
             let result = Runnable::Sequence(vec![]) + Runnable::Single(make_executable("a"));
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a"]);
+            assert_eq!(result.names(), ["a"]);
         }
 
         #[test]
         fn single_plus_empty_sequence() {
             let result = Runnable::Single(make_executable("a")) + Runnable::Sequence(vec![]);
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(names(&result), ["a"]);
+            assert_eq!(result.names(), ["a"]);
         }
 
         #[test]
         fn empty_sequence_plus_empty_sequence() {
             let result = Runnable::Sequence(vec![]) + Runnable::Sequence(vec![]);
             assert!(matches!(result, Runnable::Sequence(_)));
-            assert!(names(&result).is_empty());
+            assert!(result.names().is_empty());
         }
     }
 
