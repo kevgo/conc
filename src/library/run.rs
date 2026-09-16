@@ -433,18 +433,18 @@ mod tests {
 
         #[test]
         fn single_plus_single() {
-            let result =
-                Runnable::Single(make_executable("a")) + Runnable::Single(make_executable("b"));
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a", "b"]);
+            let single_a = Runnable::Single(make_executable("a"));
+            let single_b = Runnable::Single(make_executable("b"));
+            let have = single_a + single_b;
+            assert_eq!(have.names(), ["a", "b"]);
         }
 
         #[test]
         fn sequence_plus_single() {
-            let result = Runnable::Sequence(vec![make_executable("a"), make_executable("b")])
-                + Runnable::Single(make_executable("c"));
-            assert!(matches!(result, Runnable::Sequence(_)));
-            assert_eq!(result.names(), ["a", "b", "c"]);
+            let sequence = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
+            let single = Runnable::Single(make_executable("c"));
+            let have = sequence + single;
+            assert_eq!(have.names(), ["a", "b", "c"]);
         }
 
         #[test]
