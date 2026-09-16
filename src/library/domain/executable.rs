@@ -32,10 +32,11 @@ impl Debug for Executable {
             f,
             "\
 Executable {{
-    name: {}
-    command: {:?}
+    name: {name}
+    command: {command:?}
 }}",
-            self.name, self.command
+            name = self.name,
+            command = self.command,
         )
     }
 }
