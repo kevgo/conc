@@ -248,32 +248,6 @@ mod tests {
         assert_eq!(exit_code, ExitCode::from(2));
     }
 
-    mod command_line {
-        use super::*;
-
-        #[test]
-        fn raw_command() {
-            let mut command = Command::new("echo");
-            command.args(vec!["one", "two three"]);
-            let executable = Executable {
-                name: S("test"),
-                command,
-            };
-            let have = executable.command_line();
-            let want = "echo one 'two three'";
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        #[cfg(unix)]
-        fn shell_command() {
-            let executable = shell_executable("echo one \"two three\"");
-            let have = executable.command_line();
-            let want = "sh -c 'echo one \"two three\"'";
-            assert_eq!(have, want);
-        }
-    }
-
     mod error_on_output {
         use crate::{Executable, RunArgs, Runnable, Show, run, shell_executable};
         use big_s::S;

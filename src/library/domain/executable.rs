@@ -37,3 +37,34 @@ impl Debug for Executable {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    mod command_line {
+        use crate::{Executable, shell_executable};
+        use big_s::S;
+        use std::process::Command;
+
+        #[test]
+        fn raw_command() {
+            let mut command = Command::new("echo");
+            command.args(vec!["one", "two three"]);
+            let executable = Executable {
+                name: S("test"),
+                command,
+            };
+            let have = executable.command_line();
+            let want = "echo one 'two three'";
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        #[cfg(unix)]
+        fn shell_command() {
+            let executable = shell_executable("echo one \"two three\"");
+            let have = executable.command_line();
+            let want = "sh -c 'echo one \"two three\"'";
+            assert_eq!(have, want);
+        }
+    }
+}
