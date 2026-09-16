@@ -71,17 +71,19 @@ impl ops::Add for Runnable {
 
 #[cfg(test)]
 mod tests {
+    use crate::Executable;
+    use std::process::Command;
+
+    fn make_executable(name: &'static str) -> Executable {
+        Executable {
+            name: name.to_owned(),
+            command: Command::new("true"),
+        }
+    }
 
     mod add {
-        use crate::{Executable, Runnable};
-        use std::process::Command;
-
-        fn make_executable(name: &'static str) -> Executable {
-            Executable {
-                name: name.to_owned(),
-                command: Command::new("true"),
-            }
-        }
+        use super::make_executable;
+        use crate::Runnable;
 
         #[test]
         fn single_plus_single() {
@@ -140,6 +142,46 @@ mod tests {
             let have = sequence_1 + sequence_2;
             assert_eq!(have.len(), 0);
             assert!(have.names().is_empty());
+        }
+    }
+
+    mod names {
+        use super::make_executable;
+        use crate::Runnable;
+
+        #[test]
+        fn single() {
+            let give = Runnable::Single(make_executable("a"));
+            let have = give.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn empty_sequence() {
+            let give = Runnable::Sequence(vec![]);
+            let have = give.names();
+            let want: Vec<&str> = vec![];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn sequence_of_one() {
+            let give = Runnable::Sequence(vec![make_executable("a")]);
+            let have = give.names();
+            let want = ["a"];
+            assert_eq!(have, want);
+        }
+        #[test]
+        fn sequence_of_many() {
+            let give = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ]);
+            let have = give.names();
+            let want = ["a", "b", "c"];
+            assert_eq!(have, want);
         }
     }
 }
