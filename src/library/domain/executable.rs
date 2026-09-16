@@ -41,6 +41,23 @@ Executable {{
     }
 }
 
+impl PartialEq for Executable {
+    fn eq(&self, other: &Executable) -> bool {
+        let Executable {
+            name: self_name,
+            command: self_command,
+        } = self;
+        let Executable {
+            name: other_name,
+            command: other_command,
+        } = other;
+        let name_match = self_name == other_name;
+        let program_match = self_command.get_program() == other_command.get_program();
+        let args_match = self_command.get_args().eq(other_command.get_args());
+        name_match && program_match && args_match
+    }
+}
+
 #[cfg(test)]
 mod tests {
     mod command_line {

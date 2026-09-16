@@ -27,16 +27,14 @@ impl Runnable {
             Runnable::Sequence(executables) => executables.len(),
         }
     }
+}
 
-    /// provides the names of all executables in this Runnable
-    #[must_use]
-    pub fn names(&self) -> Vec<&str> {
-        match self {
-            Runnable::Single(executable) => vec![&executable.name],
-            Runnable::Sequence(executables) => executables
-                .iter()
-                .map(|executable| executable.name.as_str())
-                .collect(),
+impl PartialEq for Runnable {
+    fn eq(&self, other: &Runnable) -> bool {
+        match (self, other) {
+            (Runnable::Single(mine), Runnable::Single(other)) => mine == other,
+            (Runnable::Sequence(mine), Runnable::Sequence(other)) => mine == other,
+            _ => false,
         }
     }
 }
@@ -92,7 +90,8 @@ mod tests {
             let single_a = Runnable::Single(make_executable("a"));
             let single_b = Runnable::Single(make_executable("b"));
             let have = single_a + single_b;
-            assert_eq!(have.names(), ["a", "b"]);
+            let want = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -100,7 +99,12 @@ mod tests {
             let sequence = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
             let single = Runnable::Single(make_executable("c"));
             let have = sequence + single;
-            assert_eq!(have.names(), ["a", "b", "c"]);
+            let want = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -108,7 +112,12 @@ mod tests {
             let single = Runnable::Single(make_executable("a"));
             let sequence = Runnable::Sequence(vec![make_executable("b"), make_executable("c")]);
             let have = single + sequence;
-            assert_eq!(have.names(), ["a", "b", "c"]);
+            let want = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -116,7 +125,13 @@ mod tests {
             let sequence_1 = Runnable::Sequence(vec![make_executable("a"), make_executable("b")]);
             let sequence_2 = Runnable::Sequence(vec![make_executable("c"), make_executable("d")]);
             let have = sequence_1 + sequence_2;
-            assert_eq!(have.names(), ["a", "b", "c", "d"]);
+            let want = Runnable::Sequence(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+                make_executable("d"),
+            ]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -125,7 +140,8 @@ mod tests {
             let single = Runnable::Single(make_executable("a"));
             let have = sequence + single;
             assert_eq!(have.len(), 1);
-            assert_eq!(have.names(), ["a"]);
+            let want = Runnable::Sequence(vec![make_executable("a")]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -134,7 +150,8 @@ mod tests {
             let sequence = Runnable::Sequence(vec![]);
             let have = single + sequence;
             assert_eq!(have.len(), 1);
-            assert_eq!(have.names(), ["a"]);
+            let want = Runnable::Sequence(vec![make_executable("a")]);
+            assert_eq!(have, want);
         }
 
         #[test]
@@ -143,7 +160,8 @@ mod tests {
             let sequence_2 = Runnable::Sequence(vec![]);
             let have = sequence_1 + sequence_2;
             assert_eq!(have.len(), 0);
-            assert!(have.names().is_empty());
+            let want = Runnable::Sequence(vec![]);
+            assert_eq!(have, want);
         }
     }
 
@@ -197,46 +215,6 @@ mod tests {
                 .len(),
                 3
             );
-        }
-    }
-
-    mod names {
-        use super::make_executable;
-        use crate::Runnable;
-
-        #[test]
-        fn single() {
-            let give = Runnable::Single(make_executable("a"));
-            let have = give.names();
-            let want = ["a"];
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn empty_sequence() {
-            let give = Runnable::Sequence(vec![]);
-            let have = give.names();
-            let want: Vec<&str> = vec![];
-            assert_eq!(have, want);
-        }
-
-        #[test]
-        fn sequence_of_one() {
-            let give = Runnable::Sequence(vec![make_executable("a")]);
-            let have = give.names();
-            let want = ["a"];
-            assert_eq!(have, want);
-        }
-        #[test]
-        fn sequence_of_many() {
-            let give = Runnable::Sequence(vec![
-                make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-            ]);
-            let have = give.names();
-            let want = ["a", "b", "c"];
-            assert_eq!(have, want);
         }
     }
 }
