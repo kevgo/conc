@@ -572,11 +572,10 @@ mod tests {
 
     mod names {
         use super::*;
-        use big_s::S;
 
         fn make_executable(name: &'static str) -> Executable {
             Executable {
-                name: S(name),
+                name: name.to_owned(),
                 command: Command::new("true"),
             }
         }
