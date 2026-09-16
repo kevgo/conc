@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::process::Command;
 
-/// all the information Conc needs to execute a command
+/// all the information Conc needs to execute a single command
 pub struct Executable {
     /// how the command will be displayed
     pub name: String,

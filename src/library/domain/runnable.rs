@@ -1,6 +1,8 @@
 use super::Executable;
 use std::ops;
 
+/// one or multiple commands executing in sequence
+// TODO: rename to Sequence and make it have one guaranteed command plus a vec of additional commands
 #[derive(Debug)]
 pub enum Runnable {
     /// run a single command
