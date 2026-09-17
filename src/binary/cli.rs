@@ -1,5 +1,5 @@
 use super::AppError;
-use conc::{RunArgs, Runnable, Show, shell_executable};
+use conc::{RunArgs, Sequence, Show, shell_executable};
 
 /// the different top-level commands that conc can execute
 #[derive(Debug)]
@@ -16,11 +16,11 @@ pub enum Command {
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
-    let mut runnables = vec![];
     let mut show = Show::Output;
     let mut error_on_output = false;
     let mut stderr_to_stdout = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
+    let mut sequences = vec![];
     for arg in args {
         if arg == "--" {
             parse_flags = false;
@@ -43,10 +43,10 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        runnables.push(Runnable::Single(shell_executable(arg)));
+        sequences.push(Sequence::one(shell_executable(arg)));
     }
     Ok(Command::Run(RunArgs {
-        runnables,
+        sequences,
         error_on_output,
         stderr_to_stdout,
         show,
@@ -65,7 +65,7 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello world"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello world"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -78,10 +78,10 @@ mod tests {
             let give = vec![S("echo hello"), S("ls -la"), S("pwd")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![
-                    Runnable::Single(shell_executable("echo hello")),
-                    Runnable::Single(shell_executable("ls -la")),
-                    Runnable::Single(shell_executable("pwd")),
+                sequences: vec![
+                    Sequence::one(shell_executable("echo hello")),
+                    Sequence::one(shell_executable("ls -la")),
+                    Sequence::one(shell_executable("pwd")),
                 ],
                 error_on_output: false,
                 stderr_to_stdout: false,
@@ -95,7 +95,7 @@ mod tests {
             let give = vec![].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![],
+                sequences: vec![],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -108,7 +108,7 @@ mod tests {
             let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
@@ -121,7 +121,7 @@ mod tests {
             let give = vec![S("--show=verbose"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Verbose,
@@ -134,7 +134,7 @@ mod tests {
             let give = vec![S("--show=output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -155,7 +155,7 @@ mod tests {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -200,7 +200,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -213,7 +213,7 @@ mod tests {
             let give = vec![S("--stderr-to-stdout"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: true,
                 show: Show::Output,
@@ -226,7 +226,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                runnables: vec![Runnable::Single(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Names,

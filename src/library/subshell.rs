@@ -1,16 +1,26 @@
-use crate::{Executable, Runnable};
+use crate::{Executable, Sequence};
 use std::io;
 use std::process::Command;
 use std::sync::mpsc::Sender;
 
 pub fn run(
-    runnable: Runnable,
+    runnable: Sequence,
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
-    match runnable {
-        Runnable::Single(executable) => run_single(executable, sender),
-        Runnable::Sequence(executables) => run_multiple(executables, sender, error_on_output),
+    for executable in runnable {
+        let result = execute(executable);
+        let failed = match &result {
+            Ok(call_result) => {
+                !call_result.output.status.success()
+                    || (error_on_output && call_result.has_output())
+            }
+            Err(_) => true,
+        };
+        let _ = sender.send(result);
+        if failed {
+            break;
+        }
     }
 }
 
@@ -24,31 +34,6 @@ fn execute(executable: Executable) -> Result<CallResult, RunError> {
             output,
         }),
         Err(error) => Err(RunError { name, error }),
-    }
-}
-
-fn run_single(executable: Executable, sender: &Sender<Result<CallResult, RunError>>) {
-    let _ = sender.send(execute(executable));
-}
-
-fn run_multiple(
-    executables: Vec<Executable>,
-    sender: &Sender<Result<CallResult, RunError>>,
-    error_on_output: bool,
-) {
-    for executable in executables {
-        let result = execute(executable);
-        let failed = match &result {
-            Ok(call_result) => {
-                !call_result.output.status.success()
-                    || (error_on_output && call_result.has_output())
-            }
-            Err(_) => true,
-        };
-        let _ = sender.send(result);
-        if failed {
-            break;
-        }
     }
 }
 
