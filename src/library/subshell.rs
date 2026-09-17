@@ -8,28 +8,7 @@ pub fn run(
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
-    run_multiple(runnable, sender, error_on_output);
-}
-
-fn execute(executable: Executable) -> Result<CallResult, RunError> {
-    let command_line = executable.command_line();
-    let Executable { mut command, name } = executable;
-    match command.output() {
-        Ok(output) => Ok(CallResult {
-            name,
-            command_line,
-            output,
-        }),
-        Err(error) => Err(RunError { name, error }),
-    }
-}
-
-fn run_multiple(
-    executables: Sequence,
-    sender: &Sender<Result<CallResult, RunError>>,
-    error_on_output: bool,
-) {
-    for executable in executables {
+    for executable in runnable {
         let result = execute(executable);
         let failed = match &result {
             Ok(call_result) => {
@@ -42,6 +21,19 @@ fn run_multiple(
         if failed {
             break;
         }
+    }
+}
+
+fn execute(executable: Executable) -> Result<CallResult, RunError> {
+    let command_line = executable.command_line();
+    let Executable { mut command, name } = executable;
+    match command.output() {
+        Ok(output) => Ok(CallResult {
+            name,
+            command_line,
+            output,
+        }),
+        Err(error) => Err(RunError { name, error }),
     }
 }
 
