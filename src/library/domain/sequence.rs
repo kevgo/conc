@@ -6,7 +6,6 @@ use std::ops;
 #[derive(Debug, PartialEq)]
 pub struct Sequence {
     first: Executable,
-
     additional: Vec<Executable>,
 }
 
