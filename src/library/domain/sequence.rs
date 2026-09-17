@@ -10,6 +10,7 @@ pub struct Sequence {
 }
 
 impl Sequence {
+    /// creates a sequence with a single command
     #[must_use]
     pub fn one(executable: Executable) -> Sequence {
         Sequence {
@@ -18,12 +19,13 @@ impl Sequence {
         }
     }
 
+    /// creates a sequence with multiple commands
     #[must_use]
     pub fn many(first: Executable, additional: Vec<Executable>) -> Sequence {
         Sequence { first, additional }
     }
 
-    /// returns the number of commands in the runnable
+    /// returns the number of commands in the sequence
     #[must_use]
     pub fn len(&self) -> usize {
         self.additional.len() + 1
