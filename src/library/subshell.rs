@@ -8,10 +8,7 @@ pub fn run(
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
-    match runnable {
-        Runnable::Single(executable) => run_single(executable, sender),
-        Runnable::Sequence(executables) => run_multiple(executables, sender, error_on_output),
-    }
+    run_multiple(runnable, sender, error_on_output)
 }
 
 fn execute(executable: Executable) -> Result<CallResult, RunError> {
@@ -32,7 +29,7 @@ fn run_single(executable: Executable, sender: &Sender<Result<CallResult, RunErro
 }
 
 fn run_multiple(
-    executables: Vec<Executable>,
+    executables: Sequence,
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
