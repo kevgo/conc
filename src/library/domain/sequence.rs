@@ -5,12 +5,25 @@ use std::ops;
 #[allow(clippy::len_without_is_empty)]
 #[derive(Debug, PartialEq)]
 pub struct Sequence {
-    pub first: Executable,
+    first: Executable,
 
-    pub additional: Vec<Executable>,
+    additional: Vec<Executable>,
 }
 
 impl Sequence {
+    #[must_use]
+    pub fn one(executable: Executable) -> Sequence {
+        Sequence {
+            first: executable,
+            additional: vec![],
+        }
+    }
+
+    #[must_use]
+    pub fn many(first: Executable, additional: Vec<Executable>) -> Sequence {
+        Sequence { first, additional }
+    }
+
     /// returns the number of commands in the runnable
     #[must_use]
     pub fn len(&self) -> usize {
@@ -50,30 +63,6 @@ impl Iterator for SequenceIter {
 }
 
 impl ExactSizeIterator for SequenceIter {}
-
-impl From<Executable> for Sequence {
-    fn from(executable: Executable) -> Sequence {
-        Sequence {
-            first: executable,
-            additional: vec![],
-        }
-    }
-}
-
-impl TryFrom<Vec<Executable>> for Sequence {
-    type Error = String;
-
-    fn try_from(mut value: Vec<Executable>) -> Result<Self, Self::Error> {
-        if value.is_empty() {
-            Err("cannot create a sequence from an empty vector".to_owned())
-        } else {
-            Ok(Sequence {
-                first: value.remove(0),
-                additional: value,
-            })
-        }
-    }
-}
 
 impl ops::Add for Sequence {
     type Output = Sequence;
@@ -116,58 +105,56 @@ mod tests {
 
         #[test]
         fn single_plus_single() {
-            let single_a = Sequence::from(make_executable("a"));
-            let single_b = Sequence::from(make_executable("b"));
+            let single_a = Sequence::one(make_executable("a"));
+            let single_b = Sequence::one(make_executable("b"));
             let have = single_a + single_b;
-            let want =
-                Sequence::try_from(vec![make_executable("a"), make_executable("b")]).unwrap();
+            let want = Sequence {
+                first: make_executable("a"),
+                additional: vec![make_executable("b")],
+            };
             assert_eq!(have, want);
         }
 
         #[test]
         fn sequence_plus_single() {
-            let sequence =
-                Sequence::try_from(vec![make_executable("a"), make_executable("b")]).unwrap();
-            let single = Sequence::from(make_executable("c"));
+            let sequence = Sequence {
+                first: make_executable("a"),
+                additional: vec![make_executable("b")],
+            };
+            let single = Sequence::one(make_executable("c"));
             let have = sequence + single;
-            let want = Sequence::try_from(vec![
+            let want = Sequence::many(
                 make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-            ])
-            .unwrap();
+                vec![make_executable("b"), make_executable("c")],
+            );
             assert_eq!(have, want);
         }
 
         #[test]
         fn single_plus_sequence() {
-            let single = Sequence::from(make_executable("a"));
-            let sequence =
-                Sequence::try_from(vec![make_executable("b"), make_executable("c")]).unwrap();
+            let single = Sequence::one(make_executable("a"));
+            let sequence = Sequence::many(make_executable("b"), vec![make_executable("c")]);
             let have = single + sequence;
-            let want = Sequence::try_from(vec![
+            let want = Sequence::many(
                 make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-            ])
-            .unwrap();
+                vec![make_executable("b"), make_executable("c")],
+            );
             assert_eq!(have, want);
         }
 
         #[test]
         fn sequence_plus_sequence() {
-            let sequence_1 =
-                Sequence::try_from(vec![make_executable("a"), make_executable("b")]).unwrap();
-            let sequence_2 =
-                Sequence::try_from(vec![make_executable("c"), make_executable("d")]).unwrap();
+            let sequence_1 = Sequence::many(make_executable("a"), vec![make_executable("b")]);
+            let sequence_2 = Sequence::many(make_executable("c"), vec![make_executable("d")]);
             let have = sequence_1 + sequence_2;
-            let want = Sequence::try_from(vec![
+            let want = Sequence::many(
                 make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-                make_executable("d"),
-            ])
-            .unwrap();
+                vec![
+                    make_executable("b"),
+                    make_executable("c"),
+                    make_executable("d"),
+                ],
+            );
             assert_eq!(have, want);
         }
     }
@@ -178,21 +165,17 @@ mod tests {
 
         #[test]
         fn one() {
-            assert_eq!(Sequence::from(make_executable("")).len(), 1);
+            let give = Sequence::one(make_executable(""));
+            assert_eq!(give.len(), 1);
         }
 
         #[test]
         fn many() {
-            assert_eq!(
-                Sequence::try_from(vec![
-                    make_executable(""),
-                    make_executable(""),
-                    make_executable(""),
-                ])
-                .unwrap()
-                .len(),
-                3
+            let give = Sequence::many(
+                make_executable(""),
+                vec![make_executable(""), make_executable("")],
             );
+            assert_eq!(give.len(), 3);
         }
     }
 
@@ -202,7 +185,7 @@ mod tests {
 
         #[test]
         fn one() {
-            let sequence = Sequence::from(make_executable("a"));
+            let sequence = Sequence::one(make_executable("a"));
             let have: Vec<_> = sequence.into_iter().collect();
             let want = vec![make_executable("a")];
             assert_eq!(have, want);
@@ -210,12 +193,10 @@ mod tests {
 
         #[test]
         fn many() {
-            let sequence = Sequence::try_from(vec![
+            let sequence = Sequence::many(
                 make_executable("a"),
-                make_executable("b"),
-                make_executable("c"),
-            ])
-            .unwrap();
+                vec![make_executable("b"), make_executable("c")],
+            );
             let have: Vec<_> = sequence.into_iter().collect();
             let want = vec![
                 make_executable("a"),

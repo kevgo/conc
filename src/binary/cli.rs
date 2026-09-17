@@ -43,7 +43,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        runnables.push(Sequence::from(shell_executable(arg)));
+        runnables.push(Sequence::one(shell_executable(arg)));
     }
     Ok(Command::Run(RunArgs {
         sequences: runnables,
@@ -65,7 +65,7 @@ mod tests {
             let give = vec![S("echo hello world")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello world"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello world"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -79,9 +79,9 @@ mod tests {
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
                 sequences: vec![
-                    Sequence::from(shell_executable("echo hello")),
-                    Sequence::from(shell_executable("ls -la")),
-                    Sequence::from(shell_executable("pwd")),
+                    Sequence::one(shell_executable("echo hello")),
+                    Sequence::one(shell_executable("ls -la")),
+                    Sequence::one(shell_executable("pwd")),
                 ],
                 error_on_output: false,
                 stderr_to_stdout: false,
@@ -108,7 +108,7 @@ mod tests {
             let give = vec![S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
@@ -121,7 +121,7 @@ mod tests {
             let give = vec![S("--show=verbose"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Verbose,
@@ -134,7 +134,7 @@ mod tests {
             let give = vec![S("--show=output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -155,7 +155,7 @@ mod tests {
             let give = vec![S("--show"), S("--"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -200,7 +200,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Output,
@@ -213,7 +213,7 @@ mod tests {
             let give = vec![S("--stderr-to-stdout"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
                 stderr_to_stdout: true,
                 show: Show::Output,
@@ -226,7 +226,7 @@ mod tests {
             let give = vec![S("--error-on-output"), S("--show=names"), S("echo hello")].into_iter();
             let have = parse(give).unwrap();
             let want = Command::Run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("echo hello"))],
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Names,

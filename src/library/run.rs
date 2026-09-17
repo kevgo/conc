@@ -34,15 +34,12 @@ pub struct RunArgs {
 ///
 /// let mut command = Command::new("echo");
 /// command.arg("one");
-/// let sequence1 = Sequence::from(Executable {
+/// let sequence1 = Sequence::one(Executable {
 ///     name: "echo one".into(),
 ///     command,
 /// });
-/// let sequence2 = Sequence::from(shell_executable("echo two"));
-/// let sequence3 = Sequence {
-///     first: shell_executable("echo three"),
-///     additional: vec![shell_executable("echo four")],
-/// };
+/// let sequence2 = Sequence::one(shell_executable("echo two"));
+/// let sequence3 = Sequence::many(shell_executable("echo three"), vec![shell_executable("echo four")]);
 /// let args = RunArgs {
 ///     sequences: vec![sequence1, sequence2, sequence3],
 ///     error_on_output: false,
@@ -144,7 +141,7 @@ mod tests {
     #[test]
     fn single_shell_executable_verbose() {
         let exit_code = run(RunArgs {
-            sequences: vec![Sequence::from(shell_executable("echo one"))],
+            sequences: vec![Sequence::one(shell_executable("echo one"))],
             error_on_output: false,
             stderr_to_stdout: false,
             show: Show::Verbose,
@@ -155,7 +152,7 @@ mod tests {
     #[test]
     fn single_shell_executable() {
         let exit_code = run(RunArgs {
-            sequences: vec![Sequence::from(shell_executable("echo one"))],
+            sequences: vec![Sequence::one(shell_executable("echo one"))],
             error_on_output: false,
             stderr_to_stdout: false,
             show: Show::Failed,
@@ -168,7 +165,7 @@ mod tests {
         let mut command = Command::new("echo");
         command.arg("one");
         let exit_code = run(RunArgs {
-            sequences: vec![Sequence::from(Executable {
+            sequences: vec![Sequence::one(Executable {
                 name: S("echo one"),
                 command,
             })],
@@ -183,9 +180,9 @@ mod tests {
     fn concurrent_commands() {
         let exit_code = run(RunArgs {
             sequences: vec![
-                Sequence::from(shell_executable("echo one")),
-                Sequence::from(shell_executable("echo two")),
-                Sequence::from(shell_executable("echo three")),
+                Sequence::one(shell_executable("echo one")),
+                Sequence::one(shell_executable("echo two")),
+                Sequence::one(shell_executable("echo three")),
             ],
             error_on_output: false,
             stderr_to_stdout: false,
@@ -196,11 +193,10 @@ mod tests {
 
     #[test]
     fn sequential_commands() {
-        let group = Sequence::try_from(vec![
+        let group = Sequence::many(
             shell_executable("echo one"),
-            shell_executable("echo two"),
-        ])
-        .unwrap();
+            vec![shell_executable("echo two")],
+        );
         let exit_code = run(RunArgs {
             sequences: vec![group],
             error_on_output: false,
@@ -212,9 +208,7 @@ mod tests {
 
     #[test]
     fn sequence_stops_on_failure() {
-        let group =
-            Sequence::try_from(vec![shell_executable("exit 2"), shell_executable("exit 3")])
-                .unwrap();
+        let group = Sequence::many(shell_executable("exit 2"), vec![shell_executable("exit 3")]);
         let exit_code = run(RunArgs {
             sequences: vec![group],
             error_on_output: false,
@@ -227,7 +221,7 @@ mod tests {
     #[test]
     fn failing_command() {
         let exit_code = run(RunArgs {
-            sequences: vec![Sequence::from(shell_executable("false"))],
+            sequences: vec![Sequence::one(shell_executable("false"))],
             error_on_output: false,
             stderr_to_stdout: false,
             show: Show::Failed,
@@ -239,9 +233,9 @@ mod tests {
     fn returns_highest_exit_code() {
         let exit_code = run(RunArgs {
             sequences: vec![
-                Sequence::from(shell_executable("exit 0")),
-                Sequence::from(shell_executable("exit 2")),
-                Sequence::from(shell_executable("exit 1")),
+                Sequence::one(shell_executable("exit 0")),
+                Sequence::one(shell_executable("exit 2")),
+                Sequence::one(shell_executable("exit 1")),
             ],
             error_on_output: false,
             stderr_to_stdout: false,
@@ -260,7 +254,7 @@ mod tests {
             let mut command = Command::new("echo");
             command.arg("  ");
             let exit_code = run(RunArgs {
-                sequences: vec![Sequence::from(Executable {
+                sequences: vec![Sequence::one(Executable {
                     name: S(""),
                     command,
                 })],
@@ -274,7 +268,7 @@ mod tests {
         #[test]
         fn outputs_nothing() {
             let exit_code = run(RunArgs {
-                sequences: vec![Sequence::from(shell_executable("true"))],
+                sequences: vec![Sequence::one(shell_executable("true"))],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Failed,
@@ -287,16 +281,13 @@ mod tests {
             let mut command = Command::new("echo");
             command.arg("  ");
             let exit_code = run(RunArgs {
-                sequences: vec![
-                    Sequence::try_from(vec![
-                        Executable {
-                            name: S(""),
-                            command,
-                        },
-                        shell_executable("exit 3"),
-                    ])
-                    .unwrap(),
-                ],
+                sequences: vec![Sequence::many(
+                    Executable {
+                        name: S(""),
+                        command,
+                    },
+                    vec![shell_executable("exit 3")],
+                )],
                 error_on_output: true,
                 stderr_to_stdout: false,
                 show: Show::Failed,
