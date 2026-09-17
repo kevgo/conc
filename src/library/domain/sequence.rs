@@ -2,6 +2,7 @@ use super::Executable;
 use std::ops;
 
 /// one or multiple commands executing in sequence
+#[allow(clippy::len_without_is_empty)]
 #[derive(Debug, PartialEq)]
 pub struct Sequence {
     first: Executable,
