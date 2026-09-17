@@ -24,10 +24,6 @@ fn execute(executable: Executable) -> Result<CallResult, RunError> {
     }
 }
 
-fn run_single(executable: Executable, sender: &Sender<Result<CallResult, RunError>>) {
-    let _ = sender.send(execute(executable));
-}
-
 fn run_multiple(
     executables: Sequence,
     sender: &Sender<Result<CallResult, RunError>>,

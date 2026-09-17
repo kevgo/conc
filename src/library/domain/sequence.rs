@@ -17,25 +17,25 @@ impl Sequence {
     }
 }
 
-/// owning iterator over the commands in a [`Sequence`]
-pub struct IntoIter {
-    first: std::iter::Once<Executable>,
-    additional: std::vec::IntoIter<Executable>,
-}
-
 impl IntoIterator for Sequence {
     type Item = Executable;
-    type IntoIter = IntoIter;
+    type IntoIter = SequenceIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        IntoIter {
+        SequenceIter {
             first: std::iter::once(self.first),
             additional: self.additional.into_iter(),
         }
     }
 }
 
-impl Iterator for IntoIter {
+/// owning iterator over the commands in a [`Sequence`]
+pub struct SequenceIter {
+    first: std::iter::Once<Executable>,
+    additional: std::vec::IntoIter<Executable>,
+}
+
+impl Iterator for SequenceIter {
     type Item = Executable;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -48,7 +48,7 @@ impl Iterator for IntoIter {
     }
 }
 
-impl ExactSizeIterator for IntoIter {}
+impl ExactSizeIterator for SequenceIter {}
 
 impl From<Executable> for Sequence {
     fn from(executable: Executable) -> Sequence {
