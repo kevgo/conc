@@ -16,11 +16,11 @@ pub enum Command {
 
 /// Parses command-line arguments into separate commands by splitting on the separator token.
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
-    let mut runnables = vec![];
     let mut show = Show::Output;
     let mut error_on_output = false;
     let mut stderr_to_stdout = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
+    let mut sequences = vec![];
     for arg in args {
         if arg == "--" {
             parse_flags = false;
@@ -43,10 +43,10 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             }
             continue;
         }
-        runnables.push(Sequence::one(shell_executable(arg)));
+        sequences.push(Sequence::one(shell_executable(arg)));
     }
     Ok(Command::Run(RunArgs {
-        sequences: runnables,
+        sequences,
         error_on_output,
         stderr_to_stdout,
         show,
