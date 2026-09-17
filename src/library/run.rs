@@ -28,23 +28,23 @@ pub struct RunArgs {
 /// # Examples
 ///
 /// ```
-/// use conc::{Executable, RunArgs, Runnable, Show, run, shell_executable};
+/// use conc::{Executable, RunArgs, Sequence, Show, run, shell_executable};
 /// use std::process::ExitCode;
 /// use std::process::Command;
 ///
 /// let mut command = Command::new("echo");
 /// command.arg("one");
-/// let runnable1 = Runnable::Single(Executable {
+/// let sequence1 = Sequence::from(Executable {
 ///     name: "echo one".into(),
 ///     command,
 /// });
-/// let runnable2 = Runnable::Single(shell_executable("echo two"));
-/// let runnable3 = Runnable::Sequence(vec![
+/// let sequence2 = Sequence::from(shell_executable("echo two"));
+/// let sequence3 = Sequence::try_from(vec![
 ///     shell_executable("echo three"),
 ///     shell_executable("echo four"),
-/// ]);
+/// ]).unwrap();
 /// let args = RunArgs {
-///     runnables: vec![runnable1, runnable2, runnable3],
+///     sequences: vec![sequence1, sequence2, sequence3],
 ///     error_on_output: false,
 ///     stderr_to_stdout: false,
 ///     show: Show::Output,
