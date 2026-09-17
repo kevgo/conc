@@ -39,10 +39,10 @@ pub struct RunArgs {
 ///     command,
 /// });
 /// let sequence2 = Sequence::from(shell_executable("echo two"));
-/// let sequence3 = Sequence::try_from(vec![
-///     shell_executable("echo three"),
-///     shell_executable("echo four"),
-/// ]).unwrap();
+/// let sequence3 = Sequence {
+///     first: shell_executable("echo three"),
+///     additional: vec![shell_executable("echo four")],
+/// };
 /// let args = RunArgs {
 ///     sequences: vec![sequence1, sequence2, sequence3],
 ///     error_on_output: false,

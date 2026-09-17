@@ -5,9 +5,9 @@ use std::ops;
 #[allow(clippy::len_without_is_empty)]
 #[derive(Debug, PartialEq)]
 pub struct Sequence {
-    first: Executable,
+    pub first: Executable,
 
-    additional: Vec<Executable>,
+    pub additional: Vec<Executable>,
 }
 
 impl Sequence {
