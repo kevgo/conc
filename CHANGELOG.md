@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.9.0
+
+The conc API now exposes only a single `Sequence` struct that guarantees that there is always at least one element.
+
 ## 0.8.0
 
 Renamed `--show=all` to `--show=output`.
