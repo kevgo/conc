@@ -8,7 +8,7 @@ pub fn run(
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
-    run_multiple(runnable, sender, error_on_output)
+    run_multiple(runnable, sender, error_on_output);
 }
 
 fn execute(executable: Executable) -> Result<CallResult, RunError> {
