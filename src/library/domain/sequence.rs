@@ -17,6 +17,39 @@ impl Sequence {
     }
 }
 
+/// owning iterator over the commands in a [`Sequence`]
+pub struct IntoIter {
+    first: std::iter::Once<Executable>,
+    additional: std::vec::IntoIter<Executable>,
+}
+
+impl IntoIterator for Sequence {
+    type Item = Executable;
+    type IntoIter = IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IntoIter {
+            first: std::iter::once(self.first),
+            additional: self.additional.into_iter(),
+        }
+    }
+}
+
+impl Iterator for IntoIter {
+    type Item = Executable;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.first.next().or_else(|| self.additional.next())
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.first.len() + self.additional.len();
+        (remaining, Some(remaining))
+    }
+}
+
+impl ExactSizeIterator for IntoIter {}
+
 impl From<Executable> for Sequence {
     fn from(executable: Executable) -> Sequence {
         Sequence {
@@ -159,6 +192,36 @@ mod tests {
                 .len(),
                 3
             );
+        }
+    }
+
+    mod into_iter {
+        use super::make_executable;
+        use crate::Sequence;
+
+        #[test]
+        fn one() {
+            let sequence = Sequence::from(make_executable("a"));
+            let have: Vec<_> = sequence.into_iter().collect();
+            let want = vec![make_executable("a")];
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn many() {
+            let sequence = Sequence::try_from(vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ])
+            .unwrap();
+            let have: Vec<_> = sequence.into_iter().collect();
+            let want = vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ];
+            assert_eq!(have, want);
         }
     }
 }
