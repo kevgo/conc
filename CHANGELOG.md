@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.9.1
+
+New API function: `Sequence::from_vec`
+
 ## 0.9.0
 
 The conc API now exposes only a single `Sequence` struct that guarantees that there is always at least one element.
