@@ -28,6 +28,7 @@ impl Sequence {
     /// creates a sequence from the given executables
     ///
     /// If the given vector is empty, returns `None`.
+    #[must_use]
     pub fn from_vec(mut executables: Vec<Executable>) -> Option<Sequence> {
         if executables.is_empty() {
             return None;
