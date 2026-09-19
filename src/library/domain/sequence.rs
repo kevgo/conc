@@ -25,6 +25,19 @@ impl Sequence {
         Sequence { first, additional }
     }
 
+    /// creates a sequence from the given executables
+    ///
+    /// If the given vector is empty, returns `None`.
+    pub fn from_vec(mut executables: Vec<Executable>) -> Option<Sequence> {
+        if executables.is_empty() {
+            return None;
+        }
+        Some(Sequence {
+            first: executables.remove(0),
+            additional: executables,
+        })
+    }
+
     /// returns the number of commands in the sequence
     #[must_use]
     pub fn len(&self) -> usize {
@@ -97,6 +110,45 @@ mod tests {
         Executable {
             name: name.to_owned(),
             command: Command::new("true"),
+        }
+    }
+
+    mod from_vec {
+        use super::make_executable;
+        use crate::Sequence;
+
+        #[test]
+        fn empty() {
+            let give = vec![];
+            let have = Sequence::from_vec(give);
+            let want = None;
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn one() {
+            let give = vec![make_executable("a")];
+            let have = Sequence::from_vec(give);
+            let want = Some(Sequence {
+                first: make_executable("a"),
+                additional: vec![],
+            });
+            assert_eq!(have, want);
+        }
+
+        #[test]
+        fn many() {
+            let give = vec![
+                make_executable("a"),
+                make_executable("b"),
+                make_executable("c"),
+            ];
+            let have = Sequence::from_vec(give);
+            let want = Some(Sequence {
+                first: make_executable("a"),
+                additional: vec![make_executable("b"), make_executable("c")],
+            });
+            assert_eq!(have, want);
         }
     }
 
