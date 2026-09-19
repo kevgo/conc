@@ -4,6 +4,6 @@ Feature: display the version
     When I run "conc --version"
     Then STDOUT contains:
       """
-      conc 0.9.0
+      conc 0.9.1
       """
     And the exit code is 0
