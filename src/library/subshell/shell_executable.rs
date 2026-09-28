@@ -7,9 +7,7 @@ use std::process::Command;
 /// in a shell environment so that shell features can be used.
 ///
 /// In Unix-like environments, this uses the `sh` shell.
-/// In Windows, it uses `cmd.exe`.
-/// On Windows, a `.sh` or `.bash` file runs through Git Bash
-/// when Git for Windows is installed.
+/// In Windows, it runs bash scripts through Git bash, the rest through `cmd.exe`.
 #[must_use]
 pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
     let name = command.into();

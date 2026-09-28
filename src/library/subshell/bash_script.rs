@@ -7,6 +7,23 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+pub(super) fn is_bash_expression(runnable: &str) -> bool {
+    let Some(words) = shlex::split(runnable) else {
+        return false;
+    };
+
+    // the first word ends with .sh or .bash --> is a bash expression
+    let Some(first_word) = words.first() else {
+        return false;
+    };
+    if has_bash_extension(first_word) {
+        return true;
+    }
+
+    // the expression contains bashisms --> is a bash expression
+    words.iter().any(|word| is_bashism(word))
+}
+
 /// Builds a Git Bash command for `runnable` when it is a Bash script.
 ///
 /// `git_bash` is called only when the runnable is a script file.
@@ -23,24 +40,8 @@ where
     Some(command)
 }
 
-fn script_invocation(runnable: &str) -> Option<(String, Vec<String>)> {
-    let words = shlex::split(runnable)?;
-    if words.iter().any(|word| is_shell_operator(word)) {
-        return None;
-    }
-    let mut words = words.into_iter();
-    let program = words.next()?;
-    if !has_bash_extension(&program) {
-        return None;
-    }
-    Some((program, words.collect()))
-}
-
-fn is_shell_operator(word: &str) -> bool {
-    matches!(
-        word,
-        "&" | "&&" | "|" | "||" | ";" | ">" | ">>" | "<" | "<<" | "(" | ")"
-    )
+fn is_bashism(word: &str) -> bool {
+    matches!(word, "&&" | "||" | ";" | ">" | ">>" | "<" | "<<")
 }
 
 fn has_bash_extension(program: &str) -> bool {
