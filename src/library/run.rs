@@ -1,4 +1,4 @@
-use super::{CallResult, Sequence, Show};
+use super::{Sequence, Show};
 use crate::library::subshell;
 use colored::Colorize;
 use std::fmt::Debug;
@@ -88,7 +88,12 @@ pub fn run(args: RunArgs) -> ExitCode {
 }
 
 /// prints the result of a single command execution to stdout and stderr
-fn print_result(call_result: &CallResult, is_failed: bool, show: Show, stderr_to_stdout: bool) {
+fn print_result(
+    call_result: &subshell::CallResult,
+    is_failed: bool,
+    show: Show,
+    stderr_to_stdout: bool,
+) {
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
 
