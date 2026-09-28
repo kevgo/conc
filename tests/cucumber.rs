@@ -16,6 +16,27 @@ fn in_empty_folder(world: &mut World) {
     world.workspace = Some(tempfile::tempdir().unwrap());
 }
 
+#[given(expr = "a file {string} with content:")]
+fn a_file_with_content(world: &mut World, name: String, step: &Step) {
+    let workspace = world.workspace.as_ref().unwrap();
+    let path = workspace.path().join(name);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).unwrap();
+    }
+    let content = step.docstring().unwrap();
+    std::fs::write(&path, content).unwrap();
+    #[cfg(unix)]
+    make_executable(&path);
+}
+
+#[cfg(unix)]
+fn make_executable(path: &std::path::Path) {
+    use std::os::unix::fs::PermissionsExt;
+    let mut permissions = std::fs::metadata(path).unwrap().permissions();
+    permissions.set_mode(0o755);
+    std::fs::set_permissions(path, permissions).unwrap();
+}
+
 #[when(expr = "I run {string}")]
 async fn i_run(world: &mut World, command: String) {
     let mut args = shellwords::split(&command).unwrap().into_iter();

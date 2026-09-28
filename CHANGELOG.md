@@ -1,5 +1,9 @@
 # conc changelog
 
+## Unreleased
+
+- On Windows, `.sh` and `.bash` files run through Git Bash when it is installed
+
 ## 0.9.1
 
 New API function: `Sequence::from_vec`

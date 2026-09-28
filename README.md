@@ -37,6 +37,10 @@ Commands are executed inside a shell
 conc "echo one && echo two | grep on > file"
 ```
 
+On Windows, a `.sh` or `.bash` file runs through Git Bash
+when Git for Windows is installed.
+If Git Bash is not installed, the file runs through `cmd.exe`.
+
 ## output verbosity
 
 When running linters, tests, or compilers,
