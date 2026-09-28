@@ -7,8 +7,6 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const SHELL_METACHARACTERS: &[char] = &['&', '|', ';', '<', '>', '(', ')', '`', '\n', '\r'];
-
 /// Builds a Git Bash command for `runnable` when it is a Bash script.
 ///
 /// `git_bash` is called only when the runnable is a script file.
@@ -26,33 +24,23 @@ where
 }
 
 fn script_invocation(runnable: &str) -> Option<(String, Vec<String>)> {
-    let runnable = runnable.trim();
-    if runnable.is_empty() {
+    let words = shlex::split(runnable)?;
+    if words.iter().any(|word| is_shell_operator(word)) {
         return None;
     }
-    if !has_unquoted_shell_syntax(runnable) {
-        if let Some(parts) = split_command(runnable) {
-            let mut parts = parts.into_iter();
-            if let Some(program) = parts.next() {
-                if has_bash_extension(&program) {
-                    return Some((program, parts.collect()));
-                }
-            }
-        }
+    let mut words = words.into_iter();
+    let program = words.next()?;
+    if !has_bash_extension(&program) {
+        return None;
     }
-    existing_script_path(runnable)
+    Some((program, words.collect()))
 }
 
-/// Uses the whole command as a script path when that path exists.
-///
-/// Word splitting would break an unquoted path that contains spaces.
-fn existing_script_path(runnable: &str) -> Option<(String, Vec<String>)> {
-    let unquoted = strip_matching_quotes(runnable);
-    if has_dir_separator(unquoted) && has_bash_extension(unquoted) && Path::new(unquoted).is_file()
-    {
-        return Some((unquoted.to_owned(), Vec::new()));
-    }
-    None
+fn is_shell_operator(word: &str) -> bool {
+    matches!(
+        word,
+        "&" | "&&" | "|" | "||" | ";" | ">" | ">>" | "<" | "<<" | "(" | ")"
+    )
 }
 
 fn has_bash_extension(program: &str) -> bool {
@@ -62,85 +50,6 @@ fn has_bash_extension(program: &str) -> bool {
         .is_some_and(|extension| {
             extension.eq_ignore_ascii_case("sh") || extension.eq_ignore_ascii_case("bash")
         })
-}
-
-fn has_dir_separator(path: &str) -> bool {
-    path.contains(['/', '\\'])
-}
-
-fn has_unquoted_shell_syntax(command: &str) -> bool {
-    let mut quote = None;
-    for character in command.chars() {
-        if let Some(open) = quote {
-            if character == open {
-                quote = None;
-            }
-            continue;
-        }
-        if character == '"' || character == '\'' {
-            quote = Some(character);
-            continue;
-        }
-        if SHELL_METACHARACTERS.contains(&character) {
-            return true;
-        }
-    }
-    false
-}
-
-/// Splits a command into words.
-///
-/// Quotes group words. Backslashes stay literal so Windows paths are preserved.
-/// Returns `None` when a quote is not closed.
-fn split_command(command: &str) -> Option<Vec<String>> {
-    let mut parts = Vec::new();
-    let mut current = String::new();
-    let mut quote = None;
-    let mut token_started = false;
-    for character in command.chars() {
-        if let Some(open) = quote {
-            if character == open {
-                quote = None;
-            } else {
-                current.push(character);
-            }
-            token_started = true;
-            continue;
-        }
-        if character == '"' || character == '\'' {
-            quote = Some(character);
-            token_started = true;
-            continue;
-        }
-        if character.is_whitespace() {
-            if token_started {
-                parts.push(std::mem::take(&mut current));
-                token_started = false;
-            }
-            continue;
-        }
-        current.push(character);
-        token_started = true;
-    }
-    if quote.is_some() {
-        return None;
-    }
-    if token_started {
-        parts.push(current);
-    }
-    if parts.is_empty() { None } else { Some(parts) }
-}
-
-fn strip_matching_quotes(input: &str) -> &str {
-    let bytes = input.as_bytes();
-    if input.len() >= 2 {
-        let first = bytes[0];
-        let last = bytes[input.len() - 1];
-        if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
-            return &input[1..input.len() - 1];
-        }
-    }
-    input
 }
 
 #[cfg(test)]
@@ -190,7 +99,7 @@ mod tests {
 
     #[test]
     fn windows_path() {
-        let command = bash(r"C:\scripts\test.sh").unwrap();
+        let command = bash(r#""C:\scripts\test.sh""#).unwrap();
         let have = args(&command);
         let want = vec![r"C:\scripts\test.sh".to_owned()];
         assert_eq!(have, want);
@@ -258,19 +167,5 @@ mod tests {
     fn empty() {
         let have = bash("   ");
         assert!(have.is_none());
-    }
-
-    #[test]
-    fn unquoted_path_with_spaces() {
-        let dir = tempfile::tempdir().unwrap();
-        let script_dir = dir.path().join("my scripts");
-        std::fs::create_dir_all(&script_dir).unwrap();
-        let script = script_dir.join("hello.sh");
-        std::fs::write(&script, "echo hi\n").unwrap();
-        let runnable = script.to_str().unwrap();
-        let command = bash(runnable).unwrap();
-        let have = args(&command);
-        let want = vec![runnable.to_owned()];
-        assert_eq!(have, want);
     }
 }

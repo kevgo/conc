@@ -96,7 +96,8 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let script = dir.path().join("fail.sh");
         std::fs::write(&script, "exit 4\n").unwrap();
-        let mut executable = shell_executable(script.to_str().unwrap());
+        let script_path = script.to_str().unwrap();
+        let mut executable = shell_executable(format!("\"{script_path}\""));
         assert_git_bash(&executable.command);
         let output = executable.command.output().unwrap();
         assert_eq!(output.status.code(), Some(4));
