@@ -36,8 +36,10 @@ pub fn shell_command(command: &str) -> Command {
 #[cfg(windows)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
-    if let Some(bash) = bash_script::bash_command(command, git_bash::find) {
-        return bash;
+    if bash_script::is_bash_expression(command) {
+        if let Some(bash_path) = git_bash::find() {
+            return bash_command(command, bash_path);
+        }
     }
     cmd_command(command)
 }

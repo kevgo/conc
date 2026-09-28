@@ -28,10 +28,7 @@ pub(super) fn is_bash_expression(runnable: &str) -> bool {
 ///
 /// `git_bash` is called only when the runnable is a script file.
 #[must_use]
-pub(super) fn bash_command<F>(runnable: &str, git_bash: F) -> Option<Command>
-where
-    F: FnOnce() -> Option<PathBuf>,
-{
+pub(super) fn bash_command<F>(runnable: &str, bash_path: &str) -> Option<Command> {
     let (program, args) = script_invocation(runnable)?;
     let bash = git_bash()?;
     let mut command = Command::new(bash);
