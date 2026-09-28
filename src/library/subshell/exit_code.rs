@@ -1,4 +1,4 @@
-pub(crate) fn to_exitcode_u8(value: i32) -> u8 {
+pub fn to_exitcode_u8(value: i32) -> u8 {
     if value == i32::MIN {
         return 255;
     }

@@ -1,6 +1,6 @@
 use std::io;
 
-pub(crate) struct RunError {
+pub struct RunError {
     /// display version of the command that failed to execute
     pub name: String,
     /// the error that occurred while executing the command
