@@ -1,4 +1,5 @@
-RTA_VERSION = 0.36.0  # run-that-app version to use
+# run-that-app version to use
+RTA_VERSION = 0.36.0
 
 ifeq ($(OS),Windows_NT)
   EXE = .exe
