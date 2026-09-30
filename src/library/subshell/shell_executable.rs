@@ -34,7 +34,7 @@ pub fn shell_command(command: &str) -> Command {
 #[cfg(windows)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
-    let mut cmd = Command::new("cmd.exe");
-    cmd.arg("/C").arg(command);
+    let mut cmd = Command::new("bash.exe");
+    cmd.arg("-c").arg(command);
     cmd
 }
