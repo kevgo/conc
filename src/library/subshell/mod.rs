@@ -1,6 +1,5 @@
 #[cfg(any(windows, test))]
 mod bash_script;
-mod exit_code;
 #[cfg(any(windows, test))]
 mod git_bash;
 mod run;

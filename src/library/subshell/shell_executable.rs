@@ -7,9 +7,7 @@ use std::process::Command;
 /// in a shell environment so that shell features can be used.
 ///
 /// In Unix-like environments, this uses the `sh` shell.
-/// In Windows, it uses `cmd.exe`.
-/// On Windows, a `.sh` or `.bash` file runs through Git Bash
-/// when Git for Windows is installed.
+/// In Windows, it runs bash scripts through Git bash, the rest through `cmd.exe`.
 #[must_use]
 pub fn shell_executable<IS: Into<String>>(command: IS) -> Executable {
     let name = command.into();
@@ -38,8 +36,10 @@ pub fn shell_command(command: &str) -> Command {
 #[cfg(windows)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
-    if let Some(bash) = bash_script::bash_command(command, git_bash::find) {
-        return bash;
+    if bash_script::is_bash_expression(command) {
+        if let Some(bash_path) = git_bash::find() {
+            return bash_command(command, bash_path);
+        }
     }
     cmd_command(command)
 }
