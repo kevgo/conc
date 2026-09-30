@@ -6,7 +6,7 @@ else
   EXE =
 endif
 
-RTA          = tools/rta@${RTA_VERSION}${EXE}
+RTA          = tools/rta@$(RTA_VERSION)$(EXE)
 DPRINT       = $(RTA) dprint
 GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
 GHOKIN       = $(RTA) ghokin
@@ -75,7 +75,7 @@ update:  # updates the dependencies
 
 ${RTA}:
 	@rm -f tools/rta*
-	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s -- --version ${RTA_VERSION} --name rta@${RTA_VERSION}${EXE})
+	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s -- --version ${RTA_VERSION} --name rta@${RTA_VERSION})
 
 .DEFAULT_GOAL := help
 .SILENT:
