@@ -1,6 +1,12 @@
 RTA_VERSION = 0.36.0  # run-that-app version to use
 
-RTA          = tools/rta@${RTA_VERSION}
+ifeq ($(OS),Windows_NT)
+  EXE = .exe
+else
+  EXE =
+endif
+
+RTA          = tools/rta@${RTA_VERSION}${EXE}
 DPRINT       = $(RTA) dprint
 GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
 GHOKIN       = $(RTA) ghokin
@@ -69,7 +75,7 @@ update:  # updates the dependencies
 
 ${RTA}:
 	@rm -f tools/rta*
-	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s -- --version ${RTA_VERSION} --name rta@${RTA_VERSION})
+	@(cd tools && curl https://raw.githubusercontent.com/kevgo/run-that-app/main/download.sh | sh -s -- --version ${RTA_VERSION} --name rta@${RTA_VERSION}${EXE})
 
 .DEFAULT_GOAL := help
 .SILENT:
