@@ -1,4 +1,3 @@
-mod exit_code;
 mod run;
 mod run_error;
 mod shell_executable;
