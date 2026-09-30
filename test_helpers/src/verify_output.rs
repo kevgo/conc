@@ -56,8 +56,8 @@ mod tests {
 
     #[test]
     fn windows_bash_correct() {
-        let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'");
-        let wants = vec![S("line 1"), S("{shell} 'echo hello'")];
+        let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3");
+        let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
         verify_output("stdout", have, &wants, "bash.exe -c");
     }
 
@@ -66,15 +66,15 @@ mod tests {
         expected = "Didn't find '{shell} 'echo hello'' in stdout\nremaining unchecked text in stdout:\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo zonk'"
     )]
     fn windows_bash_incorrect() {
-        let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo zonk'");
-        let wants = vec![S("line 1"), S("{shell} 'echo hello'")];
+        let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo zonk'\nline 3");
+        let wants = vec![S("line 1"), S("{shell} 'echo zonk'"), S("line 3")];
         verify_output("stdout", have, &wants, "bash.exe -c");
     }
 
     #[test]
     fn unix_sh() {
-        let have = S("line 1\nsh -c 'echo hello'");
-        let wants = vec![S("line 1"), S("{shell} 'echo hello'")];
+        let have = S("line 1\nsh -c 'echo hello'\nline 3");
+        let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
         verify_output("stdout", have, &wants, "sh -c");
     }
 }
