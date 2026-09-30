@@ -24,6 +24,8 @@ jobs:
         shell: bash
       - run: which bash.exe
         shell: bash
+      - run: echo $PATH
+        shell: bash
       - run: make setup
         shell: bash
       - run: make test
