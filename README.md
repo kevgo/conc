@@ -41,6 +41,7 @@ conc "echo one && echo two | grep on > file"
 Conc uses `sh` on Linux/macOS and `bash.exe` on Windows.
 On Windows, please run Conc inside an environment
 that has `bash.exe` in the PATH, for example inside Git Bash.
+If no `bash.exe` is found in the PATH, conc falls back to `cmd.exe`.
 
 ## output verbosity
 
