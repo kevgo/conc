@@ -60,4 +60,11 @@ mod tests {
         let wants = vec![S("{shell} 'echo hello'")];
         verify_output("stdout", have, &wants, "bash.exe -c");
     }
+
+    #[test]
+    fn unix_sh() {
+        let have = S("sh -c 'echo hello'");
+        let wants = vec![S("{shell} 'echo hello'")];
+        verify_output("stdout", have, &wants, "sh -c");
+    }
 }
