@@ -1,6 +1,13 @@
-RTA_VERSION = 0.36.0  # run-that-app version to use
+# run-that-app version to use
+RTA_VERSION = 0.36.0
 
-RTA          = tools/rta@${RTA_VERSION}
+ifeq ($(OS),Windows_NT)
+  EXE = .exe
+else
+  EXE =
+endif
+
+RTA          = tools/rta@$(RTA_VERSION)$(EXE)
 DPRINT       = $(RTA) dprint
 GHERKIN_LINT = $(NPM) exec --yes gherkin-lint
 GHOKIN       = $(RTA) ghokin
