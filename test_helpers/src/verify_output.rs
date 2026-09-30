@@ -2,7 +2,7 @@
 /// against the collected expected output
 ///
 /// # Panics
-pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
+pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
         assert!(
             have.contains(want),
@@ -23,7 +23,7 @@ mod tests {
     fn exact_match() {
         let have = S("hello world");
         let wants = vec![S("hello"), S("world")];
-        verify_output("stdout", have, &wants);
+        verify_output("stdout", have, &wants, "");
     }
 
     #[test]
@@ -31,7 +31,7 @@ mod tests {
     fn expect_too_little() {
         let have = S("hello world");
         let wants = vec![S("hello")];
-        verify_output("stdout", have, &wants);
+        verify_output("stdout", have, &wants, "");
     }
 
     #[test]
@@ -41,7 +41,7 @@ mod tests {
     fn expect_too_much() {
         let have = S("hello world");
         let wants = vec![S("hello"), S("world"), S("extra")];
-        verify_output("stdout", have, &wants);
+        verify_output("stdout", have, &wants, "");
     }
 
     #[test]
@@ -51,6 +51,13 @@ mod tests {
     fn different() {
         let have = S("hello");
         let wants = vec![S("hallo")];
-        verify_output("stdout", have, &wants);
+        verify_output("stdout", have, &wants, "");
+    }
+
+    #[test]
+    fn windows_bash() {
+        let have = S("c:\\Program Files\\Git\\bash.exe -c 'echo hello'");
+        let wants = vec![S("{shell} 'echo hello'")];
+        verify_output("stdout", have, &wants, "bash.exe -c");
     }
 }

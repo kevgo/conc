@@ -44,13 +44,13 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 #[then("STDOUT contains:")]
 fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stdout.push(test_helpers::substitute_placeholders(want_block, SHELL));
+    world.want_stdout.push(want_block);
 }
 
 #[then("STDERR contains:")]
 fn stderr_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stderr.push(test_helpers::substitute_placeholders(want_block, SHELL));
+    world.want_stderr.push(want_block);
 }
 
 /// the program and first argument used to run commands in a shell, per platform
