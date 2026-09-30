@@ -18,9 +18,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Run in Git Bash
+      - run: bash --version
         shell: bash
-        run: bash --version
+      - run: which bash
+        shell: bash
+      - run: which bash.exe
+        shell: bash
       - run: make setup
         shell: bash
       - run: make test
