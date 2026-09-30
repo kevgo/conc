@@ -31,15 +31,16 @@ conc "echo one" \
 ```
 
 Conc is intended for cross-platform use cases.
-All commands are executed inside a Unix shell,
-so you can use shell features:
+All commands are executed inside a Unix shell, so you can use shell features:
 
 ```text
 conc "echo one && echo two | grep on > file"
 ```
 
-Conc uses `sh` on Linux/macOS and `bash.exe` if availbale on Windows, otherwise `cmd.exe`.
-It is recommended to run Conc inside a shell that has `bash.exe` in the PATH, for example from inside Git Bash.
+Conc uses `sh` on Linux/macOS and `bash.exe` if availbale on Windows,
+otherwise `cmd.exe`.
+It is recommended to run Conc inside a shell that has `bash.exe` in the PATH,
+for example from inside Git Bash.
 
 ## output verbosity
 
