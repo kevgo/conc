@@ -44,13 +44,13 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 #[then("STDOUT contains:")]
 fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stdout.push(substitute_placeholders(want_block));
+    world.want_stdout.push(test_helpers::substitute_placeholders(want_block, SHELL));
 }
 
 #[then("STDERR contains:")]
 fn stderr_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stderr.push(substitute_placeholders(want_block));
+    world.want_stderr.push(test_helpers::substitute_placeholders(want_block, SHELL));
 }
 
 /// the program and first argument used to run commands in a shell, per platform
@@ -60,11 +60,6 @@ const SHELL: &str = "sh -c";
 /// the program and first argument used to run commands in a shell, per platform
 #[cfg(windows)]
 const SHELL: &str = "bash.exe -c";
-
-/// replaces platform-specific placeholders in expected output with their concrete values
-fn substitute_placeholders(text: &str) -> String {
-    text.replace("{shell}", SHELL)
-}
 
 #[then("the output is empty")]
 fn the_output_is_empty(world: &mut World) {
