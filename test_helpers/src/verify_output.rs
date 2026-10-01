@@ -206,11 +206,13 @@ mod tests {
 
         #[test]
         fn match_shell_line() {
-            let have = "line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3";
-            let expected = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
-            let range = matched_range(have, "{shell} 'echo hello'", "bash.exe -c");
-            assert_eq!(range, Some(7..7 + expected.len()));
-            assert_eq!(range.map(|span| &have[span]), Some(expected));
+            let haystack = "line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3";
+            let needle = "{shell} 'echo hello'";
+            let want = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(7..7 + want.len()));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(want));
         }
 
         #[test]
