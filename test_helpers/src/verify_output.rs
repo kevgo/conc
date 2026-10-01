@@ -242,10 +242,11 @@ mod tests {
 
         #[test]
         fn across_placeholder() {
-            let have = "ab\nsh -c cd";
-            let range = matched_range(have, "b\n{shell} c", "sh -c");
-            assert_eq!(range, Some(1..10));
-            assert_eq!(range.map(|span| &have[span]), Some("b\nsh -c c"));
+            let haystack = "ab\nsh -c cd";
+            let needle = "b\n{shell} c";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, Some(1..10));
+            assert_eq!(have.map(|span| &haystack[span]), Some("b\nsh -c c"));
         }
 
         #[test]
