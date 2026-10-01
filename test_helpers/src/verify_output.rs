@@ -222,7 +222,7 @@ mod tests {
         }
 
         #[test]
-        fn first_shell_only() {
+        fn matches_only_once() {
             let haystack = "bash.exe -c one\nbash.exe -c one";
             let needle = "{shell} one";
             let have = matched_range(haystack, needle, "bash.exe -c");
@@ -233,10 +233,11 @@ mod tests {
 
         #[test]
         fn skips_absorbed_text() {
-            let have = "aa bash.exe -c aa";
-            let range = matched_range(have, "aa", "bash.exe -c");
-            assert_eq!(range, Some(15..17));
-            assert_eq!(range.map(|span| &have[span]), Some("aa"));
+            let haystack = "aa bash.exe -c aa";
+            let needle = "aa";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(15..17));
+            assert_eq!(have.map(|span| &haystack[span]), Some(needle));
         }
 
         #[test]
