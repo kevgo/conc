@@ -157,8 +157,13 @@ mod tests {
 
         #[test]
         fn empty_want() {
-            assert_eq!(matched_range("hello", "", ""), None);
-            assert_eq!(matched_range("sh -c hello", "", "sh -c"), None);
+            let haystack = "hello";
+            let needle = "";
+            assert_eq!(matched_range(haystack, needle, ""), None);
+
+            let haystack = "sh -c hello";
+            let needle = "";
+            assert_eq!(matched_range(haystack, needle, "sh -c"), None);
         }
 
         #[test]
