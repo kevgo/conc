@@ -179,7 +179,10 @@ mod tests {
         #[test]
         fn before_shell() {
             let have = "line 1\nsh -c 'echo hello'\nline 3";
-            assert_eq!(matched_range(have, "line 1", "sh -c"), Some(0..6));
+            let range = matched_range(have, "line 1", "sh -c");
+            assert_eq!(range, Some(0..6));
+            let matched_text = range.map(|span| &have[span]);
+            assert_eq!(matched_text, Some("line 1"));
         }
 
         #[test]
