@@ -21,21 +21,21 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-fn matched_range(have: &str, want: &str, shell: &str) -> Option<std::ops::Range<usize>> {
-    if want.is_empty() {
+fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<std::ops::Range<usize>> {
+    if needle.is_empty() {
         return None;
     }
-    let Some(span) = shell_span(have, shell) else {
-        let start = have.find(want)?;
-        return Some(start..start + want.len());
+    let Some(span) = shell_span(haystack, shell) else {
+        let start = haystack.find(needle)?;
+        return Some(start..start + needle.len());
     };
     let normalized = format!(
         "{}{SHELL_PLACEHOLDER}{}",
-        &have[..span.start],
-        &have[span.end..]
+        &haystack[..span.start],
+        &haystack[span.end..]
     );
-    let start = normalized.find(want)?;
-    Some(span.original_range(start, start + want.len()))
+    let start = normalized.find(needle)?;
+    Some(span.original_range(start, start + needle.len()))
 }
 
 fn shell_span(have: &str, shell: &str) -> Option<ShellSpan> {
@@ -162,8 +162,9 @@ mod tests {
         }
 
         #[test]
-        fn literal() {
+        fn literal_match() {
             let give = "hello world";
+
             let have = matched_range(give, "world", "");
             assert_eq!(have, Some(6..11));
             let matched_text = have.map(|span| &give[span]);
@@ -176,13 +177,13 @@ mod tests {
         }
 
         #[test]
-        fn missing() {
+        fn mismatch() {
             assert_eq!(matched_range("hello", "zonk", ""), None);
             assert_eq!(matched_range("sh -c hello", "{shell} zonk", "sh -c"), None);
         }
 
         #[test]
-        fn before_shell() {
+        fn match_before_shell() {
             let have = "line 1\nsh -c 'echo hello'\nline 3";
             let range = matched_range(have, "line 1", "sh -c");
             assert_eq!(range, Some(0..6));
@@ -191,7 +192,7 @@ mod tests {
         }
 
         #[test]
-        fn after_shell() {
+        fn match_after_shell() {
             let have = "line 1\nsh -c 'echo hello'\nline 3";
             let range = matched_range(have, "line 3", "sh -c");
             assert_eq!(range, Some(26..32));
@@ -200,7 +201,7 @@ mod tests {
         }
 
         #[test]
-        fn shell_line() {
+        fn match_shell_line() {
             let have = "line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3";
             let expected = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
             let range = matched_range(have, "{shell} 'echo hello'", "bash.exe -c");
