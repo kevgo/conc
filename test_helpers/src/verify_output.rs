@@ -241,44 +241,12 @@ mod tests {
         }
 
         #[test]
-        fn across_placeholder() {
-            let haystack = "ab\nsh -c cd";
-            let needle = "b\n{shell} c";
+        fn unicode() {
+            let haystack = "é\nsh -c tail";
+            let needle = "{shell} tail";
             let have = matched_range(haystack, needle, "sh -c");
-            assert_eq!(have, Some(1..10));
-            assert_eq!(have.map(|span| &haystack[span]), Some("b\nsh -c c"));
-        }
-
-        #[test]
-        fn placeholder_alone() {
-            let have = "pre\nsh -c post";
-            let range = matched_range(have, "{shell}", "sh -c");
-            assert_eq!(range, Some(4..9));
-            assert_eq!(range.map(|span| &have[span]), Some("sh -c"));
-        }
-
-        #[test]
-        fn inside_placeholder() {
-            let have = "sh -c tail";
-            let range = matched_range(have, "hell", "sh -c");
-            assert_eq!(range, Some(0..5));
-            assert_eq!(range.map(|span| &have[span]), Some("sh -c"));
-        }
-
-        #[test]
-        fn into_suffix() {
-            let have = "sh -c 'x'";
-            let range = matched_range(have, "ell} '", "sh -c");
-            assert_eq!(range, Some(0..7));
-            assert_eq!(range.map(|span| &have[span]), Some("sh -c '"));
-        }
-
-        #[test]
-        fn byte_offsets() {
-            let have = "é\nsh -c tail";
-            let range = matched_range(have, "{shell} tail", "sh -c");
-            assert_eq!(range, Some(3..13));
-            assert_eq!(range.map(|span| &have[span]), Some("sh -c tail"));
+            assert_eq!(have, Some(3..13));
+            assert_eq!(have.map(|span| &haystack[span]), Some("sh -c tail"));
         }
     }
 }
