@@ -170,10 +170,11 @@ mod tests {
         fn literal_match() {
             let haystack = "hello world";
 
-            let have = matched_range(haystack, "world", "");
+            let needle = "world";
+            let have = matched_range(haystack, needle, "");
             assert_eq!(have, Some(6..11));
             let have_text = have.map(|span| &haystack[span]);
-            assert_eq!(have_text, Some("world"));
+            assert_eq!(have_text, Some(needle));
 
             let have = matched_range(haystack, "hello", "bash.exe -c");
             assert_eq!(have, Some(0..5));
