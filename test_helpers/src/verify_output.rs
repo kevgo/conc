@@ -20,7 +20,7 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
 /// Returns `have` with the first match of `want` removed, and whether any match was found.
 fn remove_matches(mut have: String, want: &str, shell: &str) -> (String, bool) {
     if want.is_empty() {
-        return (have, true);
+        return (have, false);
     }
     let normalized = normalize_shell_lines(&have, shell);
     let Some(start) = normalized.text.find(want) else {
