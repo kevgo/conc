@@ -151,4 +151,121 @@ mod tests {
              c:\\Program Files\\Git\\bin\\bash.exe -c 'echo two'")];
         verify_output("stdout", have, &wants, "bash.exe -c");
     }
+
+    mod matched_range {
+        use super::*;
+
+        #[test]
+        fn empty_want() {
+            assert_eq!(matched_range("hello", "", ""), None);
+            assert_eq!(matched_range("sh -c hello", "", "sh -c"), None);
+        }
+
+        #[test]
+        fn literal() {
+            assert_eq!(matched_range("hello world", "world", ""), Some(6..11));
+            assert_eq!(
+                matched_range("hello world", "hello", "bash.exe -c"),
+                Some(0..5)
+            );
+        }
+
+        #[test]
+        fn missing() {
+            assert_eq!(matched_range("hello", "zonk", ""), None);
+            assert_eq!(matched_range("sh -c hello", "{shell} zonk", "sh -c"), None);
+        }
+
+        #[test]
+        fn before_shell() {
+            let have = "line 1\nsh -c 'echo hello'\nline 3";
+            assert_eq!(matched_range(have, "line 1", "sh -c"), Some(0..6));
+        }
+
+        #[test]
+        fn after_shell() {
+            let have = "line 1\nsh -c 'echo hello'\nline 3";
+            let range = matched_range(have, "line 3", "sh -c");
+            assert_eq!(range, Some(26..32));
+            let matched_text = range.map(|span| &have[span]);
+            assert_eq!(matched_text, Some("line 3"));
+        }
+
+        #[test]
+        fn shell_line() {
+            let have = "line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3";
+            let expected = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
+            let range = matched_range(have, "{shell} 'echo hello'", "bash.exe -c");
+            assert_eq!(range, Some(7..7 + expected.len()));
+            assert_eq!(range.map(|span| &have[span]), Some(expected));
+        }
+
+        #[test]
+        fn hides_shell_span() {
+            let have = "c:\\bin\\bash.exe -c hello";
+            assert_eq!(matched_range(have, "c:\\bin\\", "bash.exe -c"), None);
+            assert_eq!(matched_range(have, "bash.exe -c", "bash.exe -c"), None);
+            assert_eq!(
+                matched_range(have, "{shell} hello", "bash.exe -c"),
+                Some(0..have.len())
+            );
+        }
+
+        #[test]
+        fn first_shell_only() {
+            let have = "bash.exe -c one\nbash.exe -c two";
+            assert_eq!(
+                matched_range(have, "{shell} one\nbash.exe -c two", "bash.exe -c"),
+                Some(0..have.len())
+            );
+        }
+
+        #[test]
+        fn skips_absorbed_text() {
+            let have = "aa bash.exe -c aa";
+            let range = matched_range(have, "aa", "bash.exe -c");
+            assert_eq!(range, Some(15..17));
+            assert_eq!(range.map(|span| &have[span]), Some("aa"));
+        }
+
+        #[test]
+        fn across_placeholder() {
+            let have = "ab\nsh -c cd";
+            let range = matched_range(have, "b\n{shell} c", "sh -c");
+            assert_eq!(range, Some(1..10));
+            assert_eq!(range.map(|span| &have[span]), Some("b\nsh -c c"));
+        }
+
+        #[test]
+        fn placeholder_alone() {
+            let have = "pre\nsh -c post";
+            let range = matched_range(have, "{shell}", "sh -c");
+            assert_eq!(range, Some(4..9));
+            assert_eq!(range.map(|span| &have[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn inside_placeholder() {
+            let have = "sh -c tail";
+            let range = matched_range(have, "hell", "sh -c");
+            assert_eq!(range, Some(0..5));
+            assert_eq!(range.map(|span| &have[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn into_suffix() {
+            let have = "sh -c 'x'";
+            let range = matched_range(have, "ell} '", "sh -c");
+            assert_eq!(range, Some(0..7));
+            assert_eq!(range.map(|span| &have[span]), Some("sh -c '"));
+        }
+
+        #[test]
+        fn byte_offsets() {
+            let have = "é\nsh -c tail";
+            let range = matched_range(have, "{shell} tail", "sh -c");
+            assert_eq!(range, Some(3..13));
+            assert_eq!(range.map(|span| &have[span]), Some("sh -c tail"));
+        }
+    }
 }
