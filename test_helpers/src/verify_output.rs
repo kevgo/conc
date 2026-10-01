@@ -27,81 +27,102 @@ fn remove_matches(mut have: String, want: &str, shell: &str) -> (String, bool) {
         return (have, false);
     };
     let end = start + want.len();
-    let Some(&(orig_start, _)) = normalized.origins.get(start) else {
+    let Some((orig_start, orig_end)) = normalized.original_range(start, end, have.len()) else {
         return (have, false);
     };
-    let Some(&(_, orig_end)) = normalized.origins.get(end - 1) else {
-        return (have, false);
-    };
-    if orig_start >= orig_end || orig_end > have.len() {
-        return (have, false);
-    }
     have.replace_range(orig_start..orig_end, "");
     (have, true)
 }
 
-/// `have` with shell path prefixes replaced by `{shell}`.
-///
-/// `origins[i]` is the original byte range that produced normalized byte `i`.
+/// `have` with the first shell path prefix replaced by `{shell}`.
 struct NormalizedText {
     text: String,
-    origins: Vec<(usize, usize)>,
+    /// The replaced span. `{shell}` begins at `origin_start` in `text`.
+    replacement: Option<ShellReplacement>,
+}
+
+/// Original bytes replaced by the first `{shell}`.
+///
+/// The span runs from the start of that line through the end of `shell`.
+#[derive(Clone, Copy)]
+struct ShellReplacement {
+    origin_start: usize,
+    origin_end: usize,
 }
 
 fn normalize_shell_lines(have: &str, shell: &str) -> NormalizedText {
-    let mut text = String::with_capacity(have.len());
-    let mut origins = Vec::with_capacity(have.len());
+    let Some(shell_at) = find_shell(have, shell) else {
+        return NormalizedText {
+            text: have.to_owned(),
+            replacement: None,
+        };
+    };
+    let origin_start = line_start(have, shell_at);
+    let origin_end = shell_at + shell.len();
+    let text = format!(
+        "{}{SHELL_PLACEHOLDER}{}",
+        &have[..origin_start],
+        &have[origin_end..]
+    );
+    NormalizedText {
+        text,
+        replacement: Some(ShellReplacement {
+            origin_start,
+            origin_end,
+        }),
+    }
+}
+
+fn find_shell(have: &str, shell: &str) -> Option<usize> {
     if shell.is_empty() {
-        push_verbatim(&mut text, &mut origins, have, 0);
-        return NormalizedText { text, origins };
+        None
+    } else {
+        have.find(shell)
     }
-    let mut offset = 0;
-    for segment in have.split_inclusive('\n') {
-        let segment_start = offset;
-        offset += segment.len();
-        let (body, newline) = split_line_ending(segment);
-        if let Some(index) = body.find(shell) {
-            let replaced_end = segment_start + index + shell.len();
-            push_placeholder(&mut text, &mut origins, segment_start, replaced_end);
-            push_verbatim(
-                &mut text,
-                &mut origins,
-                &body[index + shell.len()..],
-                replaced_end,
-            );
-        } else {
-            push_verbatim(&mut text, &mut origins, body, segment_start);
+}
+
+/// Byte index of the line that contains `index`.
+fn line_start(text: &str, index: usize) -> usize {
+    match text[..index].rfind('\n') {
+        Some(newline) => newline + 1,
+        None => 0,
+    }
+}
+
+impl NormalizedText {
+    /// Maps a match `start..end` in `text` back to a byte range in the original text.
+    fn original_range(&self, start: usize, end: usize, have_len: usize) -> Option<(usize, usize)> {
+        if start >= end || end > self.text.len() {
+            return None;
         }
-        push_verbatim(&mut text, &mut origins, newline, segment_start + body.len());
+        let Some(replacement) = self.replacement else {
+            return valid_range(start, end, have_len);
+        };
+        let placeholder_end = replacement.origin_start + SHELL_PLACEHOLDER.len();
+        let orig_start = if start < replacement.origin_start {
+            start
+        } else if start >= placeholder_end {
+            replacement.origin_end + (start - placeholder_end)
+        } else {
+            replacement.origin_start
+        };
+        let last = end - 1;
+        let orig_end = if last < replacement.origin_start {
+            end
+        } else if last >= placeholder_end {
+            replacement.origin_end + (end - placeholder_end)
+        } else {
+            replacement.origin_end
+        };
+        valid_range(orig_start, orig_end, have_len)
     }
-    debug_assert_eq!(text.len(), origins.len());
-    NormalizedText { text, origins }
 }
 
-fn push_placeholder(
-    text: &mut String,
-    origins: &mut Vec<(usize, usize)>,
-    start: usize,
-    end: usize,
-) {
-    text.push_str(SHELL_PLACEHOLDER);
-    for _ in 0..SHELL_PLACEHOLDER.len() {
-        origins.push((start, end));
-    }
-}
-
-fn push_verbatim(text: &mut String, origins: &mut Vec<(usize, usize)>, piece: &str, base: usize) {
-    origins.extend((0..piece.len()).map(|i| (base + i, base + i + 1)));
-    text.push_str(piece);
-}
-
-fn split_line_ending(segment: &str) -> (&str, &str) {
-    match segment.strip_suffix('\n') {
-        Some(body) => match body.strip_suffix('\r') {
-            Some(body) => (body, "\r\n"),
-            None => (body, "\n"),
-        },
-        None => (segment, ""),
+fn valid_range(start: usize, end: usize, have_len: usize) -> Option<(usize, usize)> {
+    if start >= end || end > have_len {
+        None
+    } else {
+        Some((start, end))
     }
 }
 
@@ -167,5 +188,14 @@ mod tests {
         let have = S("line 1\nsh -c 'echo hello'\nline 3");
         let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
         verify_output("stdout", have, &wants, "sh -c");
+    }
+
+    #[test]
+    fn replaces_only_first_shell() {
+        let have = S("c:\\Program Files\\Git\\bin\\bash.exe -c 'echo one'\n\
+             c:\\Program Files\\Git\\bin\\bash.exe -c 'echo two'");
+        let wants = vec![S("{shell} 'echo one'\n\
+             c:\\Program Files\\Git\\bin\\bash.exe -c 'echo two'")];
+        verify_output("stdout", have, &wants, "bash.exe -c");
     }
 }
