@@ -1,14 +1,18 @@
 /// Placeholder used in expected output for the platform shell invocation.
 const SHELL_PLACEHOLDER: &str = "{shell}";
 
-/// verifies STDOUT or STDERR output collected in Cucumber tests
-/// against the collected expected output
+/// Verifies STDOUT or STDERR output collected in Cucumber tests
+/// against the collected expected output.
 ///
 /// # Panics
 pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
-        let found;
-        (have, found) = remove_matches(have, want, shell);
+        let found = if let Some(range) = matched_range(&have, want, shell) {
+            have.replace_range(range, "");
+            true
+        } else {
+            false
+        };
         assert!(
             found,
             "Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'"
@@ -17,112 +21,61 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-/// Returns `have` with the first match of `want` removed, and whether any match was found.
-fn remove_matches(mut have: String, want: &str, shell: &str) -> (String, bool) {
+/// First shell invocation in the text, from the start of its line through `shell`.
+struct ShellSpan {
+    start: usize,
+    end: usize,
+}
+
+fn matched_range(have: &str, want: &str, shell: &str) -> Option<std::ops::Range<usize>> {
     if want.is_empty() {
-        return (have, false);
+        return None;
     }
-    let normalized = normalize_shell_lines(&have, shell);
-    let Some(start) = normalized.text.find(want) else {
-        return (have, false);
+    let Some(span) = shell_span(have, shell) else {
+        let start = have.find(want)?;
+        return Some(start..start + want.len());
     };
-    let end = start + want.len();
-    let Some((orig_start, orig_end)) = normalized.original_range(start, end, have.len()) else {
-        return (have, false);
-    };
-    have.replace_range(orig_start..orig_end, "");
-    (have, true)
-}
-
-/// `have` with the first shell path prefix replaced by `{shell}`.
-struct NormalizedText {
-    text: String,
-    /// The replaced span. `{shell}` begins at `origin_start` in `text`.
-    replacement: Option<ShellReplacement>,
-}
-
-/// Original bytes replaced by the first `{shell}`.
-///
-/// The span runs from the start of that line through the end of `shell`.
-#[derive(Clone, Copy)]
-struct ShellReplacement {
-    origin_start: usize,
-    origin_end: usize,
-}
-
-fn normalize_shell_lines(have: &str, shell: &str) -> NormalizedText {
-    let Some(shell_at) = find_shell(have, shell) else {
-        return NormalizedText {
-            text: have.to_owned(),
-            replacement: None,
-        };
-    };
-    let origin_start = line_start(have, shell_at);
-    let origin_end = shell_at + shell.len();
-    let text = format!(
+    let normalized = format!(
         "{}{SHELL_PLACEHOLDER}{}",
-        &have[..origin_start],
-        &have[origin_end..]
+        &have[..span.start],
+        &have[span.end..]
     );
-    NormalizedText {
-        text,
-        replacement: Some(ShellReplacement {
-            origin_start,
-            origin_end,
-        }),
-    }
+    let start = normalized.find(want)?;
+    Some(span.original_range(start, start + want.len()))
 }
 
-fn find_shell(have: &str, shell: &str) -> Option<usize> {
+fn shell_span(have: &str, shell: &str) -> Option<ShellSpan> {
     if shell.is_empty() {
-        None
-    } else {
-        have.find(shell)
+        return None;
     }
-}
-
-/// Byte index of the line that contains `index`.
-fn line_start(text: &str, index: usize) -> usize {
-    match text[..index].rfind('\n') {
+    let shell_at = have.find(shell)?;
+    let start = match have[..shell_at].rfind('\n') {
         Some(newline) => newline + 1,
         None => 0,
-    }
+    };
+    Some(ShellSpan {
+        start,
+        end: shell_at + shell.len(),
+    })
 }
 
-impl NormalizedText {
-    /// Maps a match `start..end` in `text` back to a byte range in the original text.
-    fn original_range(&self, start: usize, end: usize, have_len: usize) -> Option<(usize, usize)> {
-        if start >= end || end > self.text.len() {
-            return None;
-        }
-        let Some(replacement) = self.replacement else {
-            return valid_range(start, end, have_len);
+impl ShellSpan {
+    /// Maps a match in the normalized text back onto the original text.
+    ///
+    /// `{shell}` begins at `self.start` and replaces `have[self.start..self.end]`.
+    fn original_range(&self, match_start: usize, match_end: usize) -> std::ops::Range<usize> {
+        let placeholder_end = self.start + SHELL_PLACEHOLDER.len();
+        // An index inside `{shell}` expands to `at_placeholder`.
+        let expand = |index: usize, at_placeholder: usize| {
+            if index <= self.start {
+                index
+            } else if index < placeholder_end {
+                at_placeholder
+            } else {
+                self.end + index - placeholder_end
+            }
         };
-        let placeholder_end = replacement.origin_start + SHELL_PLACEHOLDER.len();
-        let orig_start = if start < replacement.origin_start {
-            start
-        } else if start >= placeholder_end {
-            replacement.origin_end + (start - placeholder_end)
-        } else {
-            replacement.origin_start
-        };
-        let last = end - 1;
-        let orig_end = if last < replacement.origin_start {
-            end
-        } else if last >= placeholder_end {
-            replacement.origin_end + (end - placeholder_end)
-        } else {
-            replacement.origin_end
-        };
-        valid_range(orig_start, orig_end, have_len)
-    }
-}
-
-fn valid_range(start: usize, end: usize, have_len: usize) -> Option<(usize, usize)> {
-    if start >= end || end > have_len {
-        None
-    } else {
-        Some((start, end))
+        expand(match_start, self.start)..expand(match_end, self.end)
     }
 }
 
