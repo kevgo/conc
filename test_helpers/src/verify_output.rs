@@ -163,11 +163,16 @@ mod tests {
 
         #[test]
         fn literal() {
-            assert_eq!(matched_range("hello world", "world", ""), Some(6..11));
-            assert_eq!(
-                matched_range("hello world", "hello", "bash.exe -c"),
-                Some(0..5)
-            );
+            let give = "hello world";
+            let have = matched_range(give, "world", "");
+            assert_eq!(have, Some(6..11));
+            let matched_text = have.map(|span| &give[span]);
+            assert_eq!(matched_text, Some("world"));
+
+            let have = matched_range(give, "hello", "bash.exe -c");
+            assert_eq!(have, Some(0..5));
+            let matched_text = have.map(|span| &give[span]);
+            assert_eq!(matched_text, Some("hello"));
         }
 
         #[test]
