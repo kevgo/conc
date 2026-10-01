@@ -21,12 +21,6 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-/// First shell invocation in the text, from the start of its line through `shell`.
-struct ShellSpan {
-    start: usize,
-    end: usize,
-}
-
 fn matched_range(have: &str, want: &str, shell: &str) -> Option<std::ops::Range<usize>> {
     if want.is_empty() {
         return None;
@@ -57,6 +51,12 @@ fn shell_span(have: &str, shell: &str) -> Option<ShellSpan> {
         start,
         end: shell_at + shell.len(),
     })
+}
+
+/// First shell invocation in the text, from the start of its line through `shell`.
+struct ShellSpan {
+    start: usize,
+    end: usize,
 }
 
 impl ShellSpan {
