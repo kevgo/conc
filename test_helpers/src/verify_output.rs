@@ -7,44 +7,41 @@ const SHELL_PLACEHOLDER: &str = "{shell}";
 /// # Panics
 pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
-        let found = remove_matches(&mut have, want, shell);
+        let found;
+        (have, found) = remove_matches(have, want, shell);
         assert!(
             found,
             "Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'"
         );
     }
-    have = have.trim().to_owned();
-    assert!(have.is_empty(), "Extra {name} output found:\n{have}");
+    assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-/// Removes every match of `want` from `have`.
-///
-/// Matching uses a view where each shell command's path prefix is `{shell}`.
-/// Deletions are applied to the original text so failure output stays unchanged.
-fn remove_matches(have: &mut String, want: &str, shell: &str) -> bool {
+/// Returns `have` with matches of `want` removed, and whether any match was found.
+fn remove_matches(mut have: String, want: &str, shell: &str) -> (String, bool) {
     if want.is_empty() {
-        return true;
+        return (have, true);
     }
     let mut found = false;
     loop {
-        let normalized = normalize_shell_lines(have, shell);
+        let normalized = normalize_shell_lines(&have, shell);
         let Some(start) = normalized.text.find(want) else {
-            return found;
+            return (have, found);
         };
         let end = start + want.len();
         let Some(&(orig_start, _)) = normalized.origins.get(start) else {
-            return found;
+            return (have, found);
         };
         let Some(&(_, orig_end)) = normalized.origins.get(end - 1) else {
-            return found;
+            return (have, found);
         };
         if orig_start >= orig_end || orig_end > have.len() {
-            return found;
+            return (have, found);
         }
         let previous_len = have.len();
         have.replace_range(orig_start..orig_end, "");
         if have.len() == previous_len {
-            return found;
+            return (have, found);
         }
         found = true;
     }
@@ -128,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Extra stdout output found:\nworld")]
+    #[should_panic(expected = "Extra stdout output found:\n world")]
     fn expect_too_little() {
         let have = S("hello world");
         let wants = vec![S("hello")];
