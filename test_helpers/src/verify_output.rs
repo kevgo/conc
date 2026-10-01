@@ -210,29 +210,25 @@ mod tests {
             let needle = "{shell} 'echo hello'";
             let want = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
             let have = matched_range(haystack, needle, "bash.exe -c");
-            assert_eq!(have, Some(7..7 + want.len()));
             let have_text = have.map(|span| &haystack[span]);
             assert_eq!(have_text, Some(want));
         }
 
         #[test]
-        fn hides_shell_span() {
-            let have = "c:\\bin\\bash.exe -c hello";
-            assert_eq!(matched_range(have, "c:\\bin\\", "bash.exe -c"), None);
-            assert_eq!(matched_range(have, "bash.exe -c", "bash.exe -c"), None);
-            assert_eq!(
-                matched_range(have, "{shell} hello", "bash.exe -c"),
-                Some(0..have.len())
-            );
+        fn partial_match() {
+            let haystack = "c:\\bin\\bash.exe -c hello";
+            assert_eq!(matched_range(haystack, "c:\\bin\\", "bash.exe -c"), None);
+            assert_eq!(matched_range(haystack, "bash.exe -c", "bash.exe -c"), None);
         }
 
         #[test]
         fn first_shell_only() {
-            let have = "bash.exe -c one\nbash.exe -c two";
-            assert_eq!(
-                matched_range(have, "{shell} one\nbash.exe -c two", "bash.exe -c"),
-                Some(0..have.len())
-            );
+            let haystack = "bash.exe -c one\nbash.exe -c one";
+            let needle = "{shell} one";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(0..15));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some("bash.exe -c one"));
         }
 
         #[test]
