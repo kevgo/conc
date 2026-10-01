@@ -4,9 +4,6 @@ const SHELL_PLACEHOLDER: &str = "{shell}";
 /// verifies STDOUT or STDERR output collected in Cucumber tests
 /// against the collected expected output
 ///
-/// Lines that contain `shell` match after the text from the start of the line
-/// through that phrase is replaced with `{shell}`.
-///
 /// # Panics
 pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
