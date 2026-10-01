@@ -7,16 +7,11 @@ const SHELL_PLACEHOLDER: &str = "{shell}";
 /// # Panics
 pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
-        let found = if let Some(range) = matched_range(&have, want, shell) {
+        if let Some(range) = matched_range(&have, want, shell) {
             have.replace_range(range, "");
-            true
         } else {
-            false
-        };
-        assert!(
-            found,
-            "Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'"
-        );
+            panic!("Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'")
+        }
     }
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
