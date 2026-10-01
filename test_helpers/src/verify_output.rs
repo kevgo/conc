@@ -17,34 +17,27 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-/// Returns `have` with matches of `want` removed, and whether any match was found.
+/// Returns `have` with the first match of `want` removed, and whether any match was found.
 fn remove_matches(mut have: String, want: &str, shell: &str) -> (String, bool) {
     if want.is_empty() {
         return (have, true);
     }
-    let mut found = false;
-    loop {
-        let normalized = normalize_shell_lines(&have, shell);
-        let Some(start) = normalized.text.find(want) else {
-            return (have, found);
-        };
-        let end = start + want.len();
-        let Some(&(orig_start, _)) = normalized.origins.get(start) else {
-            return (have, found);
-        };
-        let Some(&(_, orig_end)) = normalized.origins.get(end - 1) else {
-            return (have, found);
-        };
-        if orig_start >= orig_end || orig_end > have.len() {
-            return (have, found);
-        }
-        let previous_len = have.len();
-        have.replace_range(orig_start..orig_end, "");
-        if have.len() == previous_len {
-            return (have, found);
-        }
-        found = true;
+    let normalized = normalize_shell_lines(&have, shell);
+    let Some(start) = normalized.text.find(want) else {
+        return (have, false);
+    };
+    let end = start + want.len();
+    let Some(&(orig_start, _)) = normalized.origins.get(start) else {
+        return (have, false);
+    };
+    let Some(&(_, orig_end)) = normalized.origins.get(end - 1) else {
+        return (have, false);
+    };
+    if orig_start >= orig_end || orig_end > have.len() {
+        return (have, false);
     }
+    have.replace_range(orig_start..orig_end, "");
+    (have, true)
 }
 
 /// `have` with shell path prefixes replaced by `{shell}`.
