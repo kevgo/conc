@@ -196,11 +196,12 @@ mod tests {
 
         #[test]
         fn match_after_shell() {
-            let have = "line 1\nsh -c 'echo hello'\nline 3";
-            let range = matched_range(have, "line 3", "sh -c");
-            assert_eq!(range, Some(26..32));
-            let have_text = range.map(|span| &have[span]);
-            assert_eq!(have_text, Some("line 3"));
+            let haystack = "line 1\nsh -c 'echo hello'\nline 3";
+            let needle = "line 3";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, Some(26..32));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(needle));
         }
 
         #[test]
