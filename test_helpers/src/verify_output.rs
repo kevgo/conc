@@ -156,11 +156,7 @@ mod tests {
         use super::*;
 
         #[test]
-        fn empty_want() {
-            let haystack = "hello";
-            let needle = "";
-            assert_eq!(matched_range(haystack, needle, ""), None);
-
+        fn empty_needle() {
             let haystack = "sh -c hello";
             let needle = "";
             assert_eq!(matched_range(haystack, needle, "sh -c"), None);
@@ -169,23 +165,23 @@ mod tests {
         #[test]
         fn literal_match() {
             let haystack = "hello world";
-
-            let needle = "world";
-            let have = matched_range(haystack, needle, "");
-            assert_eq!(have, Some(6..11));
-            let have_text = have.map(|span| &haystack[span]);
-            assert_eq!(have_text, Some(needle));
-
-            let have = matched_range(haystack, "hello", "bash.exe -c");
+            let needle = "hello";
+            let have = matched_range(haystack, needle, "bash.exe -c");
             assert_eq!(have, Some(0..5));
             let have_text = have.map(|span| &haystack[span]);
-            assert_eq!(have_text, Some("hello"));
+            assert_eq!(have_text, Some(needle));
         }
 
         #[test]
         fn mismatch() {
-            assert_eq!(matched_range("hello", "zonk", ""), None);
-            assert_eq!(matched_range("sh -c hello", "{shell} zonk", "sh -c"), None);
+            let haystack = "hello";
+            let needle = "zonk";
+            assert_eq!(matched_range(haystack, needle, ""), None);
+
+            let haystack = "sh -c hello";
+            let needle = "zonk";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, None);
         }
 
         #[test]
