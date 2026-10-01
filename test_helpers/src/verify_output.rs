@@ -168,17 +168,17 @@ mod tests {
 
         #[test]
         fn literal_match() {
-            let give = "hello world";
+            let haystack = "hello world";
 
-            let have = matched_range(give, "world", "");
+            let have = matched_range(haystack, "world", "");
             assert_eq!(have, Some(6..11));
-            let matched_text = have.map(|span| &give[span]);
-            assert_eq!(matched_text, Some("world"));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some("world"));
 
-            let have = matched_range(give, "hello", "bash.exe -c");
+            let have = matched_range(haystack, "hello", "bash.exe -c");
             assert_eq!(have, Some(0..5));
-            let matched_text = have.map(|span| &give[span]);
-            assert_eq!(matched_text, Some("hello"));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some("hello"));
         }
 
         #[test]
@@ -192,8 +192,8 @@ mod tests {
             let have = "line 1\nsh -c 'echo hello'\nline 3";
             let range = matched_range(have, "line 1", "sh -c");
             assert_eq!(range, Some(0..6));
-            let matched_text = range.map(|span| &have[span]);
-            assert_eq!(matched_text, Some("line 1"));
+            let have_text = range.map(|span| &have[span]);
+            assert_eq!(have_text, Some("line 1"));
         }
 
         #[test]
@@ -201,8 +201,8 @@ mod tests {
             let have = "line 1\nsh -c 'echo hello'\nline 3";
             let range = matched_range(have, "line 3", "sh -c");
             assert_eq!(range, Some(26..32));
-            let matched_text = range.map(|span| &have[span]);
-            assert_eq!(matched_text, Some("line 3"));
+            let have_text = range.map(|span| &have[span]);
+            assert_eq!(have_text, Some("line 3"));
         }
 
         #[test]
