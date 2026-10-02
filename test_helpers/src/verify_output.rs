@@ -34,7 +34,7 @@ fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usiz
     Some(original_range(&span, start, start + needle.len()))
 }
 
-/// First shell invocation in the text, from the start of its line through `shell`.
+/// Finds the first shell invocation in the given text, returns the start of the line until the match.
 fn shell_span(have: &str, shell: &str) -> Option<Range<usize>> {
     assert!(!shell.is_empty(), "empty shell");
     let shell_at = have.find(shell)?;
