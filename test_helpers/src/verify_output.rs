@@ -134,6 +134,81 @@ mod tests {
         verify_output("stdout", have, &wants, "bash.exe -c");
     }
 
+    mod shell_span {
+        use super::*;
+
+        #[test]
+        fn absent() {
+            assert_eq!(shell_span("hello world", "bash.exe -c"), None);
+            assert_eq!(shell_span("", "sh -c"), None);
+        }
+
+        #[test]
+        fn at_start_excludes_rest_of_line() {
+            let text = "sh -c 'echo hello'";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(0..5));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn includes_same_line_prefix() {
+            let text = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
+            let have = shell_span(text, "bash.exe -c");
+            let want = "c:\\Program Files\\Git\\bin\\bash.exe -c";
+            assert_eq!(have, Some(0..want.len()));
+            assert_eq!(have.map(|span| &text[span]), Some(want));
+        }
+
+        #[test]
+        fn starts_after_preceding_newline() {
+            let text = "line 1\nsh -c 'echo hello'\nline 3";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(7..12));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn first_occurrence_only() {
+            let text = "bash.exe -c one\nbash.exe -c two";
+            let have = shell_span(text, "bash.exe -c");
+            assert_eq!(have, Some(0..11));
+            assert_eq!(have.map(|span| &text[span]), Some("bash.exe -c"));
+        }
+
+        #[test]
+        fn nearest_newline() {
+            let text = "a\n\nsh -c";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(3..8));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn crlf_excludes_carriage_return() {
+            let text = "line 1\r\nsh -c rest";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(8..13));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn unicode_on_same_line() {
+            let text = "ésh -c";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(0..7));
+            assert_eq!(have.map(|span| &text[span]), Some(text));
+        }
+
+        #[test]
+        fn unicode_on_previous_line() {
+            let text = "é\nsh -c tail";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(3..8));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+    }
+
     mod matched_range {
         use super::*;
 
