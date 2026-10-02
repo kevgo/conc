@@ -38,8 +38,8 @@ so you can use Unix shell features:
 conc "echo one && echo two | grep on > file"
 ```
 
-Conc uses `sh` on Linux/macOS and `bash.exe` on Windows if available,
-but falls back to `cmd.exe`.
+Conc uses `sh` on Linux/macOS and `bash.exe` on Windows,
+falling back to `cmd.exe`.
 
 ## output verbosity
 
