@@ -66,8 +66,16 @@ fn the_output_is_empty(world: &mut World) {
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran");
     };
-    assert!(output.stdout.is_empty());
-    assert!(output.stderr.is_empty());
+    assert!(
+        output.stdout.is_empty(),
+        "Expected stdout to be empty but got: {}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "Expected stderr to be empty but got: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
 
 #[then("STDERR is empty")]
