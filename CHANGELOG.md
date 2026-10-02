@@ -1,5 +1,10 @@
 # conc changelog
 
+## 0.10.0
+
+Always runs all processes in a Bash environment on all platforms,
+including Windows. Only falls back to cmd.exe if no Bash is available.
+
 ## 0.9.1
 
 New API function: `Sequence::from_vec`
