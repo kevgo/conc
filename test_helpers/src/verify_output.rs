@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 /// Placeholder used in expected output for the platform shell invocation.
 const SHELL_PLACEHOLDER: &str = "{shell}";
 
@@ -15,10 +17,8 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
     assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
 }
 
-fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<std::ops::Range<usize>> {
-    if needle.is_empty() {
-        return None;
-    }
+fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usize>> {
+    assert!(!needle.is_empty(), "empty needle");
     let Some(span) = shell_span(haystack, shell) else {
         let start = haystack.find(needle)?;
         return Some(start..start + needle.len());
@@ -148,13 +148,6 @@ mod tests {
 
     mod matched_range {
         use super::*;
-
-        #[test]
-        fn empty_needle() {
-            let haystack = "sh -c hello";
-            let needle = "";
-            assert_eq!(matched_range(haystack, needle, "sh -c"), None);
-        }
 
         #[test]
         fn literal_match() {
