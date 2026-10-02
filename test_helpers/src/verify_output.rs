@@ -20,9 +20,11 @@ pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str
 fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usize>> {
     assert!(!needle.is_empty(), "empty needle");
     let Some(span) = shell_span(haystack, shell) else {
+        // no shell invocation found --> return the location of the needle
         let start = haystack.find(needle)?;
         return Some(start..start + needle.len());
     };
+    // found a shell invocation --> return the location of the shell invocation
     let normalized = format!(
         "{}{SHELL_PLACEHOLDER}{}",
         &haystack[..span.start],
