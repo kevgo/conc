@@ -33,9 +33,7 @@ fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usiz
 }
 
 fn shell_span(have: &str, shell: &str) -> Option<ShellSpan> {
-    if shell.is_empty() {
-        return None;
-    }
+    assert!(!shell.is_empty(), "empty needle");
     let shell_at = have.find(shell)?;
     let start = match have[..shell_at].rfind('\n') {
         Some(newline) => newline + 1,
