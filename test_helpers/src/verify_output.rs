@@ -50,18 +50,21 @@ fn shell_span(have: &str, shell: &str) -> Option<Range<usize>> {
 ///
 /// `{shell}` begins at `span.start` and replaces `have[span.start..span.end]`.
 fn original_range(span: &Range<usize>, match_start: usize, match_end: usize) -> Range<usize> {
+    original_index(span, match_start, span.start)..original_index(span, match_end, span.end)
+}
+
+/// Maps one index in the normalized text back onto the original text.
+///
+/// An index inside `{shell}` expands to `at_placeholder`.
+fn original_index(span: &Range<usize>, index: usize, at_placeholder: usize) -> usize {
     let placeholder_end = span.start + SHELL_PLACEHOLDER.len();
-    // An index inside `{shell}` expands to `at_placeholder`.
-    let expand = |index: usize, at_placeholder: usize| {
-        if index <= span.start {
-            index
-        } else if index < placeholder_end {
-            at_placeholder
-        } else {
-            span.end + index - placeholder_end
-        }
-    };
-    expand(match_start, span.start)..expand(match_end, span.end)
+    if index <= span.start {
+        index
+    } else if index < placeholder_end {
+        at_placeholder
+    } else {
+        span.end + index - placeholder_end
+    }
 }
 
 #[cfg(test)]
