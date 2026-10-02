@@ -29,46 +29,36 @@ fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usiz
         &haystack[span.end..]
     );
     let start = normalized.find(needle)?;
-    Some(span.original_range(start, start + needle.len()))
+    Some(original_range(&span, start, start + needle.len()))
 }
 
-fn shell_span(have: &str, shell: &str) -> Option<ShellSpan> {
-    assert!(!shell.is_empty(), "empty needle");
+/// First shell invocation in the text, from the start of its line through `shell`.
+fn shell_span(have: &str, shell: &str) -> Option<Range<usize>> {
+    assert!(!shell.is_empty(), "empty shell");
     let shell_at = have.find(shell)?;
     let start = match have[..shell_at].rfind('\n') {
         Some(newline) => newline + 1,
         None => 0,
     };
-    Some(ShellSpan {
-        start,
-        end: shell_at + shell.len(),
-    })
+    Some(start..shell_at + shell.len())
 }
 
-/// First shell invocation in the text, from the start of its line through `shell`.
-struct ShellSpan {
-    start: usize,
-    end: usize,
-}
-
-impl ShellSpan {
-    /// Maps a match in the normalized text back onto the original text.
-    ///
-    /// `{shell}` begins at `self.start` and replaces `have[self.start..self.end]`.
-    fn original_range(&self, match_start: usize, match_end: usize) -> std::ops::Range<usize> {
-        let placeholder_end = self.start + SHELL_PLACEHOLDER.len();
-        // An index inside `{shell}` expands to `at_placeholder`.
-        let expand = |index: usize, at_placeholder: usize| {
-            if index <= self.start {
-                index
-            } else if index < placeholder_end {
-                at_placeholder
-            } else {
-                self.end + index - placeholder_end
-            }
-        };
-        expand(match_start, self.start)..expand(match_end, self.end)
-    }
+/// Maps a match in the normalized text back onto the original text.
+///
+/// `{shell}` begins at `span.start` and replaces `have[span.start..span.end]`.
+fn original_range(span: &Range<usize>, match_start: usize, match_end: usize) -> Range<usize> {
+    let placeholder_end = span.start + SHELL_PLACEHOLDER.len();
+    // An index inside `{shell}` expands to `at_placeholder`.
+    let expand = |index: usize, at_placeholder: usize| {
+        if index <= span.start {
+            index
+        } else if index < placeholder_end {
+            at_placeholder
+        } else {
+            span.end + index - placeholder_end
+        }
+    };
+    expand(match_start, span.start)..expand(match_end, span.end)
 }
 
 #[cfg(test)]
@@ -80,7 +70,7 @@ mod tests {
     fn exact_match() {
         let have = S("hello world");
         let wants = vec![S("hello"), S("world")];
-        verify_output("stdout", have, &wants, "");
+        verify_output("stdout", have, &wants, "sh -c");
     }
 
     #[test]
@@ -88,7 +78,7 @@ mod tests {
     fn expect_too_little() {
         let have = S("hello world");
         let wants = vec![S("hello")];
-        verify_output("stdout", have, &wants, "");
+        verify_output("stdout", have, &wants, "sh -c");
     }
 
     #[test]
@@ -98,7 +88,7 @@ mod tests {
     fn expect_too_much() {
         let have = S("hello world");
         let wants = vec![S("hello"), S("world"), S("extra")];
-        verify_output("stdout", have, &wants, "");
+        verify_output("stdout", have, &wants, "sh -c");
     }
 
     #[test]
@@ -108,7 +98,7 @@ mod tests {
     fn different() {
         let have = S("hello");
         let wants = vec![S("hallo")];
-        verify_output("stdout", have, &wants, "");
+        verify_output("stdout", have, &wants, "sh -c");
     }
 
     #[test]
@@ -161,7 +151,7 @@ mod tests {
         fn mismatch() {
             let haystack = "hello";
             let needle = "zonk";
-            assert_eq!(matched_range(haystack, needle, ""), None);
+            assert_eq!(matched_range(haystack, needle, "sh -c"), None);
 
             let haystack = "sh -c hello";
             let needle = "zonk";
