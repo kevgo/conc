@@ -19,4 +19,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: make setup
+        shell: bash
       - run: make test
+        shell: bash

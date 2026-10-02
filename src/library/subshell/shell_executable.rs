@@ -34,6 +34,12 @@ pub fn shell_command(command: &str) -> Command {
 #[cfg(windows)]
 #[must_use]
 pub fn shell_command(command: &str) -> Command {
+    if let Ok(bash_path) = which::which("bash.exe") {
+        let mut cmd = Command::new(bash_path);
+        cmd.arg("-c").arg(command);
+        return cmd;
+    }
+    // here we found no bash executable in the PATH --> run in cmd shell
     let mut cmd = Command::new("cmd.exe");
     cmd.arg("/C").arg(command);
     cmd

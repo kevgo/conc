@@ -30,12 +30,16 @@ conc "echo one" \
      "echo three"
 ```
 
-Commands are executed inside a shell
-(`sh` on Linux/macOS, `cmd.exe` on Windows), so you can use shell features:
+Conc is intended for cross-platform use cases.
+All commands are executed inside a Unix shell,
+so you can use Unix shell features:
 
 ```text
 conc "echo one && echo two | grep on > file"
 ```
+
+Conc uses `sh` on Linux/macOS and `bash.exe` on Windows,
+falling back to `cmd.exe`.
 
 ## output verbosity
 

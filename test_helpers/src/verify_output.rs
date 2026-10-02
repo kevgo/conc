@@ -1,56 +1,427 @@
-/// verifies STDOUT or STDERR output collected in Cucumber tests
-/// against the collected expected output
+use std::ops::Range;
+
+/// Placeholder used in expected output for the platform shell invocation.
+const SHELL_PLACEHOLDER: &str = "{shell}";
+
+/// Verifies STDOUT or STDERR output collected in Cucumber tests
+/// against the collected expected output.
 ///
 /// # Panics
-pub fn verify_output(name: &str, mut have: String, wants: &[String]) {
+pub fn verify_output(name: &str, mut have: String, wants: &[String], shell: &str) {
     for want in wants {
-        assert!(
-            have.contains(want),
-            "Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'"
-        );
-        have = have.replace(want, "");
+        let Some(range) = matched_range(&have, want, shell) else {
+            panic!("Didn't find '{want}' in {name}\nremaining unchecked text in {name}:\n'{have}'")
+        };
+        have.replace_range(range, "");
     }
-    have = have.trim().to_owned();
-    assert!(have.is_empty(), "Extra {name} output found:\n{have}");
+    assert!(have.trim().is_empty(), "Extra {name} output found:\n{have}");
+}
+
+fn matched_range(haystack: &str, needle: &str, shell: &str) -> Option<Range<usize>> {
+    assert!(!needle.is_empty(), "empty needle");
+    let Some(span) = shell_span(haystack, shell) else {
+        // no shell invocation found --> return the location of the needle
+        let start = haystack.find(needle)?;
+        return Some(start..start + needle.len());
+    };
+    // found a shell invocation --> return the location of the shell invocation
+    let normalized = format!(
+        "{}{SHELL_PLACEHOLDER}{}",
+        &haystack[..span.start],
+        &haystack[span.end..]
+    );
+    let start = normalized.find(needle)?;
+    Some(original_range(&span, start, start + needle.len()))
+}
+
+/// Finds the first invocation of the given shell expression in the given text,
+// returns the start of the line until the match.
+fn shell_span(have: &str, shell: &str) -> Option<Range<usize>> {
+    assert!(!shell.is_empty(), "empty shell");
+    let shell_at = have.find(shell)?;
+    let start = match have[..shell_at].rfind('\n') {
+        Some(newline) => newline + 1,
+        None => 0,
+    };
+    Some(start..shell_at + shell.len())
+}
+
+/// Maps a match in the normalized text back onto the original text.
+fn original_range(span: &Range<usize>, match_start: usize, match_end: usize) -> Range<usize> {
+    original_index(span, match_start, span.start)..original_index(span, match_end, span.end)
+}
+
+/// Maps one index in the normalized text back onto the original text.
+fn original_index(span: &Range<usize>, index: usize, at_placeholder: usize) -> usize {
+    let placeholder_end = span.start + SHELL_PLACEHOLDER.len();
+    if index <= span.start {
+        index
+    } else if index < placeholder_end {
+        at_placeholder
+    } else {
+        span.end + index - placeholder_end
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use big_s::S;
+    mod verify_output {
+        use super::super::*;
+        use big_s::S;
 
-    #[test]
-    fn exact_match() {
-        let have = S("hello world");
-        let wants = vec![S("hello"), S("world")];
-        verify_output("stdout", have, &wants);
+        #[test]
+        fn exact_match() {
+            let have = S("hello world");
+            let wants = vec![S("hello"), S("world")];
+            verify_output("stdout", have, &wants, "sh -c");
+        }
+
+        #[test]
+        #[should_panic(expected = "Extra stdout output found:\n world")]
+        fn expect_too_little() {
+            let have = S("hello world");
+            let wants = vec![S("hello")];
+            verify_output("stdout", have, &wants, "sh -c");
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Didn't find 'extra' in stdout\nremaining unchecked text in stdout:\n' '"
+        )]
+        fn expect_too_much() {
+            let have = S("hello world");
+            let wants = vec![S("hello"), S("world"), S("extra")];
+            verify_output("stdout", have, &wants, "sh -c");
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Didn't find 'hallo' in stdout\nremaining unchecked text in stdout:\n'hello'"
+        )]
+        fn different() {
+            let have = S("hello");
+            let wants = vec![S("hallo")];
+            verify_output("stdout", have, &wants, "sh -c");
+        }
+
+        #[test]
+        fn windows_bash_correct() {
+            let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3");
+            let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
+            verify_output("stdout", have, &wants, "bash.exe -c");
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Didn't find '{shell} 'echo hello'' in stdout\nremaining unchecked text in stdout:\n'\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo zonk'\nline 3'"
+        )]
+        fn windows_bash_incorrect() {
+            let have = S("line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo zonk'\nline 3");
+            let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
+            verify_output("stdout", have, &wants, "bash.exe -c");
+        }
+
+        #[test]
+        fn unix_sh() {
+            let have = S("line 1\nsh -c 'echo hello'\nline 3");
+            let wants = vec![S("line 1"), S("{shell} 'echo hello'"), S("line 3")];
+            verify_output("stdout", have, &wants, "sh -c");
+        }
+
+        #[test]
+        fn replaces_only_first_shell() {
+            let have = S("c:\\Program Files\\Git\\bin\\bash.exe -c 'echo one'\n\
+             c:\\Program Files\\Git\\bin\\bash.exe -c 'echo two'");
+            let wants = vec![S("{shell} 'echo one'\n\
+             c:\\Program Files\\Git\\bin\\bash.exe -c 'echo two'")];
+            verify_output("stdout", have, &wants, "bash.exe -c");
+        }
     }
 
-    #[test]
-    #[should_panic(expected = "Extra stdout output found:\nworld")]
-    fn expect_too_little() {
-        let have = S("hello world");
-        let wants = vec![S("hello")];
-        verify_output("stdout", have, &wants);
+    mod shell_span {
+        use super::super::*;
+
+        #[test]
+        fn absent() {
+            assert_eq!(shell_span("hello world", "bash.exe -c"), None);
+            assert_eq!(shell_span("", "sh -c"), None);
+        }
+
+        #[test]
+        fn at_start_excludes_rest_of_line() {
+            let text = "sh -c 'echo hello'";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(0..5));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn includes_same_line_prefix() {
+            let text = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
+            let have = shell_span(text, "bash.exe -c");
+            let want = "c:\\Program Files\\Git\\bin\\bash.exe -c";
+            assert_eq!(have, Some(0..want.len()));
+            assert_eq!(have.map(|span| &text[span]), Some(want));
+        }
+
+        #[test]
+        fn starts_after_preceding_newline() {
+            let text = "line 1\nsh -c 'echo hello'\nline 3";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(7..12));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn first_occurrence_only() {
+            let text = "bash.exe -c one\nbash.exe -c two";
+            let have = shell_span(text, "bash.exe -c");
+            assert_eq!(have, Some(0..11));
+            assert_eq!(have.map(|span| &text[span]), Some("bash.exe -c"));
+        }
+
+        #[test]
+        fn nearest_newline() {
+            let text = "a\n\nsh -c";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(3..8));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn crlf_excludes_carriage_return() {
+            let text = "line 1\r\nsh -c rest";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(8..13));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
+
+        #[test]
+        fn unicode_on_same_line() {
+            let text = "ésh -c";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(0..7));
+            assert_eq!(have.map(|span| &text[span]), Some(text));
+        }
+
+        #[test]
+        fn unicode_on_previous_line() {
+            let text = "é\nsh -c tail";
+            let have = shell_span(text, "sh -c");
+            assert_eq!(have, Some(3..8));
+            assert_eq!(have.map(|span| &text[span]), Some("sh -c"));
+        }
     }
 
-    #[test]
-    #[should_panic(
-        expected = "Didn't find 'extra' in stdout\nremaining unchecked text in stdout:\n' '"
-    )]
-    fn expect_too_much() {
-        let have = S("hello world");
-        let wants = vec![S("hello"), S("world"), S("extra")];
-        verify_output("stdout", have, &wants);
+    mod matched_range {
+        use super::super::*;
+
+        #[test]
+        fn literal_match() {
+            let haystack = "hello world";
+            let needle = "hello";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(0..5));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(needle));
+        }
+
+        #[test]
+        fn mismatch() {
+            let haystack = "hello";
+            let needle = "zonk";
+            assert_eq!(matched_range(haystack, needle, "sh -c"), None);
+
+            let haystack = "sh -c hello";
+            let needle = "zonk";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, None);
+        }
+
+        #[test]
+        fn match_before_shell() {
+            let haystack = "line 1\nsh -c 'echo hello'\nline 3";
+            let needle = "line 1";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, Some(0..6));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(needle));
+        }
+
+        #[test]
+        fn match_after_shell() {
+            let haystack = "line 1\nsh -c 'echo hello'\nline 3";
+            let needle = "line 3";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, Some(26..32));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(needle));
+        }
+
+        #[test]
+        fn match_shell_line() {
+            let haystack = "line 1\nc:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'\nline 3";
+            let needle = "{shell} 'echo hello'";
+            let want = "c:\\Program Files\\Git\\bin\\bash.exe -c 'echo hello'";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some(want));
+        }
+
+        #[test]
+        fn partial_match() {
+            let haystack = "c:\\bin\\bash.exe -c hello";
+            assert_eq!(matched_range(haystack, "c:\\bin\\", "bash.exe -c"), None);
+            assert_eq!(matched_range(haystack, "bash.exe -c", "bash.exe -c"), None);
+        }
+
+        #[test]
+        fn matches_only_once() {
+            let haystack = "bash.exe -c one\nbash.exe -c one";
+            let needle = "{shell} one";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(0..15));
+            let have_text = have.map(|span| &haystack[span]);
+            assert_eq!(have_text, Some("bash.exe -c one"));
+        }
+
+        #[test]
+        fn skips_absorbed_text() {
+            let haystack = "aa bash.exe -c aa";
+            let needle = "aa";
+            let have = matched_range(haystack, needle, "bash.exe -c");
+            assert_eq!(have, Some(15..17));
+            assert_eq!(have.map(|span| &haystack[span]), Some(needle));
+        }
+
+        #[test]
+        fn unicode() {
+            let haystack = "é\nsh -c tail";
+            let needle = "{shell} tail";
+            let have = matched_range(haystack, needle, "sh -c");
+            assert_eq!(have, Some(3..13));
+            assert_eq!(have.map(|span| &haystack[span]), Some("sh -c tail"));
+        }
     }
 
-    #[test]
-    #[should_panic(
-        expected = "Didn't find 'hallo' in stdout\nremaining unchecked text in stdout:\n'hello'"
-    )]
-    fn different() {
-        let have = S("hello");
-        let wants = vec![S("hallo")];
-        verify_output("stdout", have, &wants);
+    mod original_range {
+        use super::super::*;
+
+        #[test]
+        fn before_shell() {
+            let text = "hello sh -c world";
+            let span = 6..11;
+            let have = original_range(&span, 0, 5);
+            assert_eq!(have, 0..5);
+            assert_eq!(&text[have], "hello");
+        }
+
+        #[test]
+        fn ends_at_shell_start() {
+            let text = "hello sh -c world";
+            let span = 6..11;
+            let have = original_range(&span, 0, 6);
+            assert_eq!(have, 0..6);
+            assert_eq!(&text[have], "hello ");
+        }
+
+        #[test]
+        fn ends_on_first_placeholder_byte() {
+            let text = "hello sh -c world";
+            let span = 6..11;
+            let have = original_range(&span, 0, 7);
+            assert_eq!(have, 0..11);
+            assert_eq!(&text[have], "hello sh -c");
+        }
+
+        #[test]
+        fn exact_placeholder() {
+            let text = "xx sh -c";
+            let span = 3..8;
+            let have = original_range(&span, 3, 10);
+            assert_eq!(have, 3..8);
+            assert_eq!(&text[have], "sh -c");
+        }
+
+        #[test]
+        fn surrounds_placeholder() {
+            let text = "xx sh -c yy";
+            let span = 3..8;
+            let have = original_range(&span, 0, 13);
+            assert_eq!(have, 0..11);
+            assert_eq!(&text[have], text);
+        }
+
+        #[test]
+        fn after_shorter_shell() {
+            let text = "go sh -c world";
+            let span = 3..8;
+            let have = original_range(&span, 11, 16);
+            assert_eq!(have, 9..14);
+            assert_eq!(&text[have], "world");
+        }
+
+        #[test]
+        fn after_longer_shell() {
+            let text = "c:\\bin\\bash.exe -c hello";
+            let span = 0..18;
+            let have = original_range(&span, 8, 13);
+            assert_eq!(have, 19..24);
+            assert_eq!(&text[have], "hello");
+        }
+
+        #[test]
+        fn after_same_length_shell() {
+            let text = "bash -c hello";
+            let span = 0..7;
+            let have = original_range(&span, 8, 13);
+            assert_eq!(have, 8..13);
+            assert_eq!(&text[have], "hello");
+        }
+
+        #[test]
+        fn starts_on_last_placeholder_byte() {
+            let text = "sh -c world";
+            let span = 0..5;
+            let have = original_range(&span, 6, 13);
+            assert_eq!(have, 0..11);
+            assert_eq!(&text[have], text);
+        }
+
+        #[test]
+        fn starts_at_placeholder_end() {
+            let text = "sh -c world";
+            let span = 0..5;
+            let have = original_range(&span, 7, 13);
+            assert_eq!(have, 5..11);
+            assert_eq!(&text[have], " world");
+        }
+
+        #[test]
+        fn inside_placeholder() {
+            let text = "xx sh -c yy";
+            let span = 3..8;
+            let have = original_range(&span, 4, 9);
+            assert_eq!(have, 3..8);
+            assert_eq!(&text[have], "sh -c");
+        }
+
+        #[test]
+        fn unicode_prefix() {
+            let text = "ésh -c tail";
+            let span = 2..7;
+            let have = original_range(&span, 2, 14);
+            assert_eq!(have, 2..12);
+            assert_eq!(&text[have], "sh -c tail");
+        }
+
+        #[test]
+        fn shell_invocation() {
+            let text = "c:\\bin\\bash.exe -c 'echo hello'";
+            let span = 0..18;
+            let have = original_range(&span, 0, 20);
+            assert_eq!(have, 0..31);
+            assert_eq!(&text[have], text);
+        }
     }
 }

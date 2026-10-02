@@ -44,13 +44,13 @@ fn the_exit_code_is(world: &mut World, expected: i32) {
 #[then("STDOUT contains:")]
 fn stdout_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stdout.push(substitute_placeholders(want_block));
+    world.want_stdout.push(want_block.to_owned());
 }
 
 #[then("STDERR contains:")]
 fn stderr_contains(world: &mut World, step: &Step) {
     let want_block = step.docstring().unwrap().trim();
-    world.want_stderr.push(substitute_placeholders(want_block));
+    world.want_stderr.push(want_block.to_owned());
 }
 
 /// the program and first argument used to run commands in a shell, per platform
@@ -59,20 +59,23 @@ const SHELL: &str = "sh -c";
 
 /// the program and first argument used to run commands in a shell, per platform
 #[cfg(windows)]
-const SHELL: &str = "cmd.exe /C";
-
-/// replaces platform-specific placeholders in expected output with their concrete values
-fn substitute_placeholders(text: &str) -> String {
-    text.replace("{shell}", SHELL)
-}
+const SHELL: &str = "bash.exe -c";
 
 #[then("the output is empty")]
 fn the_output_is_empty(world: &mut World) {
     let Some(output) = world.output.as_ref() else {
         panic!("No command ran");
     };
-    assert!(output.stdout.is_empty());
-    assert!(output.stderr.is_empty());
+    assert!(
+        output.stdout.is_empty(),
+        "Expected stdout to be empty but got: {}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "Expected stderr to be empty but got: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
 
 #[then("STDERR is empty")]
@@ -99,9 +102,9 @@ async fn main() {
                     panic!("No command ran");
                 };
                 let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-                test_helpers::verify_output("stdout", stdout, &world.want_stdout);
+                test_helpers::verify_output("stdout", stdout, &world.want_stdout, SHELL);
                 let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                test_helpers::verify_output("stderr", stderr, &world.want_stderr);
+                test_helpers::verify_output("stderr", stderr, &world.want_stderr, SHELL);
             })
         })
         .run_and_exit("features")
