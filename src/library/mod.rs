@@ -6,4 +6,4 @@ mod subshell;
 pub use domain::{Executable, Sequence};
 pub use run::{RunArgs, run};
 pub use show::Show;
-pub use subshell::shell_executable;
+pub use subshell::{shell_executable, shell_command};
