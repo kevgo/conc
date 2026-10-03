@@ -32,7 +32,7 @@ cucumber = "0.23.0"
 pretty = { package = "pretty_assertions", version = "1.4.1" }
 shellwords = "1.1.0"
 tempfile = "3.27.0"
-tokio = { version = "1.52", features = [
+tokio = { version = "1.53", features = [
   "fs",
   "io-util",
   "macros",
