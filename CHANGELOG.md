@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.10.1
+
+Export `shell_command`
+
 ## 0.10.0
 
 Always runs all processes in a Bash environment on all platforms,
