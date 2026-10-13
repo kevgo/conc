@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.10.2
+
+`--sequential` flag
+
 ## 0.10.1
 
 Export `shell_command`
