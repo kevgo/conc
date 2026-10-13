@@ -7,7 +7,7 @@ pub enum Command {
     /// display the help text
     Help,
 
-    /// execute the given commands concurrently
+    /// execute the given commands
     Run(RunArgs),
 
     /// display the version
@@ -18,6 +18,7 @@ pub enum Command {
 pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError> {
     let mut show = Show::Output;
     let mut error_on_output = false;
+    let mut sequential = false;
     let mut stderr_to_stdout = false;
     let mut parse_flags = true; // indicates whether we are still in the section that contains conc flags
     let mut sequences = vec![];
@@ -33,6 +34,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
             match arg.as_ref() {
                 "--error-on-output" => error_on_output = true,
                 "--help" | "-h" => return Ok(Command::Help),
+                "--sequential" => sequential = true,
                 "--show=output" | "--show" => show = Show::Output,
                 "--show=names" => show = Show::Names,
                 "--show=failed" => show = Show::Failed,
@@ -48,6 +50,7 @@ pub fn parse<SI: Iterator<Item = String>>(args: SI) -> Result<Command, AppError>
     Ok(Command::Run(RunArgs {
         sequences,
         error_on_output,
+        sequential,
         stderr_to_stdout,
         show,
     }))
@@ -67,6 +70,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello world"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -84,6 +88,7 @@ mod tests {
                     Sequence::one(shell_executable("pwd")),
                 ],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -97,6 +102,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -110,6 +116,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
             });
@@ -123,6 +130,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Verbose,
             });
@@ -136,6 +144,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -157,6 +166,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -202,6 +212,21 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
+                sequential: false,
+                stderr_to_stdout: false,
+                show: Show::Output,
+            });
+            assert_eq!(format!("{have:?}"), format!("{want:?}"));
+        }
+
+        #[test]
+        fn sequential() {
+            let give = vec![S("--sequential"), S("echo hello")].into_iter();
+            let have = parse(give).unwrap();
+            let want = Command::Run(RunArgs {
+                sequences: vec![Sequence::one(shell_executable("echo hello"))],
+                error_on_output: false,
+                sequential: true,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -215,6 +240,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: false,
+                sequential: false,
                 stderr_to_stdout: true,
                 show: Show::Output,
             });
@@ -228,6 +254,7 @@ mod tests {
             let want = Command::Run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("echo hello"))],
                 error_on_output: true,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Names,
             });

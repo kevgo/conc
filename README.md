@@ -104,6 +104,20 @@ conc "command 1" \
      "command 3"
 ```
 
+## sequential execution
+
+Use `--sequential` to run the commands one after the other, in the order given,
+instead of concurrently.
+This is useful when the commands interfere with each other or
+when you want their output in a predictable order.
+
+```bash
+conc --sequential "echo one" "echo two" "echo three"
+```
+
+All commands run, even if an earlier one fails.
+_Conc_ still filters their output and returns the highest exit code.
+
 ## API
 
 For details on how to use `conc` programmatically from Rust see the
