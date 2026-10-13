@@ -10,11 +10,14 @@ use std::thread;
 /// named arguments for the `run` function
 #[derive(Debug)]
 pub struct RunArgs {
-    /// the commands to execute concurrently
+    /// the commands to execute
     pub sequences: Vec<Sequence>,
 
     /// whether to error if any command produces output
     pub error_on_output: bool,
+
+    /// whether to execute the sequences one after the other instead of concurrently
+    pub sequential: bool,
 
     /// whether to redirect stderr output to stdout
     pub stderr_to_stdout: bool,
@@ -23,7 +26,11 @@ pub struct RunArgs {
     pub show: Show,
 }
 
-/// Runs the given runnables concurrently, prints their results, and returns the highest exit code.
+/// Runs the given runnables, prints their results, and returns the highest exit code.
+///
+/// Runs them concurrently by default. If `RunArgs::sequential` is enabled,
+/// runs them one after the other in the given order.
+/// A failing sequence does not prevent the sequences after it from running.
 ///
 /// # Examples
 ///
@@ -43,6 +50,7 @@ pub struct RunArgs {
 /// let args = RunArgs {
 ///     sequences: vec![sequence1, sequence2, sequence3],
 ///     error_on_output: false,
+///     sequential: false,
 ///     stderr_to_stdout: false,
 ///     show: Show::Output,
 /// };
@@ -54,16 +62,26 @@ pub struct RunArgs {
 pub fn run(args: RunArgs) -> ExitCode {
     let (send, receive) = mpsc::channel();
 
-    // execute all commands concurrently and let them signal via the channel when they are done
-    for call in args.sequences {
-        let send_clone = send.clone();
+    if args.sequential {
+        // execute all commands one after the other and let them signal via the channel when they are done,
+        // the sender gets dropped when the thread ends so the receiver knows when all commands are done
         thread::spawn(move || {
-            subshell::run(call, &send_clone, args.error_on_output);
+            for call in args.sequences {
+                subshell::run(call, &send, args.error_on_output);
+            }
         });
-    }
+    } else {
+        // execute all commands concurrently and let them signal via the channel when they are done
+        for call in args.sequences {
+            let send_clone = send.clone();
+            thread::spawn(move || {
+                subshell::run(call, &send_clone, args.error_on_output);
+            });
+        }
 
-    // drop the original sender so the receiver knows when all senders are closed
-    drop(send);
+        // drop the original sender so the receiver knows when all senders are closed
+        drop(send);
+    }
 
     // print results as they arrive and collect exit codes
     let mut exit_code = 0;
@@ -148,6 +166,7 @@ mod tests {
         let exit_code = run(RunArgs {
             sequences: vec![Sequence::one(shell_executable("echo one"))],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Verbose,
         });
@@ -159,6 +178,7 @@ mod tests {
         let exit_code = run(RunArgs {
             sequences: vec![Sequence::one(shell_executable("echo one"))],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -175,6 +195,7 @@ mod tests {
                 command,
             })],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -190,6 +211,7 @@ mod tests {
                 Sequence::one(shell_executable("echo three")),
             ],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -205,6 +227,7 @@ mod tests {
         let exit_code = run(RunArgs {
             sequences: vec![group],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -217,6 +240,7 @@ mod tests {
         let exit_code = run(RunArgs {
             sequences: vec![group],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -228,6 +252,7 @@ mod tests {
         let exit_code = run(RunArgs {
             sequences: vec![Sequence::one(shell_executable("false"))],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
@@ -243,10 +268,56 @@ mod tests {
                 Sequence::one(shell_executable("exit 1")),
             ],
             error_on_output: false,
+            sequential: false,
             stderr_to_stdout: false,
             show: Show::Failed,
         });
         assert_eq!(exit_code, ExitCode::from(2));
+    }
+
+    mod sequential {
+        use crate::{RunArgs, Sequence, Show, run, shell_executable};
+        use std::fs;
+        use std::process::ExitCode;
+
+        #[test]
+        fn runs_in_the_given_order() {
+            let dir = tempfile::tempdir().unwrap();
+            let mut slow = shell_executable("sleep 0.2 && echo one >> log");
+            slow.command.current_dir(&dir);
+            let mut fast = shell_executable("echo two >> log");
+            fast.command.current_dir(&dir);
+            let exit_code = run(RunArgs {
+                sequences: vec![Sequence::one(slow), Sequence::one(fast)],
+                error_on_output: false,
+                sequential: true,
+                stderr_to_stdout: false,
+                show: Show::Failed,
+            });
+            assert_eq!(exit_code, ExitCode::SUCCESS);
+            let have = fs::read_to_string(dir.path().join("log")).unwrap();
+            assert_eq!(have, "one\ntwo\n");
+        }
+
+        #[test]
+        fn continues_after_failure() {
+            let dir = tempfile::tempdir().unwrap();
+            let mut succeeding = shell_executable("echo two >> log");
+            succeeding.command.current_dir(&dir);
+            let exit_code = run(RunArgs {
+                sequences: vec![
+                    Sequence::one(shell_executable("exit 2")),
+                    Sequence::one(succeeding),
+                ],
+                error_on_output: false,
+                sequential: true,
+                stderr_to_stdout: false,
+                show: Show::Failed,
+            });
+            assert_eq!(exit_code, ExitCode::from(2));
+            let have = fs::read_to_string(dir.path().join("log")).unwrap();
+            assert_eq!(have, "two\n");
+        }
     }
 
     mod error_on_output {
@@ -264,6 +335,7 @@ mod tests {
                     command,
                 })],
                 error_on_output: true,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Output,
             });
@@ -275,6 +347,7 @@ mod tests {
             let exit_code = run(RunArgs {
                 sequences: vec![Sequence::one(shell_executable("true"))],
                 error_on_output: true,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Failed,
             });
@@ -294,6 +367,7 @@ mod tests {
                     vec![shell_executable("exit 3")],
                 )],
                 error_on_output: true,
+                sequential: false,
                 stderr_to_stdout: false,
                 show: Show::Failed,
             });
