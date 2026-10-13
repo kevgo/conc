@@ -23,6 +23,9 @@ path = "src/main.rs"
 [dependencies]
 colored = "3.1.1"
 shlex = "2.0.1"
+
+# Locates bash.exe; the Unix shell launcher calls `sh` directly.
+[target.'cfg(windows)'.dependencies]
 which = "8.0.6"
 
 [dev-dependencies]
