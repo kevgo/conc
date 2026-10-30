@@ -1,5 +1,9 @@
 # conc changelog
 
+## 0.11.0
+
+New API based on the `nonempty` crate
+
 ## 0.10.2
 
 `--sequential` flag
