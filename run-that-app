@@ -1,7 +1,7 @@
 # more info at https://github.com/kevgo/run-that-app
 
-dprint 0.63.0
+dprint 0.64.3
 ghokin 3.10.0
-npm 26.11.1
-rumdl 0.2.79
+npm 26.13.0
+rumdl 0.3.2
 taplo 0.10.0

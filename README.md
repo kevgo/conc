@@ -48,12 +48,12 @@ you often only care whether everything passed and want detailed output only
 for problems.
 The `--show` flag controls how much output _conc_ prints:
 
-- `--show=verbose` prints the name, command line, and output of every command
+- `--show=verbose` prints the name, command line,
+  and output of every command after it finishes
+- `--show=output` (default) prints the name and output of every command
   after it finishes
-- `--show=output` (default) prints the name and output of every command after it
-  finishes
-- `--show=names` prints the name of every command after it finishes, and only
-  the output of failed commands
+- `--show=names` prints the name of every command after it finishes,
+  and only the output of failed commands
 - `--show=failed` prints only the name and output of failed commands
 
 Flags for _conc_ must appear before the first command to execute:
@@ -78,8 +78,8 @@ With the flag enabled, it prints "hello" to STDOUT instead.
 _Conc_ emits ANSI colors when STDOUT and STDERR are connected to a TTY.
 You can override this behavior using environment variables:
 
-- `CLICOLOR_FORCE=1` always enables color output, even when not connected to a
-  TTY
+- `CLICOLOR_FORCE=1` always enables color output,
+  even when not connected to a TTY
 - `NO_COLOR=1` disables colors
 
 ## error on output
@@ -125,6 +125,6 @@ For details on how to use `conc` programmatically from Rust see the
 
 ## alternatives
 
-- [gnu parallel](https://www.gnu.org/software/parallel): also runs commands
-  concurrently, but does not reliably propagate a single, meaningful exit code
-  suitable for scripts
+- [gnu parallel](https://www.gnu.org/software/parallel):
+  also runs commands concurrently, but does not reliably propagate a single,
+  meaningful exit code suitable for scripts
