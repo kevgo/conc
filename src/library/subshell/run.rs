@@ -1,10 +1,11 @@
 use super::run_error::RunError;
-use crate::{Executable, Sequence};
+use crate::Executable;
+use nonempty::NonEmpty;
 use std::sync::mpsc::Sender;
 
 /// Runs the given sequence of executables and communicates the results through the given MPSC sender.
 pub fn run(
-    runnable: Sequence,
+    runnable: NonEmpty<Executable>,
     sender: &Sender<Result<CallResult, RunError>>,
     error_on_output: bool,
 ) {
