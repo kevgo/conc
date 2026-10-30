@@ -2,7 +2,7 @@
 
 - in a branch:
   - update [CHANGELOG.md](CHANGELOG.md)
-  - update all occurrences of `0.10.2`
+  - update all occurrences of `0.11.0`
   - ship into `main`
 - create a new tag:
 
