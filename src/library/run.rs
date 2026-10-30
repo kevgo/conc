@@ -277,9 +277,8 @@ mod tests {
     }
 
     mod sequential {
-        use nonempty::nonempty;
-
         use crate::{RunArgs, Show, run, shell_executable};
+        use nonempty::nonempty;
         use std::fs;
         use std::process::ExitCode;
 
