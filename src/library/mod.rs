@@ -3,7 +3,7 @@ mod run;
 mod show;
 mod subshell;
 
-pub use domain::{Executable, Sequence};
+pub use domain::Executable;
 pub use run::{RunArgs, run};
 pub use show::Show;
 pub use subshell::{shell_command, shell_executable};

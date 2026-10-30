@@ -22,6 +22,7 @@ path = "src/main.rs"
 
 [dependencies]
 colored = "3.1.1"
+nonempty = "0.12.0"
 shlex = "2.0.1"
 
 # Locates bash.exe; the Unix shell launcher calls `sh` directly.
