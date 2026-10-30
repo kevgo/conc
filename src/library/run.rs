@@ -37,18 +37,19 @@ pub struct RunArgs {
 /// # Examples
 ///
 /// ```
-/// use conc::{Executable, RunArgs, Sequence, Show, run, shell_executable};
+/// use conc::{Executable, RunArgs, Show, run, shell_executable};
+/// use nonempty::nonempty;
 /// use std::process::ExitCode;
 /// use std::process::Command;
 ///
 /// let mut command = Command::new("echo");
 /// command.arg("one");
-/// let sequence1 = Sequence::one(Executable {
+/// let sequence1 = nonempty![Executable {
 ///     name: "echo one".into(),
 ///     command,
-/// });
-/// let sequence2 = Sequence::one(shell_executable("echo two"));
-/// let sequence3 = Sequence::many(shell_executable("echo three"), vec![shell_executable("echo four")]);
+/// }];
+/// let sequence2 = nonempty![shell_executable("echo two")];
+/// let sequence3 = nonempty![shell_executable("echo three"), shell_executable("echo four")];
 /// let args = RunArgs {
 ///     sequences: vec![sequence1, sequence2, sequence3],
 ///     error_on_output: false,
